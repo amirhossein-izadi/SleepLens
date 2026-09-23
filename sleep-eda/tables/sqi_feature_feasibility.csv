@@ -1,0 +1,15 @@
+feature,computable,required,reliable,comments
+Total Sleep Time,yes,hypnogram,high,TST from 5-class epochs
+Sleep Efficiency,approx,hypnogram,medium,SE=TST/TRT; TRT def depends on trim; lights-off in xls helps SOL
+WASO,approx,hypnogram,medium,needs sleep-onset def; mid Wake countable
+Sleep Onset Latency,approx,hypnogram+lights-off,medium,first N1/N2/N3/REM vs lights-off from xls
+N1/N2/N3/REM %,yes,hypnogram,high,direct
+REM latency,yes,hypnogram,high,first REM - sleep onset
+stage-transition count,yes,hypnogram,high,from epoch sequence
+awakening count,approx,hypnogram,medium,W intrusions ≥1 epoch; brief arousals invisible
+arousal index,no,EEG arousal annots missing,-,no arousal labels
+AHI/apnea/hypopnea,no,no airflow/SpO2/effort @adequate fs,-,1Hz thermistor only; no desats
+ODI/nadir/hypoxic burden,no,no SpO2,-,-
+PLMI,no,no leg EMG,-,chin EMG only
+HR/arrhythmia,no,no ECG/PPG,-,-
+position features,no,no position/actigraphy,-,-

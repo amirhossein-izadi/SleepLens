@@ -1,0 +1,3 @@
+# 13 Handoff (paste to next AI)
+
+Sleep-EDF Expanded 197 nights (SC153 20h home healthy 25–101y + ST44 9h hospital temazepam/placebo). Ch: Fpz-Cz/Pz-Oz/EOG@100 all; EMG SC@1Hz env ±5 vs ST@100Hz ±3000; Resp/Temp/Event SC@1Hz; Marker ST@10Hz; no SpO2/ECG/effort. Labels R&K→Wake/N1/N2/N3(3+4)/REM; epochs Wake290365 N288983 REM34184 N125175 ?25047 N319454 Mov211; imb14.9→4.6 (30-min trim); ? trailing. Trans self .71–.99; runs REM11 N24. Fpz best single; +EOG big; +EMG REM help. Split subject-wise 69/15/16 subj. SQI architecture-only (AHI/SpO2 impossible). Tensors [C,3000]. Preproc per-record, SC/ST EMG separate. Parse hyps edfio. Tables eda/tables/*.csv + eda_summary.json; text EDA eda/llm/00–13.

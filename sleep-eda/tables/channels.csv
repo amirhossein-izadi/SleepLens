@@ -1,0 +1,9 @@
+channel_original,present_in_n_recordings,missing_in_n,sfreqs_seen
+EEG Fpz-Cz,197,0,100.0
+EEG Pz-Oz,197,0,100.0
+EOG horizontal,197,0,100.0
+EMG submental,197,0,1.0;100.0
+Resp oro-nasal,153,44,1.0
+Temp rectal,153,44,1.0
+Event marker,153,44,1.0
+Marker,44,153,10.0

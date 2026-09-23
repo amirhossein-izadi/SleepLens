@@ -1,0 +1,159 @@
+{
+ "dataset": {
+  "n_psg": 197,
+  "n_hyp": 197,
+  "size_gb": 8.715,
+  "cohorts": {
+   "SC": 153,
+   "ST": 44
+  },
+  "schemas": {
+   "SC": [
+    "EEG Fpz-Cz@100",
+    "EEG Pz-Oz@100",
+    "EOG@100",
+    "Resp1Hz",
+    "EMG@1Hz envelope",
+    "Temp1Hz",
+    "Event1Hz"
+   ],
+   "ST": [
+    "EEG Fpz-Cz@100",
+    "EEG Pz-Oz@100",
+    "EOG@100",
+    "EMG@100 raw",
+    "Marker@10Hz"
+   ]
+  },
+  "subjects_prefixes": 100,
+  "recordings_per_subject": "mostly 2 nights paired",
+  "hyp_parser": "edfio (pyedflib fails 7 ST strict-header, mne/edfio OK all 197)"
+ },
+ "labels": {
+  "raw_RK": [
+   "W",
+   "1",
+   "2",
+   "3",
+   "4",
+   "R",
+   "?",
+   "Movement"
+  ],
+  "map": {
+   "W": "Wake",
+   "1": "N1",
+   "2": "N2",
+   "3+4": "N3",
+   "R": "REM"
+  },
+  "epochs": {
+   "Wake": 290365,
+   "N2": 88983,
+   "REM": 34184,
+   "N1": 25175,
+   "?": 25047,
+   "N3": 19454,
+   "Mov": 211
+  },
+  "imbalance_5class": 14.9,
+  "imbalance_30min_trim": 4.6,
+  "unknown_?_is_trailing": true,
+  "transition_self": {
+   "Wake": 0.985,
+   "N1": 0.711,
+   "N2": 0.909,
+   "N3": 0.818,
+   "REM": 0.945
+  },
+  "median_run_epochs": {
+   "Wake": 2.0,
+   "N1": 2.0,
+   "N2": 4.0,
+   "N3": 1.0,
+   "REM": 11.0,
+   "OTHER": 1.0
+  }
+ },
+ "signals": {
+  "emg_shift": "SC 1Hz envelope +-5uV vs ST 100Hz raw +-3000uV",
+  "physio_present": "Wake-alpha,N2-spindle-ish,N3-delta,REM-EOG+EMG-atonia observed (SC4001 PSD rel: N3delta.88 REMtheta.34)",
+  "no_spo2_ecg_airflow": true,
+  "apnea_ahi_impossible": true
+ },
+ "splits": {
+  "strategy": "subject-wise 70/15/15 stratified SC/ST, keep nights together",
+  "train": {
+   "subjects": 69,
+   "recordings": 135,
+   "epochs": 331264,
+   "wake": 199653,
+   "n1": 17778,
+   "n2": 59840,
+   "n3": 13905,
+   "rem": 23241
+  },
+  "val": {
+   "subjects": 15,
+   "recordings": 30,
+   "epochs": 74832,
+   "wake": 44448,
+   "n1": 3428,
+   "n2": 14736,
+   "n3": 2472,
+   "rem": 5522
+  },
+  "test": {
+   "subjects": 16,
+   "recordings": 32,
+   "epochs": 77323,
+   "wake": 46264,
+   "n1": 3969,
+   "n2": 14407,
+   "n3": 3077,
+   "rem": 5421
+  }
+ },
+ "tensors": {
+  "fs": 100,
+  "epoch_30s": 3000,
+  "configs": {
+   "1ch": [
+    1,
+    3000
+   ],
+   "2eeg": [
+    2,
+    3000
+   ],
+   "eeg_eog": [
+    3,
+    3000
+   ],
+   "full_sc": ">=3x3000+1Hz aux",
+   "full_st": "4x3000+marker"
+  },
+  "context": {
+   "x1": [
+    1,
+    3000
+   ],
+   "x5": [
+    5,
+    3000
+   ],
+   "x11": [
+    11,
+    3000
+   ]
+  }
+ },
+ "preprocessing": [
+  "resample: already 100Hz, no need",
+  "bandpass 0.3-35 + notch 50 (EU)",
+  "per-record zscore (never global)",
+  "SC/ST separate EMG handling",
+  "label: 3+4->N3, drop ?/Mov from loss but keep for SQI",
+  "trim 30min Wake for training only, full night for SQI"
+ ]
+}

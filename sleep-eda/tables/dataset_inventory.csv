@@ -1,0 +1,7 @@
+pattern,count,likely_role,size_min,size_max,notes
+*-PSG.edf,197,raw signals,22125136,52533248,SC+ST PSG
+SC*-PSG.edf,153,SC signals,37211648,52533248,sleep cassette
+ST*-PSG.edf,44,ST signals,22125136,31579736,sleep telemetry
+*-Hypnogram.edf,197,annotations,1798,11148,hypnograms
+SC*-Hypnogram.edf,153,SC annotations,1798,11148,
+ST*-Hypnogram.edf,44,ST annotations,2622,6356,

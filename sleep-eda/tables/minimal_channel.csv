@@ -1,0 +1,8 @@
+config,physio_coverage,availability,quality,stage_sep,hardware,usefulness
+A Fpz-Cz only,frontal slow/K/N3 + transitions,197/197 100Hz,clean both,FisherEEG 8.30,1 EEG,"strong Wake/N1/N2/N3, weaker REM"
+B Pz-Oz only,posterior alpha/Wake,197/197 100Hz,clean both,weaker N1/N3 (see eeg_compare),1 EEG,"Wake good, N3/N1 weaker"
+C 2×EEG,spatial gain,197/197,clean,>A (add Pz),2 EEG,best EEG-only
+D EEG+EOG,"+slow/rapid eye mov, N1/REM",197/197,clean,Fisher 9.22 (+11%),2-3 ch,"excellent info/sensor, RECOMMENDED minimal"
+E EEG+EMG,atonia Wake/REM,SC1Hz env/ST100Hz raw MISMATCH,cohort-specific,REM gain,2-3 ch,"helps REM, needs separate norms"
+F EEG+EOG+EMG,complete reduced staging,"core 197, EMG mismatch",see cleanliness,best,3-4 ch,"strongest reduced, REFERENCE"
+G +Resp/Temp,sleep-context only,SC153 1Hz,noisy,~0 staging,5+ ch,"SQI context, no staging gain"
