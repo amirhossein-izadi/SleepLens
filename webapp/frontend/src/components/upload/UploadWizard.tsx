@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { 
   UploadCloud, 
   User, 
@@ -7,7 +8,8 @@ import {
   CheckCircle2, 
   AlertCircle, 
   Loader2, 
-  ArrowRight, 
+  ArrowLeft, 
+  ArrowRight,
   Sparkles,
   Layers,
   Activity,
@@ -35,7 +37,7 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onCancel, onStudyRea
     last_name: '',
     birth_date: '1985-06-15',
     biological_sex: 'male',
-    medical_history: 'Complaints of non-restorative sleep, excessive daytime somnolence, loud snoring.',
+    medical_history: 'شکایت از خواب آلودگی مفرط روزانه، بیداری‌های مکرر شبانه و خروپف متناوب.',
   });
 
   // Upload State
@@ -47,9 +49,8 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onCancel, onStudyRea
   // Processing Stepper State
   const [activeStudyId, setActiveStudyId] = useState<string | null>(null);
   const [processingStatus, setProcessingStatus] = useState<StudyStatus>('uploaded');
-  const [statusMessage, setStatusMessage] = useState('Initializing study session...');
+  const [statusMessage, setStatusMessage] = useState('در حال آماده‌سازی نشست پردازش آزمایش...');
 
-  // Fetch patients for dropdown
   useEffect(() => {
     api.getPatients()
       .then((data) => {
@@ -64,7 +65,6 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onCancel, onStudyRea
       .finally(() => setLoadingPatients(false));
   }, []);
 
-  // Poll status when in 'processing' step
   useEffect(() => {
     if (step !== 'processing' || !activeStudyId) return;
 
@@ -74,21 +74,21 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onCancel, onStudyRea
         setProcessingStatus(statusData.status);
 
         if (statusData.status === 'extracting') {
-          setStatusMessage('Extracting ZIP archive & cataloging 30s epoch files...');
+          setStatusMessage('در حال بازگشایی امن فایل زیپ و فهرست‌بندی گزارش‌های اپوک...');
         } else if (statusData.status === 'staging') {
-          setStatusMessage('Running deep learning staging model on 30s epochs...');
+          setStatusMessage('مدل هوش مصنوعی در حال پیش‌بینی مراحل خواب اپوک‌های ۳۰ ثانیه‌ای...');
         } else if (statusData.status === 'computing_metrics') {
-          setStatusMessage('Calculating 7-category sleep metrics & composite SQI score...');
+          setStatusMessage('در حال استخراج متریک‌های ۷گانه و محاسبه شاخص کیفیت خواب (SQI)...');
         } else if (statusData.status === 'generating_report') {
-          setStatusMessage('OpenCode LLM drafting clinical diagnostic evaluation...');
+          setStatusMessage('مدل زبانی OpenCode در حال تدوین گزارش تشخیصی و توصیه‌های بالینی...');
         } else if (statusData.status === 'completed') {
-          setStatusMessage('Processing complete! Loading analysis workstation...');
+          setStatusMessage('پردازش با موفقیت به پایان رسید! انتقال به میز کار بالینی...');
           clearInterval(interval);
           setTimeout(() => {
             onStudyReady(activeStudyId);
           }, 1200);
         } else if (statusData.status === 'failed') {
-          setError(statusData.error_log || 'Study processing failed.');
+          setError(statusData.error_log || 'پردازش پرونده با خطا مواجه شد.');
           clearInterval(interval);
         }
       } catch (err) {
@@ -103,19 +103,38 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onCancel, onStudyRea
     setError(null);
     if (isNewPatient) {
       if (!newPatient.first_name || !newPatient.last_name || !newPatient.mrn) {
-        setError('Please fill in patient name and MRN.');
+        setError('لطفاً نام، نام خانوادگی و شماره پرونده (MRN) بیمار را وارد نمایید.');
         return;
       }
       try {
         const created = await api.createPatient(newPatient);
         setSelectedPatientId(created.id);
         setStep('upload');
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Could not create patient');
+      } catch (err: unknown) {
+        let msg = 'ثبت بیمار با خطا مواجه شد.';
+        if (axios.isAxiosError(err) && err.response?.data?.error) {
+          const apiErr = err.response.data.error;
+          if (apiErr.details && apiErr.details.length > 0) {
+            const firstDetail = apiErr.details[0];
+            if (typeof firstDetail === 'object' && firstDetail !== null && 'message' in firstDetail) {
+              const detailMsg = String(firstDetail.message);
+              if (detailMsg.includes('already exists')) {
+                msg = `بیماری با شماره پرونده "${newPatient.mrn}" از قبل در سیستم ثبت شده است. لطفاً آن را از لیست بیماران موجود انتخاب کنید یا شماره پرونده جدیدی وارد فرمایید.`;
+              } else {
+                msg = detailMsg;
+              }
+            }
+          } else if (apiErr.message) {
+            msg = apiErr.message;
+          }
+        } else if (err instanceof Error) {
+          msg = err.message;
+        }
+        setError(msg);
       }
     } else {
       if (!selectedPatientId) {
-        setError('Please select a patient.');
+        setError('لطفاً یک بیمار را از فهرست انتخاب فرمایید.');
         return;
       }
       setStep('upload');
@@ -140,37 +159,43 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onCancel, onStudyRea
       setActiveStudyId(res.study_id);
       setProcessingStatus(res.status);
       setStep('processing');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Upload failed');
+    } catch (err: unknown) {
+      let msg = 'ارسال و ثبت آزمایش با خطا مواجه شد.';
+      if (axios.isAxiosError(err) && err.response?.data?.error?.message) {
+        msg = err.response.data.error.message;
+      } else if (err instanceof Error) {
+        msg = err.message;
+      }
+      setError(msg);
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="max-w-2xl mx-auto bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden">
+    <div className="max-w-2xl mx-auto bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden">
       {/* Wizard Header */}
-      <div className="bg-gradient-to-r from-slate-900 to-slate-800 p-6 text-white flex items-center justify-between">
+      <div className="bg-gradient-to-l from-slate-950 via-slate-900 to-brand-950 p-6 text-white flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold flex items-center space-x-2">
+          <h2 className="text-xl font-black flex items-center space-x-2.5 space-x-reverse">
             <UploadCloud className="w-5 h-5 text-sky-400" />
-            <span>New Polysomnography Study</span>
+            <span>بارگذاری و ثبت آزمایش خواب جدید</span>
           </h2>
           <p className="text-xs text-slate-300 mt-1">
-            Automated archive extraction, AASM epoch staging, SQI metrics, and clinical report
+            استخراج خودکار زیپ، استیجینگ مراحل خواب با هوش مصنوعی، محاسبه متریک‌های SQI و تدوین گزارش بالینی
           </p>
         </div>
-        <div className="flex items-center space-x-2 text-xs font-semibold">
-          <span className={`px-2.5 py-1 rounded-md ${step === 'patient' ? 'bg-brand-600 text-white' : 'bg-slate-700 text-slate-400'}`}>1. Patient</span>
-          <span className={`px-2.5 py-1 rounded-md ${step === 'upload' ? 'bg-brand-600 text-white' : 'bg-slate-700 text-slate-400'}`}>2. File Upload</span>
-          <span className={`px-2.5 py-1 rounded-md ${step === 'processing' ? 'bg-emerald-600 text-white' : 'bg-slate-700 text-slate-400'}`}>3. AI Pipeline</span>
+        <div className="flex items-center space-x-2 space-x-reverse text-xs font-bold">
+          <span className={`px-2.5 py-1 rounded-md ${step === 'patient' ? 'bg-brand-600 text-white' : 'bg-slate-800 text-slate-400'}`}>۱. مشخصات بیمار</span>
+          <span className={`px-2.5 py-1 rounded-md ${step === 'upload' ? 'bg-brand-600 text-white' : 'bg-slate-800 text-slate-400'}`}>۲. بارگذاری فایل</span>
+          <span className={`px-2.5 py-1 rounded-md ${step === 'processing' ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-400'}`}>۳. پایپ‌لاین AI</span>
         </div>
       </div>
 
       <div className="p-6">
         {error && (
-          <div className="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm flex items-start space-x-2">
-            <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+          <div className="mb-6 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold flex items-start space-x-2.5 space-x-reverse">
+            <AlertCircle className="w-5 h-5 text-rose-600 flex-shrink-0 mt-0.5" />
             <span>{error}</span>
           </div>
         )}
@@ -179,88 +204,91 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onCancel, onStudyRea
         {step === 'patient' && (
           <div className="space-y-5">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <span className="text-sm font-bold text-slate-800">Assign Patient Record</span>
+              <span className="text-sm font-black text-slate-800">تعیین بیمار پرونده</span>
               <button
                 type="button"
-                onClick={() => setIsNewPatient(!isNewPatient)}
-                className="text-xs font-semibold text-brand-600 hover:text-brand-700 hover:underline"
+                onClick={() => {
+                  setError(null);
+                  setIsNewPatient(!isNewPatient);
+                }}
+                className="text-xs font-bold text-brand-600 hover:text-brand-700 hover:underline"
               >
-                {isNewPatient ? '← Choose Existing Patient' : '+ Register New Patient'}
+                {isNewPatient ? '← انتخاب از لیست بیماران موجود' : '+ ثبت بیمار جدید'}
               </button>
             </div>
 
             {isNewPatient ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">First Name</label>
+                  <label className="block text-xs font-bold text-slate-600 mb-1.5">نام بیمار</label>
                   <input
                     type="text"
-                    placeholder="e.g. Farhad"
+                    placeholder="مثال: مریم"
                     value={newPatient.first_name}
                     onChange={(e) => setNewPatient({ ...newPatient, first_name: e.target.value })}
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
+                    className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Last Name</label>
+                  <label className="block text-xs font-bold text-slate-600 mb-1.5">نام خانوادگی</label>
                   <input
                     type="text"
-                    placeholder="e.g. Aslani"
+                    placeholder="مثال: رادپور"
                     value={newPatient.last_name}
                     onChange={(e) => setNewPatient({ ...newPatient, last_name: e.target.value })}
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
+                    className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Medical Record Number (MRN)</label>
+                  <label className="block text-xs font-bold text-slate-600 mb-1.5">شماره پرونده پزشکی (MRN)</label>
                   <input
                     type="text"
-                    placeholder="e.g. MRN-70412"
+                    placeholder="مثال: MRN-88120"
                     value={newPatient.mrn}
                     onChange={(e) => setNewPatient({ ...newPatient, mrn: e.target.value })}
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
+                    className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 font-mono text-left"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Biological Sex</label>
+                  <label className="block text-xs font-bold text-slate-600 mb-1.5">جنسیت بیولوژیکی</label>
                   <select
                     value={newPatient.biological_sex}
                     onChange={(e) => setNewPatient({ ...newPatient, biological_sex: e.target.value })}
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
+                    className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
                   >
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other</option>
+                    <option value="male">مرد (Male)</option>
+                    <option value="female">زن (Female)</option>
+                    <option value="other">نامشخص / سایر</option>
                   </select>
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Clinical History & Chief Complaint</label>
+                  <label className="block text-xs font-bold text-slate-600 mb-1.5">شرح حال بالینی و علائم اصلی خواب (اختیاری)</label>
                   <textarea
                     rows={2}
-                    placeholder="Document suspected apnea, daytime sleepiness, or nocturnal symptoms..."
+                    placeholder="شکایت از آپنه، خروپف، بیداری‌های شبانه یا خستگی روزانه..."
                     value={newPatient.medical_history}
                     onChange={(e) => setNewPatient({ ...newPatient, medical_history: e.target.value })}
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
+                    className="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
                   />
                 </div>
               </div>
             ) : (
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Select Registered Patient</label>
+                <label className="block text-xs font-bold text-slate-600 mb-1.5">انتخاب بیمار ثبت‌شده</label>
                 {loadingPatients ? (
-                  <div className="p-3 text-sm text-slate-400 flex items-center space-x-2">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Loading patient records...</span>
+                  <div className="p-3 text-sm text-slate-400 flex items-center space-x-2 space-x-reverse">
+                    <Loader2 className="w-4 h-4 animate-spin text-brand-600" />
+                    <span>در حال بارگذاری لیست بیماران...</span>
                   </div>
                 ) : (
                   <select
                     value={selectedPatientId}
                     onChange={(e) => setSelectedPatientId(e.target.value)}
-                    className="w-full px-3 py-2.5 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
+                    className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500"
                   >
                     {patients.map((p) => (
                       <option key={p.id} value={p.id}>
-                        {p.first_name} {p.last_name} — {p.mrn} ({p.biological_sex})
+                        {p.first_name} {p.last_name} — شماره پرونده: {p.mrn} ({p.biological_sex === 'female' ? 'زن' : 'مرد'})
                       </option>
                     ))}
                   </select>
@@ -268,21 +296,21 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onCancel, onStudyRea
               </div>
             )}
 
-            <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100">
+            <div className="flex items-center justify-between pt-4 border-t border-slate-100">
               <button
                 type="button"
                 onClick={onCancel}
-                className="px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:text-slate-900"
+                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-800"
               >
-                Cancel
+                انصراف و بازگشت
               </button>
               <button
                 type="button"
                 onClick={handlePatientSubmit}
-                className="inline-flex items-center space-x-2 px-5 py-2 rounded-lg text-sm font-semibold bg-brand-600 hover:bg-brand-700 text-white shadow-sm transition-all"
+                className="inline-flex items-center space-x-2 space-x-reverse px-5 py-2.5 rounded-xl text-xs font-bold bg-brand-600 hover:bg-brand-700 text-white shadow-md shadow-brand-600/20 transition-all hover:scale-105"
               >
-                <span>Continue to File Upload</span>
-                <ArrowRight className="w-4 h-4" />
+                <span>مرحله بعد: بارگذاری فایل</span>
+                <ArrowLeft className="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -292,18 +320,18 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onCancel, onStudyRea
         {step === 'upload' && (
           <div className="space-y-5">
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Study Recording Environment</label>
+              <label className="block text-xs font-bold text-slate-600 mb-1.5">نوع محیط ضبط تست خواب</label>
               <div className="grid grid-cols-3 gap-3">
                 {[
-                  { id: 'full_psg', label: 'Full In-Lab PSG' },
-                  { id: 'cassette_home', label: 'Home Cassette' },
-                  { id: 'telemetry_hospital', label: 'Hospital Telemetry' },
+                  { id: 'full_psg', label: 'پلی‌سومنوگرافی کامل کلینیکی (PSG)' },
+                  { id: 'cassette_home', label: 'تست خانگی کاست (Home)' },
+                  { id: 'telemetry_hospital', label: 'تله‌متری بیمارستانی (Hospital)' },
                 ].map((t) => (
                   <button
                     key={t.id}
                     type="button"
                     onClick={() => setStudyType(t.id)}
-                    className={`p-3 rounded-xl border text-xs font-semibold text-center transition-all ${
+                    className={`p-3 rounded-2xl border text-xs font-bold text-center transition-all ${
                       studyType === t.id
                         ? 'border-brand-600 bg-brand-50 text-brand-700 shadow-sm'
                         : 'border-slate-200 text-slate-600 hover:border-slate-300'
@@ -317,14 +345,14 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onCancel, onStudyRea
 
             {/* Dropzone */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Upload Patient Archive</label>
-              <div className="border-2 border-dashed border-slate-200 hover:border-brand-500 rounded-2xl p-6 text-center transition-all bg-slate-50/50">
+              <label className="block text-xs font-bold text-slate-600 mb-1.5">بارگذاری آرشیو داده‌های بیمار</label>
+              <div className="border-2 border-dashed border-slate-200 hover:border-brand-500 rounded-3xl p-6 text-center transition-all bg-slate-50/50">
                 <FileArchive className="w-10 h-10 text-slate-400 mx-auto mb-2" />
-                <p className="text-sm font-semibold text-slate-700">
-                  {selectedFile ? selectedFile.name : 'Drag & drop patient ZIP archive here'}
+                <p className="text-sm font-bold text-slate-800">
+                  {selectedFile ? selectedFile.name : 'فایل زیپ گزارش‌های بیمار را اینجا رها کنید'}
                 </p>
                 <p className="text-xs text-slate-400 mt-1">
-                  Supports ZIP files with 30s epoch reports, .edf, .epf, or signal npz arrays (up to 500 MB)
+                  پشتیبانی از فایل‌های زیپ، گزارش‌های اپوک ۳۰ ثانیه‌ای، فایل‌های .edf، .epf یا آرایه‌های npz (تا ۵۰۰ مگابایت)
                 </p>
                 
                 <input
@@ -337,7 +365,7 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onCancel, onStudyRea
                       const validExts = ['.zip', '.edf', '.epf', '.npz'];
                       const isExtValid = validExts.some((ext) => file.name.toLowerCase().endsWith(ext));
                       if (!isExtValid) {
-                        setError('Invalid file format. Please upload a .zip archive (containing 30s epoch reports) or a .edf/.epf recording.');
+                        setError('فرمت فایل نامعتبر است. لطفاً یک فایل زیپ حاوی گزارش‌های اپوک یا دیتای پلی‌سومنوگرافی (.edf / .epf) انتخاب فرمایید.');
                         setSelectedFile(null);
                         return;
                       }
@@ -348,26 +376,26 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onCancel, onStudyRea
                   className="hidden"
                 />
                 
-                <div className="mt-4 flex items-center justify-center space-x-3">
+                <div className="mt-4 flex items-center justify-center space-x-3 space-x-reverse">
                   <label
                     htmlFor="archive-upload"
-                    className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 shadow-sm cursor-pointer"
+                    className="inline-flex items-center space-x-1.5 space-x-reverse px-4 py-2 rounded-xl text-xs font-bold bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 shadow-sm cursor-pointer transition-all"
                   >
-                    <span>Browse Local File</span>
+                    <span>انتخاب فایل از رایانه</span>
                   </label>
                   
-                  <span className="text-xs text-slate-400">or</span>
+                  <span className="text-xs text-slate-400">یا</span>
                   
                   <button
                     type="button"
                     onClick={() => {
-                      setSelectedFile(null); // Triggers calibrated synthetic dataset
+                      setSelectedFile(null);
                       handleUploadSubmit();
                     }}
-                    className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-sky-50 border border-sky-200 text-brand-700 hover:bg-sky-100 shadow-sm"
+                    className="inline-flex items-center space-x-1.5 space-x-reverse px-4 py-2 rounded-xl text-xs font-bold bg-sky-50 border border-sky-200 text-brand-700 hover:bg-sky-100 shadow-sm transition-all"
                   >
                     <Sparkles className="w-3.5 h-3.5 text-brand-600" />
-                    <span>Run Demo 90-Min Recording</span>
+                    <span>اجرای دیتای نمونه ۹۰ دقیقه‌ای (تست فوری)</span>
                   </button>
                 </div>
               </div>
@@ -377,26 +405,26 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onCancel, onStudyRea
               <button
                 type="button"
                 onClick={() => setStep('patient')}
-                className="px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:text-slate-900"
+                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-800"
               >
-                Back
+                بازگشت به مرحله قبل
               </button>
               
               <button
                 type="button"
                 disabled={submitting}
                 onClick={handleUploadSubmit}
-                className="inline-flex items-center space-x-2 px-6 py-2 rounded-lg text-sm font-semibold bg-brand-600 hover:bg-brand-700 text-white shadow-sm disabled:opacity-50 transition-all"
+                className="inline-flex items-center space-x-2 space-x-reverse px-6 py-2.5 rounded-xl text-xs font-bold bg-brand-600 hover:bg-brand-700 text-white shadow-md shadow-brand-600/20 disabled:opacity-50 transition-all hover:scale-105"
               >
                 {submitting ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Uploading...</span>
+                    <span>در حال بارگذاری و شروع...</span>
                   </>
                 ) : (
                   <>
-                    <span>Start Analysis Pipeline</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <span>شروع پایپ‌لاین تحلیل هوشمند</span>
+                    <ArrowLeft className="w-4 h-4" />
                   </>
                 )}
               </button>
@@ -413,15 +441,15 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onCancel, onStudyRea
                   <AlertCircle className="w-8 h-8 text-rose-600" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-rose-900">Pipeline Execution Failed</h3>
+                  <h3 className="text-lg font-black text-rose-900">پردازش پایپ‌لاین با خطا مواجه شد</h3>
                   <p className="text-xs text-slate-500 mt-1">
-                    The study could not be processed due to an archive or signal validation error.
+                    فایل ارسالی یا محتوای آن با استانداردهای پلی‌سومنوگرافی سیستم مطابقت ندارد.
                   </p>
                 </div>
-                <div className="max-w-md mx-auto p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-mono text-left break-words">
-                  {error || 'Invalid file format: Please ensure you upload a valid .zip archive or .edf recording.'}
+                <div className="max-w-md mx-auto p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-mono text-right break-words leading-relaxed">
+                  {error || 'فرمت فایل معتبر نیست: لطفاً مطمئن شوید که یک فایل استاندارد ZIP یا EDF ارسال می‌کنید.'}
                 </div>
-                <div className="flex items-center justify-center space-x-3 pt-2">
+                <div className="flex items-center justify-center space-x-3 space-x-reverse pt-2">
                   <button
                     type="button"
                     onClick={() => {
@@ -430,16 +458,16 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onCancel, onStudyRea
                       setProcessingStatus('uploaded');
                       setSelectedFile(null);
                     }}
-                    className="px-5 py-2.5 rounded-xl text-xs font-bold bg-brand-600 hover:bg-brand-700 text-white shadow-sm transition-all"
+                    className="px-5 py-2.5 rounded-xl text-xs font-bold bg-brand-600 hover:bg-brand-700 text-white shadow-sm transition-all hover:scale-105"
                   >
-                    Select Another File & Retry
+                    انتخاب فایل دیگر و تلاش مجدد
                   </button>
                   <button
                     type="button"
                     onClick={onCancel}
-                    className="px-4 py-2.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100"
+                    className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100"
                   >
-                    Cancel to Dashboard
+                    انصراف و بازگشت به داشبورد
                   </button>
                 </div>
               </div>
@@ -454,27 +482,27 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onCancel, onStudyRea
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900 capitalize">
-                    {processingStatus === 'completed' ? 'Study Ready for Analysis!' : processingStatus.replace('_', ' ')}
+                  <h3 className="text-lg font-black text-slate-900">
+                    {processingStatus === 'completed' ? 'پرونده آماده بررسی و تحلیل بالینی است!' : 'در حال اجرای مراحل هوشمند تحلیل خواب'}
                   </h3>
-                  <p className="text-sm font-medium text-slate-500 mt-1 max-w-md mx-auto">
+                  <p className="text-xs font-medium text-slate-500 mt-1 max-w-md mx-auto">
                     {statusMessage}
                   </p>
                 </div>
 
                 {/* Stepper Progress Visualizer */}
-                <div className="max-w-md mx-auto space-y-3 text-left">
+                <div className="max-w-md mx-auto space-y-3 text-right">
                   {[
-                    { label: 'Unpack Archive & Forensics', activeStatus: ['extracting', 'staging', 'computing_metrics', 'generating_report', 'completed'] },
-                    { label: 'AASM 5-Class Epoch Staging', activeStatus: ['staging', 'computing_metrics', 'generating_report', 'completed'] },
-                    { label: 'SQI & 7-Category Metrics Calculation', activeStatus: ['computing_metrics', 'generating_report', 'completed'] },
-                    { label: 'OpenCode LLM Clinical Report Synthesis', activeStatus: ['generating_report', 'completed'] },
+                    { label: 'بازگشایی امن زیپ و فهرست‌بندی فایل‌های ضبط', activeStatus: ['extracting', 'staging', 'computing_metrics', 'generating_report', 'completed'] },
+                    { label: 'تعیین ۵ مرحله خواب AASM برای اپوک‌های ۳۰ ثانیه‌ای', activeStatus: ['staging', 'computing_metrics', 'generating_report', 'completed'] },
+                    { label: 'استخراج متریک‌های ۷گانه و محاسبه شاخص SQI', activeStatus: ['computing_metrics', 'generating_report', 'completed'] },
+                    { label: 'تدوین گزارش بالینی تشخیصی توسط مدل زبانی OpenCode', activeStatus: ['generating_report', 'completed'] },
                   ].map((s, idx) => {
                     const isPassed = s.activeStatus.includes(processingStatus);
                     const isCurrent = s.activeStatus[0] === processingStatus;
 
                     return (
-                      <div key={idx} className="flex items-center space-x-3 text-xs">
+                      <div key={idx} className="flex items-center space-x-3 space-x-reverse text-xs">
                         {isPassed && !isCurrent ? (
                           <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
                         ) : isCurrent ? (
@@ -482,7 +510,7 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onCancel, onStudyRea
                         ) : (
                           <div className="w-4 h-4 rounded-full border border-slate-300 flex-shrink-0" />
                         )}
-                        <span className={`font-medium ${isPassed ? 'text-slate-800' : 'text-slate-400'}`}>
+                        <span className={`font-semibold ${isPassed ? 'text-slate-800' : 'text-slate-400'}`}>
                           {s.label}
                         </span>
                       </div>
@@ -494,10 +522,10 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onCancel, onStudyRea
                   <button
                     type="button"
                     onClick={() => onStudyReady(activeStudyId)}
-                    className="mt-4 inline-flex items-center space-x-2 px-6 py-2.5 rounded-xl text-sm font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/30 transition-all hover:scale-105"
+                    className="mt-4 inline-flex items-center space-x-2 space-x-reverse px-6 py-2.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/30 transition-all hover:scale-105"
                   >
-                    <span>Open Workstation Now</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <span>ورود به میز کار تحلیل بالینی</span>
+                    <ArrowLeft className="w-4 h-4" />
                   </button>
                 )}
               </>

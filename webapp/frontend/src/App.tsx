@@ -19,7 +19,7 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans" dir="rtl">
       <Header
         currentView={currentView}
         onNavigate={(view) => {
@@ -57,8 +57,8 @@ export function App() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200 bg-white py-4 text-center text-xs text-slate-400">
-        <p>SleepLens Clinical AI — Decision Support Platform for Sleep Specialists</p>
+      <footer className="border-t border-slate-200 bg-white py-4 text-center text-xs text-slate-400 font-medium">
+        <p>سامانه‌ی هوشمند بالینی اسلیپ‌لنز (SleepLens) — دستیار تخصصی تصمیم‌یار پزشکان و متخصصان طب خواب</p>
       </footer>
     </div>
   );

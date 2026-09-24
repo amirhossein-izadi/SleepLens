@@ -12,10 +12,10 @@ This document is the actionable, step-by-step implementation guide for **SleepLe
 | **Phase 2** | Ingestion Pipeline & External Service Adapters | ✅ **COMPLETED** | `cd webapp && .venv/bin/python verify_phase2.py` |
 | **Phase 3** | In-Process Task Runner Pipeline & REST APIs | ✅ **COMPLETED** | `cd webapp && .venv/bin/python verify_phase3.py` |
 | **Phase 4** | OpenCode LLM Clinical Report & Interactive Chat | ✅ **COMPLETED** | `cd webapp && .venv/bin/python verify_phase4_llm.py` |
-| **Phase 5** | Frontend Core, Layout & Study Ingestion Wizard | ⏳ **NEXT UP** | `npm run dev` & browser upload check |
-| **Phase 6** | Frontend Hypnogram, File Explorer & Dynamic Metrics | 📋 Planned | Visual verification in browser |
-| **Phase 7** | Frontend AI Report Viewer & Real-Time Chat Drawer | 📋 Planned | Interactive chat in browser UI |
-| **Phase 8** | End-to-End Testing & Polysomnography Integration | 📋 Planned | Full pipeline verification |
+| **Phase 5** | Frontend Core, Layout & Study Ingestion Wizard | ✅ **COMPLETED** | `cd webapp/frontend && npm run build` |
+| **Phase 6** | Frontend Hypnogram, File Explorer & Dynamic Metrics | ✅ **COMPLETED** | Visual interactive verification in browser |
+| **Phase 7** | Frontend AI Report Viewer & Real-Time Chat Drawer | ✅ **COMPLETED** | Real-time SSE streaming chat in browser UI |
+| **Phase 8** | End-to-End Testing & Polysomnography Integration | ⏳ **NEXT UP** | Full pipeline end-to-end rehearsal |
 
 ---
 

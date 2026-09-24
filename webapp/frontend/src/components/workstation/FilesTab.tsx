@@ -2,13 +2,8 @@ import React, { useState } from 'react';
 import { 
   FileText, 
   FolderTree, 
-  Download, 
-  Hash, 
-  Clock, 
-  Layers, 
   Search, 
-  CheckCircle2, 
-  Cpu
+  CheckCircle2
 } from 'lucide-react';
 import type { StudyFile } from '../../types';
 
@@ -29,37 +24,47 @@ export const FilesTab: React.FC<FilesTabProps> = ({ files }) => {
   });
 
   const formatBytes = (bytes: number): string => {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    if (bytes < 1024) return `${bytes} بایت`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} کیلوبایت`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} مگابایت`;
+  };
+
+  const getFilterLabel = (type: string): string => {
+    switch (type) {
+      case 'all': return 'همه فایل‌ها';
+      case 'epoch_report': return 'گزارش‌های اپوک ۳۰ ثانیه‌ای';
+      case 'raw_edf': return 'سیگنال‌های خام پلی‌سومنوگرافی';
+      case 'metadata_excel': return 'متادیتای دموگرافیک';
+      default: return type;
+    }
   };
 
   return (
     <div className="space-y-6">
       {/* Overview Banner */}
-      <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h3 className="text-base font-bold text-slate-900 flex items-center space-x-2">
+          <h3 className="text-base font-bold text-slate-900 flex items-center space-x-2 space-x-reverse">
             <FolderTree className="w-5 h-5 text-brand-600" />
-            <span>Extracted Patient Archive Explorer</span>
+            <span>کاوشگر فایل‌ها و آرشیو استخراج‌شده بیمار</span>
           </h3>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Full forensic inventory of all raw recordings, 30s epoch reports, and clinical annotations
+          <p className="text-xs text-slate-500 mt-1">
+            دسترسی شفاف و فارنزیک به تک‌تک گزارش‌های اپوک‌های ۳۰ ثانیه‌ای، سیگنال‌های خام مغزی و نشانه‌گذاری‌های تکنسین
           </p>
         </div>
 
-        <div className="flex items-center space-x-2">
+        <div className="flex flex-wrap items-center gap-1.5">
           {['all', 'epoch_report', 'raw_edf', 'metadata_excel'].map((t) => (
             <button
               key={t}
               onClick={() => setFilterType(t)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
                 filterType === t
                   ? 'bg-brand-600 text-white shadow-sm'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
-              {t.replace('_', ' ')}
+              {getFilterLabel(t)}
             </button>
           ))}
         </div>
@@ -67,20 +72,20 @@ export const FilesTab: React.FC<FilesTabProps> = ({ files }) => {
 
       {/* Main File Browser Split View */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left: File Table List */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col max-h-[600px]">
-          <div className="p-3 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+        {/* Right (First in RTL): File Table List */}
+        <div className="lg:col-span-2 bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col max-h-[600px]">
+          <div className="p-3.5 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              Files ({filteredFiles.length} of {files.length})
+              فهرست فایل‌ها ({filteredFiles.length} از {files.length})
             </span>
             <div className="relative">
-              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
-                placeholder="Filter files..."
+                placeholder="فیلتر نام فایل..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8 pr-3 py-1 text-xs rounded-lg border border-slate-200 bg-white focus:outline-none w-48"
+                className="pr-8 pl-3 py-1 text-xs rounded-lg border border-slate-200 bg-white focus:outline-none w-48 text-right"
               />
             </div>
           </div>
@@ -91,88 +96,87 @@ export const FilesTab: React.FC<FilesTabProps> = ({ files }) => {
                 key={file.id}
                 onClick={() => setSelectedFile(file)}
                 className={`p-3.5 flex items-center justify-between hover:bg-slate-50/80 cursor-pointer transition-colors ${
-                  selectedFile?.id === file.id ? 'bg-brand-50/60 border-l-4 border-brand-600' : ''
+                  selectedFile?.id === file.id ? 'bg-brand-50/60 border-r-4 border-brand-600' : ''
                 }`}
               >
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center flex-shrink-0">
+                <div className="flex items-center space-x-3 space-x-reverse">
+                  <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center flex-shrink-0">
                     <FileText className="w-4 h-4" />
                   </div>
                   <div>
                     <p className="text-xs font-bold text-slate-800 truncate max-w-xs">{file.file_name}</p>
-                    <p className="text-[11px] text-slate-400 font-mono">{file.relative_path}</p>
+                    <p className="text-[11px] text-slate-400 font-mono text-left" dir="ltr">{file.relative_path}</p>
                   </div>
                 </div>
 
-                <div className="flex items-center space-x-3 text-right">
+                <div className="flex items-center space-x-3 space-x-reverse text-left">
                   {file.epoch_index !== null && file.epoch_index !== undefined && (
                     <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-sky-100 text-sky-800">
-                      Epoch #{file.epoch_index}
+                      اپوک #{file.epoch_index}
                     </span>
                   )}
-                  <span className="text-xs font-medium text-slate-500">{formatBytes(file.file_size_bytes)}</span>
+                  <span className="text-xs font-bold text-slate-500">{formatBytes(file.file_size_bytes)}</span>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Right: Selected File Inspector */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+        {/* Left (Second in RTL): Selected File Inspector */}
+        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 space-y-4 text-right">
           <div className="border-b border-slate-100 pb-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">File Metadata & Forensics</span>
-            <h4 className="text-sm font-bold text-slate-900 mt-1 break-all">
-              {selectedFile?.file_name || 'Select a file'}
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">مشخصات فنی و امنیتی فایل</span>
+            <h4 className="text-sm font-black text-slate-900 mt-1 break-all" dir="ltr">
+              {selectedFile?.file_name || 'یک فایل را انتخاب فرمایید'}
             </h4>
           </div>
 
           {selectedFile ? (
             <div className="space-y-3.5 text-xs">
               <div>
-                <span className="text-slate-400 block font-medium">Classified Type:</span>
-                <span className="inline-block mt-1 px-2.5 py-1 rounded-md text-xs font-bold bg-slate-100 text-slate-800 capitalize">
+                <span className="text-slate-400 block font-medium mb-1">فرمت فایل:</span>
+                <span className="inline-block px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-800">
                   {selectedFile.file_type_display}
                 </span>
               </div>
 
               <div>
-                <span className="text-slate-400 block font-medium">File Size:</span>
-                <span className="font-bold text-slate-800">{formatBytes(selectedFile.file_size_bytes)} ({selectedFile.file_size_bytes.toLocaleString()} bytes)</span>
+                <span className="text-slate-400 block font-medium mb-0.5">حجم دقیق:</span>
+                <span className="font-bold text-slate-800">{formatBytes(selectedFile.file_size_bytes)} ({selectedFile.file_size_bytes.toLocaleString()} بایت)</span>
               </div>
 
               {selectedFile.epoch_index !== null && selectedFile.epoch_index !== undefined && (
                 <div>
-                  <span className="text-slate-400 block font-medium">Mapped Epoch Order:</span>
-                  <span className="font-bold text-brand-600">30-Second Epoch #{selectedFile.epoch_index}</span>
+                  <span className="text-slate-400 block font-medium mb-0.5">شماره اپوک ۳۰ ثانیه‌ای:</span>
+                  <span className="font-black text-brand-600">اپوک شماره #{selectedFile.epoch_index}</span>
                 </div>
               )}
 
               <div>
-                <span className="text-slate-400 block font-medium">SHA-256 Checksum:</span>
-                <div className="mt-1 p-2 rounded-lg bg-slate-50 border border-slate-200 font-mono text-[10px] text-slate-600 break-all">
+                <span className="text-slate-400 block font-medium mb-1">هش امنیتی و اعتبارسنجی (SHA-256):</span>
+                <div className="p-2 rounded-xl bg-slate-50 border border-slate-200 font-mono text-[10px] text-slate-600 break-all text-left" dir="ltr">
                   {selectedFile.file_hash_sha256}
                 </div>
               </div>
 
-              {/* Parsed Preview Payload */}
               {selectedFile.preview_data && Object.keys(selectedFile.preview_data).length > 0 && (
                 <div>
-                  <span className="text-slate-400 block font-medium mb-1">Extracted Preview Data:</span>
-                  <div className="p-2.5 rounded-lg bg-slate-900 text-sky-300 font-mono text-[11px] overflow-x-auto max-h-40">
+                  <span className="text-slate-400 block font-medium mb-1">پیش‌نمایش داده‌های استخراج‌شده:</span>
+                  <div className="p-3 rounded-2xl bg-slate-900 text-sky-300 font-mono text-[11px] overflow-x-auto max-h-40 text-left" dir="ltr">
                     <pre>{JSON.stringify(selectedFile.preview_data, null, 2)}</pre>
                   </div>
                 </div>
               )}
 
               <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                <span className="text-[11px] text-emerald-600 font-semibold flex items-center space-x-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>Integrity Verified</span>
+                <span className="text-xs text-emerald-600 font-bold flex items-center space-x-1.5 space-x-reverse">
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>سلامت و اصالت داده تایید شد</span>
                 </span>
               </div>
             </div>
           ) : (
-            <p className="text-xs text-slate-400 text-center py-10">Select a file from the list to view its properties.</p>
+            <p className="text-xs text-slate-400 text-center py-10">برای مشاهده جزئیات، روی یکی از فایل‌های فهرست کلیک کنید.</p>
           )}
         </div>
       </div>
