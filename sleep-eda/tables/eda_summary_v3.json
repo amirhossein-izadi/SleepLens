@@ -1,0 +1,30 @@
+{
+ "windows": {
+  "FULL_VALID": 457652,
+  "BENCHMARK_30": 237936,
+  "MAIN_WINDOW": 181845
+ },
+ "architecture_medians": {
+  "TIB_proxy_min": 474.0,
+  "TST_min": 406.0,
+  "SE_proxy": 85.19,
+  "SOL_min": 13.0,
+  "WASO_min": 29.0,
+  "REMlat_min": 78.75
+ },
+ "rules": [
+  "TIB/SE are opportunity-window proxies (no lights-on observed)",
+  "TST inside denominator window",
+  "sustained onset >=16/20",
+  "WASO onset->final only",
+  "transitions adjacent-valid only",
+  "coverage over window incl OTHER/GAP"
+ ],
+ "ablations_open": [
+  "filter: raw+robust vs 0.3-35+robust (notch redundant)",
+  "norm: per-record z vs median/IQR+clip (never global)",
+  "channels: Fpz/Pz/2EEG/+EOG/+harmonized-EMG (Fpz-best unproven)",
+  "EMG: ST 1s-RMS approx of SC HPF-rect-LPF chain; modality encoders alternative"
+ ],
+ "splits": "folds5_v3.csv (bench profiles) + SC->ST / placebo-temazepam / age-strata protocol; tracks A(SC bench)/B(all robust)/C(stress)"
+}
