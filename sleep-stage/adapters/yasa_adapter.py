@@ -5,22 +5,33 @@ import mne
 import yasa
 from base import SleepStager, save_probs, CLASSES
 from canonical import load_canonical
+from pathlib import Path
+EDGE = Path(__file__).resolve().parents[1]
 
 YASA2OURS = {"W": "Wake", "N1": "N1", "N2": "N2", "N3": "N3", "R": "REM"}
 
 class YasaStager(SleepStager):
-    def __init__(self, eeg="EEG Fpz-Cz", eog="EOG horizontal", name="E01"):
+    def __init__(self, eeg="EEG Fpz-Cz", eog="EOG horizontal", name="E01", crop_bench=False):
         self.eeg = eeg
         self.eog = eog
         self.name = name
+        self.crop_bench = crop_bench
 
     def predict_record(self, stem):
         chs = tuple(c for c in (self.eeg, self.eog) if c)
         data = load_canonical(stem, channels=chs)
         ch_names = list(chs)
         ch_types = ["eeg" if c != self.eog else "eog" for c in chs]
+        sl = slice(None)
+        if self.crop_bench:
+            import pandas as pd
+            ep = pd.read_parquet(EDGE.parent / "sleep-eda" / "tables" / "epochs_v3.parquet")
+            g = ep[(ep.stem == stem) & ep.valid & ep.in_bench]
+            if len(g):
+                e0, e1 = int(g.epoch.min()), int(g.epoch.max())
+                sl = slice(e0 * 3000, (e1 + 1) * 3000)
         info = mne.create_info(ch_names=ch_names, sfreq=100.0, ch_types=ch_types)
-        raw = mne.io.RawArray(np.stack([data[c] for c in ch_names]), info, verbose=False)
+        raw = mne.io.RawArray(np.stack([data[c][sl] for c in ch_names]), info, verbose=False)
         kwargs = dict(eeg_name=self.eeg)
         if self.eog:
             kwargs["eog_name"] = self.eog

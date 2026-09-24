@@ -1,6 +1,6 @@
 run_id,model,channels,window,training,status,notes
-E01,YASA,Fpz-Cz,FULL_VALID,none,pilot-done,macro 0.55 N1 0.11
-E02,YASA,Fpz-Cz+EOG,FULL_VALID,none,pilot-done,macro 0.53 N1 0.20 REM 0.61 N3-SC weak
+E01,YASA,Fpz-Cz,BENCHMARK_30,none,pilot-done,macro 0.49 N1 0.12
+E02,YASA,Fpz-Cz+EOG,BENCHMARK_30,none,pilot-done,N1 0.20 REM 0.61 N3-SC weak
 E03,YASA,Pz-Oz+EOG,FULL_VALID,none,pending,
 E04,YASA,dual-fusion,FULL_VALID,none,pending,0.5 YASA-Fpz + 0.5 YASA-Pz
 E05,YASA,best-of-E01-E04,FULL_VALID,Viterbi-lambda,pending,tune lambda on validation

@@ -54,14 +54,21 @@ def load_probs(path):
     return pd.concat([pd.read_parquet(f) for f in files], ignore_index=True)
 
 def main():
-    probs = load_probs(sys.argv[1])
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("probs")
+    ap.add_argument("--window", default="valid", choices=["valid", "in_bench", "in_main_window"])
+    a = ap.parse_args()
+    probs = load_probs(a.probs)
     ep = pd.read_parquet(Path(EDGE, "..", "sleep-eda", "tables", "epochs_v3.parquet"))
     labmap = {c: i for i, c in enumerate(CLASSES)}
     g = ep[ep.valid & ep.label5.isin(CLASSES)].copy()
+    if a.window != "valid":
+        g = g[g[a.window]]
     g["label"] = g.label5.map(labmap)
     m = probs.merge(g[["stem", "cohort", "epoch", "label"]].rename(columns={"epoch": "epoch_index"}),
                     on=["stem", "epoch_index"], how="inner")
-    print(f"matched {len(m)}/{len(probs)} prob epochs to valid ground truth")
+    print(f"window={a.window} matched {len(m)}/{len(probs)} prob epochs to ground truth")
     for name, sub in [("ALL", m), ("SC", m[m.cohort == "SC"]), ("ST", m[m.cohort == "ST"])]:
         if len(sub) == 0:
             continue
@@ -74,7 +81,7 @@ def main():
                      pd.Series(m[[f"p_{c}" for c in CLASSES]].values.argmax(1)).map(inv),
                      rownames=["true"], colnames=["pred"])
     print(cm.to_string())
-    out = Path(sys.argv[1]) if Path(sys.argv[1]).is_dir() else Path(sys.argv[1]).parent
+    out = Path(a.probs) if Path(a.probs).is_dir() else Path(a.probs).parent
     slices = [("ALL", m)]
     if len(m[m.cohort == "SC"]):
         slices.append(("SC", m[m.cohort == "SC"]))
@@ -82,7 +89,7 @@ def main():
         slices.append(("ST", m[m.cohort == "ST"]))
     sc = slices[1][1] if len(slices) > 1 else m
     st = slices[2][1] if len(slices) > 2 else m
-    pd.DataFrame([{"slice": k, **evaluate(v)} for k, v in slices]).to_csv(out / "metrics.csv", index=False)
+    pd.DataFrame([{"slice": k, **evaluate(v)} for k, v in slices]).to_csv(out / f"metrics_{a.window}.csv", index=False)
     if len(slices) == 3:
         rsc, rst = evaluate(sc), evaluate(st)
         print(f"WorstDomain={min(rsc['macro_f1'], rst['macro_f1']):.4f} "

@@ -21,6 +21,23 @@ YASA env caveat: sklearn 1.7.2 vs trained 0.24.2 raises `InconsistentVersionWarn
 outputs validated sane (Wake F1 0.89 pilot) but pin versions before final numbers.
 YASA proba columns are `WAKE,N1,N2,N3,REM` (handled in adapter); `rem_detect` unusable (needs 2 EOG).
 
+## Adapter alignment law (learned from E20 bug)
+Reproduce the repo's padding/trimming exactly (RSN: 900-s pad → trim 30 epochs/side;
+skipping it shifted all predictions and cost 0.37 macro). Assert output epoch count
+against signal length before saving. Report FULL_VALID + BENCHMARK_30 for every run.
+
+## Crop-before-inference (advisor test C — CONFIRMED for YASA)
+Context-sensitive models (YASA rolling 7.5-min/2-min features, RSN 21-epoch GRU,
+SleepFM LSTM) see daytime wake in full SC recordings and degrade. Cropping the signal
+to the BENCHMARK_30 interval BEFORE inference (then offsetting epoch_index) gained:
+SC4001 +0.111, SC4041 +0.057, ST7011 +0.035 macro. Run both modes; report crop as the
+benchmark number and full as the deployment/robustness number.
+
+## Debug matrix (run before trusting any adapter)
+1. units: pcts/std per channel (µV sanity) 2. shift sweep s∈[-5,5] (peak must be 0)
+3. class permutation 5! (identity must win) 4. pred vs true histograms
+5. native-vs-custom parity where the repo ships a CLI.
+
 ## Windows
 BENCHMARK_30 = staging benchmark; MAIN_SLEEP = architecture/SQI; FULL_VALID = robustness.
 Crop recordings to the window before inference (pretrained stagers saw nights, not 24-h days).
