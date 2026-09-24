@@ -43,7 +43,15 @@ class ZipExtractor:
         extracted_files: List[ExtractedFileDTO] = []
         total_extracted_size = 0
 
-        with zipfile.ZipFile(zip_path, "r") as zf:
+        try:
+            zf_context = zipfile.ZipFile(zip_path, "r")
+        except zipfile.BadZipFile:
+            raise ValueError(
+                "Invalid Archive: The uploaded file is not a valid ZIP file. "
+                "Please upload a standard .zip archive containing 30-second epoch reports or PSG recordings."
+            )
+
+        with zf_context as zf:
             infolist = zf.infolist()
 
             if len(infolist) > self.max_files:

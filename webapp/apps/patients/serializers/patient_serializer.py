@@ -28,6 +28,7 @@ class PatientReadSerializer(serializers.ModelSerializer):
 
 class PatientWriteSerializer(serializers.ModelSerializer):
     """Write serializer for creating or updating patients."""
+    biological_sex = serializers.CharField(required=False, default="other")
 
     class Meta:
         model = Patient
@@ -42,3 +43,11 @@ class PatientWriteSerializer(serializers.ModelSerializer):
 
     def validate_mrn(self, value: str) -> str:
         return value.strip().upper()
+
+    def validate_biological_sex(self, value: str) -> str:
+        val = str(value).lower().strip()
+        if val in ["m", "male", "مرد"]:
+            return "male"
+        if val in ["f", "female", "زن"]:
+            return "female"
+        return "other"
