@@ -7,9 +7,9 @@ Metric: Macro-F1. Ground truth: epochs_v3 valid labels. Class order verified per
 
 | Run | Model | Train-by-us | FULL_VALID | BENCH_30 | SC | ST | N1 | Notes |
 |---|---|---|---|---|---|---|---|---|
-| E11 | AnySleep (Fpz+Pz+EOG) | none | **0.861** | **0.847** | .831 | .880 | .73 | sedf-exposed (disclosed) |
-| E20 | RobustSleepNet (Fpz) | none | 0.796 | 0.767 | .811 | .680 | .48 | clean zero-shot (LODO); 89/197 done |
-| E07 | SLEEPYLAND U-Sleep (EEG+EOG) | none | 0.774 | 0.739 | .812 | .644 | .44 | full-197 sweep running |
+| E11 | AnySleep (Fpz+Pz+EOG) | none | **0.861** | **0.847** | .831 | .880 | .73 | sedf-exposed (disclosed); full sweep 81/197 |
+| E20 | RobustSleepNet (Fpz) | none | 0.762 | **0.750** | .736 | **.788** | .44 | **FULL 197 DONE**; clean zero-shot (LODO) |
+| E07 | SLEEPYLAND U-Sleep (EEG+EOG) | none | 0.774 | 0.739 | .812 | .644 | .44 | pilot; full sweep 30/197 |
 | E02c | YASA (Fpz+EOG, cropped) | none | 0.546 | 0.546 | .531 | .562 | .07 | crop-before-inference |
 | E01 | YASA (Fpz, full rec) | none | 0.557 | 0.523 | .486 | .611 | .10 | full-197 |
 | E03 | YASA (Pz+EOG, full rec) | none | 0.474 | 0.427 | .381 | .499 | .07 | full-197 |
