@@ -40,6 +40,17 @@ Useful flags: `--device cpu --batch-size 64`, `--shard i --num-shards N`
 - `reports/sdi_composite_<tag>_lights_off.csv` — z-scores, composite, percentile
 - `reports/sdi_repeatability_<tag>*` — night-to-night consistency
 
+## Checkpoints
+
+- `models/sdi_checkpoint.pt` — released zero-shot SDI transformer (default).
+- `models/sdi_sleepedf_adapted_fold0.pt` (+ `.json` meta) — **Sleep-EDF SDI-like
+  depth**, a stage-supervised fine-tune (frozen backbone; 3ch Fpz-Cz/EMG/EOG, no
+  ECG) on fold 0 (80 train / 20 held-out subjects, subject-wise split). Held-out
+  (40 nights): depth-Spearman 0.858 vs 0.796 zero-shot, REM-AUROC 0.963 vs
+  0.946, REM-F1 0.745 vs 0.670. Experimental: not the paper's SDI and its
+  health-outcome links do not transfer. `infer_sdi.py` currently loads the
+  zero-shot checkpoint.
+
 ## Notes
 
 - **Zero-shot with substitutions**: EEG Fpz-Cz (paper: C4), ECG zero-filled,
