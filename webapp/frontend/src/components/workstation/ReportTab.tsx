@@ -11,17 +11,21 @@ import {
   Sparkles,
   Printer
 } from 'lucide-react';
-import type { ClinicalReport } from '../../types';
+import type { ClinicalReport, SleepStudy, StudyMetricsSummary } from '../../types';
 import { api } from '../../services/api';
 
 interface ReportTabProps {
   studyId: string;
+  study?: SleepStudy;
+  metricsSummary?: StudyMetricsSummary | null;
   report: ClinicalReport | null;
   onReportUpdated: (updatedReport: ClinicalReport) => void;
 }
 
 export const ReportTab: React.FC<ReportTabProps> = ({
   studyId,
+  study,
+  metricsSummary,
   report,
   onReportUpdated,
 }) => {
@@ -62,6 +66,186 @@ export const ReportTab: React.FC<ReportTabProps> = ({
       setRegenerating(false);
     }
   };
+  const handlePrintPDF = () => {
+    const patientName = study?.patient ? `${study.patient.first_name} ${study.patient.last_name}` : 'بیمار';
+    const mrn = study?.patient?.mrn || 'N/A';
+    const studyDate = study?.study_date || new Date().toISOString().split('T')[0];
+    const duration = study?.duration_minutes ? `${study.duration_minutes} دقیقه` : '--';
+    const sqi = metricsSummary ? `${metricsSummary.sqi_score.toFixed(1)} (${metricsSummary.sqi_category})` : '--';
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      window.print();
+      return;
+    }
+
+    const htmlContent = `
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <title>گزارش بالینی پلی‌سومنوگرافی — ${patientName} (${mrn})</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Vazirmatn', Tahoma, sans-serif;
+      margin: 0;
+      padding: 2cm 1.8cm;
+      color: #0f172a;
+      background: #ffffff;
+      line-height: 1.8;
+      font-size: 11pt;
+    }
+    .header {
+      border-bottom: 2px solid #0284c7;
+      padding-bottom: 12px;
+      margin-bottom: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .brand { font-size: 18pt; font-weight: 900; color: #0369a1; }
+    .subbrand { font-size: 9pt; color: #64748b; margin-top: 2px; }
+    .meta-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      font-size: 9.5pt;
+    }
+    .meta-item { display: flex; flex-direction: column; }
+    .meta-label { font-weight: 700; color: #64748b; font-size: 8.5pt; }
+    .meta-val { font-weight: 800; color: #0f172a; }
+    .section { margin-bottom: 18px; }
+    .section-title {
+      font-size: 11pt;
+      font-weight: 800;
+      color: #0369a1;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 4px;
+      margin-bottom: 6px;
+    }
+    .section-body {
+      background: #fafafa;
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 10pt;
+    }
+    .badge {
+      display: inline-block;
+      background: #e0f2fe;
+      color: #0369a1;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 9pt;
+      font-weight: 700;
+      margin: 3px;
+    }
+    .rec-item { padding: 4px 0; font-size: 9.5pt; }
+    .footer {
+      margin-top: 35px;
+      border-top: 1px solid #cbd5e1;
+      padding-top: 15px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 9pt;
+      color: #64748b;
+    }
+    .signature-box {
+      width: 200px;
+      text-align: center;
+      margin-top: 15px;
+      border-top: 1px dashed #94a3b8;
+      padding-top: 6px;
+      font-weight: 700;
+    }
+    @media print {
+      body { padding: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <div class="brand">اسلیپ‌لنز (SleepLens)</div>
+      <div class="subbrand">سامانه‌ی تصمیم‌یار بالینی طب خواب و پلی‌سومنوگرافی هوشمند</div>
+    </div>
+    <div style="text-align: left; font-size: 8.5pt; color: #64748b;">
+      تاریخ صدور: ${new Date().toLocaleDateString('fa-IR')}<br>
+      نسخه گزارش: رسمی / نهایی
+    </div>
+  </div>
+
+  <div class="meta-box">
+    <div class="meta-item"><span class="meta-label">نام بیمار:</span><span class="meta-val">${patientName}</span></div>
+    <div class="meta-item"><span class="meta-label">شماره پرونده (MRN):</span><span class="meta-val" dir="ltr">${mrn}</span></div>
+    <div class="meta-item"><span class="meta-label">تاریخ آزمایش:</span><span class="meta-val">${studyDate}</span></div>
+    <div class="meta-item"><span class="meta-label">مدت زمان ثبت:</span><span class="meta-val">${duration}</span></div>
+    <div class="meta-item"><span class="meta-label">شاخص کیفیت خواب (SQI):</span><span class="meta-val" style="color: #0284c7;">${sqi}</span></div>
+    <div class="meta-item"><span class="meta-label">وضعیت تایید:</span><span class="meta-val">${report?.is_signed_off ? 'تاییدشده توسط پزشک' : 'پیش‌نویس بالینی'}</span></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">۱. خلاصه‌ی اجرایی بالینی (Executive Summary)</div>
+    <div class="section-body">${report?.executive_summary || ''}</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">۲. ساختار مراحل خواب و تداوم (Architecture & Continuity)</div>
+    <div class="section-body">${report?.architecture_findings || ''}</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">۳. ارزیابی قلبی‌تنفسی و آپنه (Cardiorespiratory)</div>
+    <div class="section-body">${report?.respiratory_and_micro_notes || ''}</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">۴. تشخیص‌های افتراقی بالینی</div>
+    <div class="section-body">
+      ${(report?.differential_diagnoses || []).map(d => `<span class="badge">${d}</span>`).join(' ')}
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">۵. اقدامات و توصیه‌های درمانی</div>
+    <div class="section-body">
+      ${(report?.clinical_recommendations || []).map(r => `<div class="rec-item">• ${r}</div>`).join('')}
+    </div>
+  </div>
+
+  ${report?.physician_notes ? `
+  <div class="section">
+    <div class="section-title">۶. یادداشت و نظر نهایی پزشک معالج</div>
+    <div class="section-body">${report.physician_notes}</div>
+  </div>` : ''}
+
+  <div class="footer">
+    <div>مرکز ارزیابی اختلالات خواب و پلی‌سومنوگرافی بالینی</div>
+    <div class="signature-box">امضا و مهر پزشک متخصص طب خواب</div>
+  </div>
+
+  <script>
+    window.onload = function() {
+      setTimeout(function() {
+        window.print();
+      }, 300);
+    };
+  <\/script>
+</body>
+</html>
+    `;
+
+    printWindow.document.open();
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+  };
 
   return (
     <div className="space-y-6 text-right">
@@ -88,7 +272,7 @@ export const ReportTab: React.FC<ReportTabProps> = ({
 
         <div className="flex items-center space-x-2 space-x-reverse no-print">
           <button
-            onClick={() => window.print()}
+            onClick={handlePrintPDF}
             className="inline-flex items-center space-x-2 space-x-reverse px-4 py-2 rounded-xl text-xs font-bold bg-brand-600 hover:bg-brand-700 text-white shadow-md shadow-brand-600/20 transition-all hover:scale-105"
           >
             <Printer className="w-3.5 h-3.5" />

@@ -1,20 +1,11 @@
 import React, { useState } from 'react';
 import { 
-  ResponsiveContainer, 
-  LineChart, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  Tooltip, 
-  CartesianGrid 
-} from 'recharts';
-import { 
   Activity, 
   RotateCcw, 
   Check, 
   Sliders, 
-  Layers,
-  Sparkles
+  Sparkles,
+  Clock
 } from 'lucide-react';
 import type { SleepEpoch, StudyMetricsSummary } from '../../types';
 import { api } from '../../services/api';
@@ -36,13 +27,22 @@ const STAGE_LABELS: Record<number, string> = {
   [-1]: 'نامشخص / آرتیفکت'
 };
 
-const STAGE_Y_VALUES: Record<number, number> = {
-  0: 4, // Wake top
-  4: 3, // REM
-  1: 2, // N1
-  2: 1, // N2
-  3: 0, // N3 bottom
+const STAGE_COLORS: Record<number, string> = {
+  0: '#f59e0b', // Wake - Amber
+  4: '#a855f7', // REM - Purple
+  1: '#38bdf8', // N1 - Light Sky Blue
+  2: '#2563eb', // N2 - Royal Blue
+  3: '#312e81', // N3 - Dark Indigo
+  [-1]: '#94a3b8',
 };
+
+const STAGE_LEVELS: { stage: number; label: string; enLabel: string; y: number; color: string }[] = [
+  { stage: 0, label: 'بیداری', enLabel: 'Wake', y: 30, color: '#f59e0b' },
+  { stage: 4, label: 'خواب رؤیا', enLabel: 'REM', y: 70, color: '#a855f7' },
+  { stage: 1, label: 'مرحله N1', enLabel: 'N1', y: 110, color: '#38bdf8' },
+  { stage: 2, label: 'مرحله N2', enLabel: 'N2', y: 150, color: '#2563eb' },
+  { stage: 3, label: 'مرحله N3', enLabel: 'N3', y: 190, color: '#312e81' },
+];
 
 export const HypnogramTab: React.FC<HypnogramTabProps> = ({
   studyId,
@@ -52,6 +52,9 @@ export const HypnogramTab: React.FC<HypnogramTabProps> = ({
   onMetricsUpdated,
 }) => {
   const [selectedEpoch, setSelectedEpoch] = useState<SleepEpoch | null>(null);
+  const [hoveredEpoch, setHoveredEpoch] = useState<SleepEpoch | null>(null);
+  const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
+
   const [editStage, setEditStage] = useState<number>(0);
   const [editReason, setEditReason] = useState<string>('');
   const [savingOverride, setSavingOverride] = useState(false);
@@ -66,22 +69,8 @@ export const HypnogramTab: React.FC<HypnogramTabProps> = ({
   // Window view range
   const [viewRange, setViewRange] = useState<[number, number]>([0, Math.min(epochs.length, 360)]);
 
-  const chartData = epochs.slice(viewRange[0], viewRange[1]).map((e) => {
-    const hours = Math.floor(e.start_seconds / 3600);
-    const mins = Math.floor((e.start_seconds % 3600) / 60);
-    const timeLabel = `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
-
-    return {
-      index: e.epoch_index,
-      time: timeLabel,
-      yVal: STAGE_Y_VALUES[e.stage] ?? 0,
-      stage: e.stage,
-      stageName: STAGE_LABELS[e.stage] || 'نامشخص',
-      isOverridden: e.is_manually_corrected,
-      confidence: (e.confidence * 100).toFixed(0),
-      rawEpoch: e,
-    };
-  });
+  const visibleEpochs = epochs.slice(viewRange[0], viewRange[1]);
+  const totalVisible = visibleEpochs.length || 1;
 
   const total = epochs.length || 1;
   const stageCounts = {
@@ -141,24 +130,56 @@ export const HypnogramTab: React.FC<HypnogramTabProps> = ({
     }
   };
 
+  // SVG coordinate helpers (Chart spans full width of right column)
+  const plotLeft = 10;
+  const plotRight = 990;
+  const plotWidth = plotRight - plotLeft;
+  const getStageY = (stage: number): number => {
+    switch (stage) {
+      case 0: return 30;  // Wake
+      case 4: return 70;  // REM
+      case 1: return 110; // N1
+      case 2: return 150; // N2
+      case 3: return 190; // N3
+      default: return 30;
+    }
+  };
+
+  // Time markers along bottom (every 60 epochs = 30 minutes)
+  const timeMarkers: { epochIdx: number; label: string; x: number }[] = [];
+  const stepInterval = Math.max(30, Math.floor(totalVisible / 8));
+  for (let i = 0; i < totalVisible; i += stepInterval) {
+    const epoch = visibleEpochs[i];
+    if (epoch) {
+      const hours = Math.floor(epoch.start_seconds / 3600);
+      const mins = Math.floor((epoch.start_seconds % 3600) / 60);
+      const timeLabel = `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+      const x = plotLeft + (i / totalVisible) * plotWidth;
+      timeMarkers.push({ epochIdx: epoch.epoch_index, label: timeLabel, x });
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Stage Distribution Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
         {[
-          { label: 'بیداری (Wake)', count: stageCounts.wake, color: 'border-amber-400 text-amber-800 bg-amber-50', norm: 'کمتر از ۱۰٪' },
-          { label: 'مرحله N1 (سبک)', count: stageCounts.n1, color: 'border-sky-400 text-sky-800 bg-sky-50', norm: '۲ تا ۵٪' },
-          { label: 'مرحله N2 (پایه)', count: stageCounts.n2, color: 'border-blue-500 text-blue-800 bg-blue-50', norm: '۴۵ تا ۵۵٪' },
-          { label: 'مرحله N3 (عمیق)', count: stageCounts.n3, color: 'border-indigo-600 text-indigo-900 bg-indigo-50', norm: '۱۵ تا ۲۵٪' },
-          { label: 'خواب REM (رؤیا)', count: stageCounts.rem, color: 'border-purple-500 text-purple-800 bg-purple-50', norm: '۲۰ تا ۲۵٪' },
+          { label: 'بیداری (Wake)', count: stageCounts.wake, color: 'border-amber-400 text-amber-800 bg-amber-50', dotColor: 'bg-amber-400', norm: 'کمتر از ۱۰٪' },
+          { label: 'مرحله N1 (سبک)', count: stageCounts.n1, color: 'border-sky-400 text-sky-800 bg-sky-50', dotColor: 'bg-sky-400', norm: '۲ تا ۵٪' },
+          { label: 'مرحله N2 (پایه)', count: stageCounts.n2, color: 'border-blue-500 text-blue-800 bg-blue-50', dotColor: 'bg-blue-600', norm: '۴۵ تا ۵۵٪' },
+          { label: 'مرحله N3 (عمیق)', count: stageCounts.n3, color: 'border-indigo-600 text-indigo-900 bg-indigo-50', dotColor: 'bg-indigo-900', norm: '۱۵ تا ۲۵٪' },
+          { label: 'خواب REM (رؤیا)', count: stageCounts.rem, color: 'border-purple-500 text-purple-800 bg-purple-50', dotColor: 'bg-purple-500', norm: '۲۰ تا ۲۵٪' },
         ].map((s) => {
           const pct = ((s.count / total) * 100).toFixed(1);
           return (
             <div key={s.label} className={`rounded-2xl p-4 border ${s.color} shadow-sm text-right`}>
-              <p className="text-xs font-bold opacity-80">{s.label}</p>
+              <div className="flex items-center space-x-1.5 space-x-reverse mb-1">
+                <span className={`w-2.5 h-2.5 rounded-full ${s.dotColor} flex-shrink-0`} />
+                <p className="text-xs font-bold opacity-90">{s.label}</p>
+              </div>
               <div className="flex items-baseline space-x-2 space-x-reverse mt-1">
                 <span className="text-2xl font-black">{pct}٪</span>
-                <span className="text-xs opacity-70">({(s.count * 0.5).toFixed(0)} دقیقه)</span>
+                <span className="text-xs opacity-70 font-bold">({(s.count * 0.5).toFixed(0)} دقیقه)</span>
               </div>
               <p className="text-[11px] opacity-75 mt-1 font-medium">بازه نرمال: {s.norm}</p>
             </div>
@@ -167,15 +188,15 @@ export const HypnogramTab: React.FC<HypnogramTabProps> = ({
       </div>
 
       {/* Main Hypnogram Chart Canvas */}
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
+      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 relative">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
           <div>
             <h3 className="text-base font-bold text-slate-900 flex items-center space-x-2 space-x-reverse">
               <Activity className="w-5 h-5 text-brand-600" />
-              <span>هیپنوگرام تعاملی پلی‌سومنوگرافی (اپوک‌های ۳۰ ثانیه‌ای استاندارد AASM)</span>
+              <span>هیپنوگرام تعاملی پلی‌سومنوگرافی با تفکیک رنگی مراحل استاندارد AASM</span>
             </h3>
             <p className="text-xs text-slate-500 mt-1">
-              جهت بررسی سیگنال یا اصلاح دستی مرحله خواب، بر روی هر نقطه از نمودار کلیک نمایید
+              هر مرحله خواب دارای رنگ تشخیصی اختصاصی است • جهت اصلاح استیج، بر روی هر نقطه از نمودار کلیک نمایید
             </p>
           </div>
 
@@ -209,127 +230,242 @@ export const HypnogramTab: React.FC<HypnogramTabProps> = ({
           </div>
         </div>
 
-        {/* Step-line Timeline Chart */}
-        <div className="h-72 w-full" dir="ltr">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart
-              data={chartData}
-              onClick={(e) => {
-                if (e && e.activePayload && e.activePayload[0]) {
-                  const raw = (e.activePayload[0].payload as { rawEpoch: SleepEpoch }).rawEpoch;
-                  handleOpenEdit(raw);
-                }
-              }}
-              margin={{ top: 10, right: 20, left: 10, bottom: 5 }}
+        {/* Multi-Colored Clinical Hypnogram with Dedicated HTML Labels Sidebar */}
+        <div 
+          className="relative w-full h-80 bg-white rounded-3xl border border-slate-200 overflow-hidden select-none flex items-stretch shadow-sm"
+          onMouseLeave={() => setHoveredEpoch(null)}
+        >
+          {/* 1. Left Column: Pure HTML Stage Labels (100% immune to SVG Bidi bugs!) */}
+          <div className="w-56 bg-slate-50/90 border-l border-slate-200 p-4 flex flex-col justify-between select-none text-right flex-shrink-0">
+            <div className="text-[11px] font-black uppercase tracking-wider text-slate-400 mb-1 border-b border-slate-200 pb-1">
+              مراحل خواب (Stages)
+            </div>
+
+            {STAGE_LEVELS.map((lvl) => (
+              <div key={lvl.stage} className="flex items-center space-x-2.5 space-x-reverse py-1">
+                {/* Stage Color Dot Indicator */}
+                <span
+                  className="w-3.5 h-3.5 rounded-full flex-shrink-0 shadow-sm border border-white"
+                  style={{ backgroundColor: lvl.color }}
+                />
+                {/* Persian + English label on the exact same row */}
+                <div className="flex items-center space-x-1.5 space-x-reverse text-xs font-bold text-slate-800">
+                  <span>{lvl.label}</span>
+                  <span className="font-mono text-[11px] font-bold text-slate-500">({lvl.enLabel})</span>
+                </div>
+              </div>
+            ))}
+
+            <div className="text-[10px] text-slate-400 pt-1 border-t border-slate-200 text-center font-bold">
+              محور زمان (ساعت) ↓
+            </div>
+          </div>
+
+          {/* 2. Right Column: Pure SVG Chart (Step Lines, Shaded Tints, Transitions) */}
+          <div className="flex-1 relative h-full bg-slate-50/30">
+            <svg
+              viewBox="0 0 1000 230"
+              className="w-full h-full"
+              preserveAspectRatio="none"
             >
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-              
-              <YAxis
-                domain={[0, 4]}
-                ticks={[0, 1, 2, 3, 4]}
-                tickFormatter={(v) => {
-                  const map: Record<number, string> = { 4: 'Wake', 3: 'REM', 2: 'N1', 1: 'N2', 0: 'N3' };
-                  return map[v] || '';
-                }}
-                tick={{ fontSize: 11, fontWeight: 700, fill: '#64748b' }}
-                axisLine={false}
-                tickLine={false}
-                width={50}
-              />
+              {/* Horizontal Stage Grid Lines */}
+              {STAGE_LEVELS.map((lvl) => (
+                <line
+                  key={`grid-${lvl.stage}`}
+                  x1={plotLeft}
+                  y1={lvl.y}
+                  x2={plotRight}
+                  y2={lvl.y}
+                  stroke="#e2e8f0"
+                  strokeWidth="1"
+                  strokeDasharray="4 4"
+                />
+              ))}
+            {/* Time Axis Grid Lines */}
+            {timeMarkers.map((marker, idx) => (
+              <g key={idx}>
+                <line
+                  x1={marker.x}
+                  y1={20}
+                  x2={marker.x}
+                  y2={205}
+                  stroke="#f1f5f9"
+                  strokeWidth="1"
+                />
+                <text
+                  x={marker.x}
+                  y={220}
+                  textAnchor="middle"
+                  fontSize="10"
+                  fill="#94a3b8"
+                  fontFamily="monospace"
+                >
+                  {marker.label}
+                </text>
+              </g>
+            ))}
 
-              <XAxis
-                dataKey="time"
-                tick={{ fontSize: 11, fill: '#94a3b8' }}
-                axisLine={{ stroke: '#cbd5e1' }}
-                tickLine={false}
-              />
+            {/* 1. Translucent Shaded Vertical Blocks under Each Stage */}
+            {visibleEpochs.map((epoch, idx) => {
+              const x1 = plotLeft + (idx / totalVisible) * plotWidth;
+              const x2 = plotLeft + ((idx + 1) / totalVisible) * plotWidth;
+              const y = getStageY(epoch.stage);
+              const color = STAGE_COLORS[epoch.stage] || '#0284c7';
+              const width = Math.max(x2 - x1, 1);
 
-              <Tooltip
-                content={({ active, payload }) => {
-                  if (active && payload && payload.length) {
-                    const data = payload[0].payload as {
-                      index: number;
-                      time: string;
-                      stageName: string;
-                      isOverridden: boolean;
-                      confidence: string;
-                      rawEpoch: SleepEpoch;
-                    };
-                    const micro = data.rawEpoch.metrics || {};
+              return (
+                <rect
+                  key={`tint-${epoch.id || idx}`}
+                  x={x1}
+                  y={y}
+                  width={width}
+                  height={205 - y}
+                  fill={color}
+                  opacity={0.18}
+                />
+              );
+            })}
 
-                    return (
-                      <div className="bg-slate-900 text-white rounded-2xl p-3.5 shadow-xl text-xs space-y-1.5 border border-slate-700 min-w-[200px] text-right font-sans" dir="rtl">
-                        <div className="flex justify-between items-center border-b border-slate-700 pb-1.5">
-                          <span className="font-bold">اپوک شماره #{data.index}</span>
-                          <span className="text-slate-400 font-mono text-[11px]">{data.time}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-slate-400">مرحله خواب:</span>
-                          <span className="font-bold text-sky-400">{data.stageName}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-slate-400">اطمینان مدل:</span>
-                          <span>{data.confidence}٪</span>
-                        </div>
-                        {micro.delta_power_uv2 !== undefined && (
-                          <div className="flex justify-between">
-                            <span className="text-slate-400">توان دلتا (EEG):</span>
-                            <span>{Number(micro.delta_power_uv2).toFixed(1)} µV²</span>
-                          </div>
-                        )}
-                        {micro.spindles_count !== undefined && (
-                          <div className="flex justify-between">
-                            <span className="text-slate-400">دوک‌های خواب:</span>
-                            <span>{String(micro.spindles_count)}</span>
-                          </div>
-                        )}
-                        {data.isOverridden && (
-                          <div className="text-[10px] text-amber-300 font-bold pt-1 border-t border-slate-700">
-                            ★ اصلاح‌شده توسط پزشک معالج
-                          </div>
-                        )}
-                      </div>
-                    );
-                  }
-                  return null;
-                }}
-              />
+            {/* 2. Vertical Connectors between Different Stages */}
+            {visibleEpochs.map((epoch, idx) => {
+              if (idx >= totalVisible - 1) return null;
+              const nextEpoch = visibleEpochs[idx + 1];
+              if (nextEpoch.stage === epoch.stage) return null;
 
-              <Line
-                type="stepAfter"
-                dataKey="yVal"
+              const x = plotLeft + ((idx + 1) / totalVisible) * plotWidth;
+              const y1 = getStageY(epoch.stage);
+              const y2 = getStageY(nextEpoch.stage);
+
+              return (
+                <line
+                  key={`conn-${idx}`}
+                  x1={x}
+                  y1={y1}
+                  x2={x}
+                  y2={y2}
+                  stroke="#94a3b8"
+                  strokeWidth="1.5"
+                  strokeDasharray="2 2"
+                />
+              );
+            })}
+
+            {/* 3. Multi-Colored Horizontal Stepped Line for Each Epoch */}
+            {visibleEpochs.map((epoch, idx) => {
+              const x1 = plotLeft + (idx / totalVisible) * plotWidth;
+              const x2 = plotLeft + ((idx + 1) / totalVisible) * plotWidth;
+              const y = getStageY(epoch.stage);
+              const color = STAGE_COLORS[epoch.stage] || '#0284c7';
+
+              return (
+                <line
+                  key={`line-${epoch.id || idx}`}
+                  x1={x1}
+                  y1={y}
+                  x2={x2}
+                  y2={y}
+                  stroke={color}
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                />
+              );
+            })}
+
+            {/* 4. Interactive Hit Targets & Hover Lines */}
+            {visibleEpochs.map((epoch, idx) => {
+              const x1 = plotLeft + (idx / totalVisible) * plotWidth;
+              const x2 = plotLeft + ((idx + 1) / totalVisible) * plotWidth;
+              const width = Math.max(x2 - x1, 4);
+
+              return (
+                <rect
+                  key={`hit-${epoch.id || idx}`}
+                  x={x1}
+                  y={15}
+                  width={width}
+                  height={195}
+                  fill="transparent"
+                  className="cursor-pointer hover:fill-brand-500/10"
+                  onClick={() => handleOpenEdit(epoch)}
+                  onMouseEnter={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    setHoveredEpoch(epoch);
+                    setTooltipPos({ x: rect.left, y: rect.top });
+                  }}
+                />
+              );
+            })}
+
+            {/* Hover Guide Marker */}
+            {hoveredEpoch && (
+              <line
+                x1={plotLeft + ((hoveredEpoch.epoch_index - viewRange[0]) / totalVisible) * plotWidth}
+                y1={15}
+                x2={plotLeft + ((hoveredEpoch.epoch_index - viewRange[0]) / totalVisible) * plotWidth}
+                y2={205}
                 stroke="#0284c7"
-                strokeWidth={2.5}
-                dot={false}
-                activeDot={{ r: 6, fill: '#0284c7', stroke: '#fff', strokeWidth: 2 }}
+                strokeWidth="1.5"
+                strokeDasharray="2 2"
               />
-            </LineChart>
-          </ResponsiveContainer>
+            )}
+          </svg>
+
+          {/* Floating Tooltip Bubble on Hover */}
+          {hoveredEpoch && (
+            <div className="absolute top-2 left-4 pointer-events-none bg-slate-900/95 text-white rounded-2xl p-3 shadow-2xl text-xs space-y-1.5 border border-slate-700 min-w-[210px] text-right font-sans backdrop-blur-sm animate-in fade-in duration-150">
+              <div className="flex justify-between items-center border-b border-slate-700 pb-1">
+                <span className="font-black text-sky-300">اپوک شماره #{hoveredEpoch.epoch_index}</span>
+                <span className="text-slate-400 font-mono text-[10px]">
+                  {Math.floor(hoveredEpoch.start_seconds / 3600).toString().padStart(2, '0')}:
+                  {Math.floor((hoveredEpoch.start_seconds % 3600) / 60).toString().padStart(2, '0')}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-slate-400">مرحله خواب:</span>
+                <span className="font-bold flex items-center space-x-1.5 space-x-reverse" style={{ color: STAGE_COLORS[hoveredEpoch.stage] }}>
+                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: STAGE_COLORS[hoveredEpoch.stage] }} />
+                  <span>{STAGE_LABELS[hoveredEpoch.stage]}</span>
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">اطمینان مدل AI:</span>
+                <span className="font-bold">{(hoveredEpoch.confidence * 100).toFixed(0)}٪</span>
+              </div>
+              {hoveredEpoch.metrics && (
+                <>
+                  {hoveredEpoch.metrics.delta_power_uv2 !== undefined && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">توان دلتا (EEG):</span>
+                      <span className="font-bold">{Number(hoveredEpoch.metrics.delta_power_uv2).toFixed(1)} µV²</span>
+                    </div>
+                  )}
+                  {hoveredEpoch.metrics.spindles_count !== undefined && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">دوک‌های خواب:</span>
+                      <span className="font-bold">{String(hoveredEpoch.metrics.spindles_count)}</span>
+                    </div>
+                  )}
+                  {hoveredEpoch.metrics.emg_rms_uv !== undefined && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">تون عضلانی (EMG):</span>
+                      <span className="font-bold">{Number(hoveredEpoch.metrics.emg_rms_uv).toFixed(1)} µV</span>
+                    </div>
+                  )}
+                </>
+              )}
+              {hoveredEpoch.is_manually_corrected && (
+                <div className="text-[10px] text-amber-300 font-black pt-1 border-t border-slate-700">
+                  ★ اصلاح‌شده توسط پزشک معالج
+                </div>
+              )}
+              <div className="text-[10px] text-sky-400 font-semibold pt-1 text-center">
+                جهت اصلاح مرحله کلیک نمایید
+              </div>
+            </div>
+          )}
+          </div>
         </div>
 
-        {/* Legend */}
-        <div className="flex flex-wrap items-center justify-center gap-5 text-xs font-bold text-slate-500 pt-4 border-t border-slate-100">
-          <div className="flex items-center space-x-1.5 space-x-reverse">
-            <span className="w-3 h-3 rounded-full bg-amber-400" />
-            <span>بیداری (Wake)</span>
-          </div>
-          <div className="flex items-center space-x-1.5 space-x-reverse">
-            <span className="w-3 h-3 rounded-full bg-purple-500" />
-            <span>خواب رؤیا (REM)</span>
-          </div>
-          <div className="flex items-center space-x-1.5 space-x-reverse">
-            <span className="w-3 h-3 rounded-full bg-sky-400" />
-            <span>مرحله N1 (سبک)</span>
-          </div>
-          <div className="flex items-center space-x-1.5 space-x-reverse">
-            <span className="w-3 h-3 rounded-full bg-blue-600" />
-            <span>مرحله N2 (پایه)</span>
-          </div>
-          <div className="flex items-center space-x-1.5 space-x-reverse">
-            <span className="w-3 h-3 rounded-full bg-indigo-900" />
-            <span>مرحله N3 (خواب عمیق)</span>
-          </div>
-        </div>
       </div>
 
       {/* SINGLE EPOCH CORRECTION MODAL */}
@@ -374,27 +510,27 @@ export const HypnogramTab: React.FC<HypnogramTabProps> = ({
               )}
             </div>
 
-            {/* Select Target Stage */}
+            {/* Select Target Stage with Color Swatches */}
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-2">
                 مرحله خواب تاییدشده توسط پزشک
               </label>
               <div className="grid grid-cols-5 gap-1.5">
                 {[
-                  { id: 0, label: 'Wake' },
-                  { id: 1, label: 'N1' },
-                  { id: 2, label: 'N2' },
-                  { id: 3, label: 'N3' },
-                  { id: 4, label: 'REM' },
+                  { id: 0, label: 'Wake', color: 'border-amber-400 text-amber-900 bg-amber-50' },
+                  { id: 1, label: 'N1', color: 'border-sky-400 text-sky-900 bg-sky-50' },
+                  { id: 2, label: 'N2', color: 'border-blue-500 text-blue-900 bg-blue-50' },
+                  { id: 3, label: 'N3', color: 'border-indigo-600 text-indigo-950 bg-indigo-50' },
+                  { id: 4, label: 'REM', color: 'border-purple-500 text-purple-900 bg-purple-50' },
                 ].map((s) => (
                   <button
                     key={s.id}
                     type="button"
                     onClick={() => setEditStage(s.id)}
-                    className={`py-2 text-xs font-bold rounded-xl border transition-all ${
+                    className={`py-2 text-xs font-black rounded-xl border transition-all ${
                       editStage === s.id
-                        ? 'bg-brand-600 border-brand-600 text-white shadow-sm'
-                        : 'border-slate-200 text-slate-700 hover:bg-slate-50'
+                        ? 'bg-slate-900 border-slate-900 text-white shadow-md'
+                        : `${s.color} hover:opacity-80`
                     }`}
                   >
                     {s.label}

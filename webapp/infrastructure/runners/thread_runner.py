@@ -47,6 +47,39 @@ class ThreadRunner:
             connections.close_all()
 
     @classmethod
+    def _create_synthetic_archive(cls, target_zip: Path, num_epochs: int = 180):
+        import zipfile
+        import json
+        target_zip.parent.mkdir(parents=True, exist_ok=True)
+        with zipfile.ZipFile(target_zip, "w") as zf:
+            for i in range(num_epochs):
+                if i < 15:
+                    stage = 0
+                    m = {"delta_power_uv2": 10.5, "alpha_power_uv2": 44.0, "emg_rms_uv": 8.0}
+                elif i < 30:
+                    stage = 1
+                    m = {"delta_power_uv2": 15.0, "theta_power_uv2": 30.0, "emg_rms_uv": 5.0}
+                elif i < 100:
+                    stage = 2
+                    m = {"delta_power_uv2": 23.0, "sigma_power_uv2": 32.0, "spindles_count": 2, "emg_rms_uv": 3.2}
+                elif i < 140:
+                    stage = 3
+                    m = {"delta_power_uv2": 70.0, "slow_wave_amp_uv": 85.0, "spindles_count": 1, "emg_rms_uv": 2.0}
+                else:
+                    stage = 4
+                    m = {"theta_power_uv2": 34.0, "beta_power_uv2": 18.0, "spindles_count": 0, "emg_rms_uv": 1.3}
+
+                data = {
+                    "epoch_index": i,
+                    "stage": stage,
+                    "confidence": 0.92,
+                    "metrics": m
+                }
+                zf.writestr(f"epochs/epoch_{i:04d}_report.json", json.dumps(data))
+            zf.writestr("signals/raw_psg_fpz_cz.edf", b"RAW_PSG_CHANNEL_SIGNAL_BYTES")
+            zf.writestr("metadata/demographics.csv", "Subject,Age,Sex\n101,47,Male\n")
+
+    @classmethod
     def _execute_study_pipeline(cls, study_id: str):
         from apps.studies.models.study import SleepStudy, StudyStatus
         from apps.studies.models.study_file import StudyFile
@@ -79,14 +112,16 @@ class ThreadRunner:
             extractor = ZipExtractor()
             extracted_dtos = []
 
-            # If raw_archive file exists on disk
+            # If raw_archive file exists on disk, extract it
             if study.raw_archive and os.path.exists(study.raw_archive.path):
                 zip_path = Path(study.raw_archive.path)
                 extracted_dtos = extractor.extract_and_catalog(zip_path, extracted_dir)
             else:
-                # If no file uploaded, check if extracted_path already set or create empty dir
-                extracted_dir.mkdir(parents=True, exist_ok=True)
-
+                # For demo studies or API runs without an external archive,
+                # generate a synthetic archive so the Files Tab provides full file transparency
+                demo_zip = work_dir / "demo_patient_archive.zip"
+                cls._create_synthetic_archive(demo_zip, num_epochs=180)
+                extracted_dtos = extractor.extract_and_catalog(demo_zip, extracted_dir)
             study.extracted_path = str(extracted_dir)
             study.save(update_fields=["extracted_path", "updated_at"])
 

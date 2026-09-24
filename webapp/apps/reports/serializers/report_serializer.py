@@ -17,6 +17,7 @@ class ClinicalReportSerializer(serializers.ModelSerializer):
             "respiratory_and_micro_notes",
             "differential_diagnoses",
             "clinical_recommendations",
+            "raw_markdown",
             "physician_notes",
             "is_signed_off",
             "signed_off_at",

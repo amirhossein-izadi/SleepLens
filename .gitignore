@@ -12,6 +12,8 @@ data/raw/
 *.npz
 *.csv.gz
 *.parquet
+media/
+webapp/media/
 
 # Keep directory structure if empty placeholder (.gitkeep) is added
 !data/.gitkeep

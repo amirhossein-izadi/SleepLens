@@ -222,6 +222,8 @@ export const StudyWorkstation: React.FC<StudyWorkstationProps> = ({
         {activeTab === 'report' && (
           <ReportTab
             studyId={study.id}
+            study={study}
+            metricsSummary={metricsSummary}
             report={report}
             onReportUpdated={(updatedReport) => setReport(updatedReport)}
           />

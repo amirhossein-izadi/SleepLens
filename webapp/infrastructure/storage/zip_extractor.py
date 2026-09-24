@@ -138,6 +138,15 @@ class ZipExtractor:
         if lower_name.endswith(".npz"):
             return "numpy_array", None
 
+        if lower_name.endswith(".pdf"):
+            return "pdf_document", None
+
+        if lower_name.endswith((".txt", ".md")):
+            return "text_document", None
+
+        if lower_name.endswith((".jpg", ".jpeg", ".png", ".webp")):
+            return "scanned_image", None
+
         return "other", None
 
     def _generate_preview(self, path: Path, file_type: str) -> dict:
@@ -155,7 +164,28 @@ class ZipExtractor:
             elif path.suffix.lower() == ".csv":
                 with open(path, "r", encoding="utf-8") as f:
                     lines = [f.readline().strip() for _ in range(3)]
-                    preview = {"sample_header": lines[0] if lines else ""}
+            elif path.suffix.lower() == ".pdf":
+                try:
+                    from pypdf import PdfReader
+                    reader = PdfReader(str(path))
+                    text_chunks = []
+                    for p in reader.pages[:5]:
+                        txt = p.extract_text()
+                        if txt:
+                            text_chunks.append(txt.strip())
+                    extracted = "\n".join(text_chunks)
+                    preview = {
+                        "page_count": len(reader.pages),
+                        "extracted_text": extracted[:4000] if extracted else "No machine-readable text found in PDF (scanned image).",
+                    }
+                except Exception as ex:
+                    preview = {"pdf_error": str(ex)}
+            elif path.suffix.lower() in (".txt", ".md"):
+                try:
+                    with open(path, "r", encoding="utf-8", errors="ignore") as f:
+                        preview = {"extracted_text": f.read(4000)}
+                except Exception as ex:
+                    preview = {"text_error": str(ex)}
         except Exception as e:
             preview = {"preview_error": str(e)}
 

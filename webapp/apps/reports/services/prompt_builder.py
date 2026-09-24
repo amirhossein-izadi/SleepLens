@@ -27,20 +27,31 @@ class PromptBuilder:
             import datetime
             today = datetime.date.today()
             age = today.year - patient.birth_date.year - ((today.month, today.day) < (patient.birth_date.month, patient.birth_date.day))
+        history_text = patient.medical_history or "None documented"
+        try:
+            doc_texts = []
+            if hasattr(study, "files"):
+                for sf in study.files.filter(file_type__in=["pdf_document", "text_document"]):
+                    txt = sf.preview_data.get("extracted_text")
+                    if txt and not str(txt).startswith("No machine-readable"):
+                        doc_texts.append(f"[{sf.file_name}]:\n{txt}")
+            if doc_texts:
+                history_text += "\n\n[EXTRACTED REPORT TEXT FROM ATTACHED DOCUMENTS]:\n" + "\n\n".join(doc_texts)
+        except Exception:
+            pass
 
         return ClinicalContextDTO(
             patient_mrn=patient.mrn,
             patient_name=f"{patient.first_name} {patient.last_name}",
             patient_age=age,
             patient_sex=patient.get_biological_sex_display(),
-            medical_history=patient.medical_history or "None documented",
+            medical_history=history_text,
             study_date=str(study.study_date),
             sqi_score=sqi_score,
             sqi_category=sqi_category,
             key_metrics=key_metrics,
             clinical_alerts=clinical_alerts
         )
-
     @classmethod
     def build_report_prompt(cls, context: ClinicalContextDTO) -> str:
         """Constructs system and clinical user prompt for report generation."""

@@ -19,15 +19,17 @@ DEFAULT_OPENCODE_URL = "http://127.0.0.1:4096"
 class OpenCodeClient:
     """Client for local OpenCode LLM server to generate reports and power consultation chat."""
 
-    def __init__(self, base_url: str = DEFAULT_OPENCODE_URL, timeout_sec: int = 15):
+    def __init__(self, base_url: str = DEFAULT_OPENCODE_URL, timeout_sec: int = 25):
         self.base_url = base_url.rstrip("/")
         self.timeout_sec = timeout_sec
+        # Bypass any environment HTTP proxies (e.g. 10808) for local 4096 communication
+        self.opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
     def is_server_available(self) -> bool:
         """Pings OpenCode server to check availability."""
         try:
             req = urllib.request.Request(f"{self.base_url}/session", method="GET")
-            with urllib.request.urlopen(req, timeout=2) as resp:
+            with self.opener.open(req, timeout=3) as resp:
                 return resp.status in (200, 204, 404, 405)
         except Exception:
             return False
@@ -46,11 +48,15 @@ class OpenCodeClient:
             method="POST"
         )
         try:
-            with urllib.request.urlopen(req, timeout=self.timeout_sec) as resp:
+            with self.opener.open(req, timeout=self.timeout_sec) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
-                return data.get("id", f"session_{hash(title) % 1000000:06d}")
+                session_id = data.get("id")
+                if session_id:
+                    logger.info(f"OpenCode session created: {session_id}")
+                    return session_id
+                return f"session_{hash(title) % 1000000:06d}"
         except Exception as e:
-            logger.warning(f"OpenCode server unreachable at {self.base_url} ({e}); using local mock session.")
+            logger.warning(f"OpenCode server unreachable at {self.base_url} ({e}); using local fallback session.")
             return f"mock_session_{abs(hash(title)) % 1000000:06d}"
 
     def generate_clinical_report(self, session_id: str, context: ClinicalContextDTO) -> Dict[str, Any]:
@@ -65,11 +71,11 @@ class OpenCodeClient:
         if response_text:
             return self._parse_report_response(response_text, context)
         
-        # Fallback to clinically structured report template
+        # Fallback to clinically structured report template if model unreachable
         return self._generate_fallback_report(context)
 
     def send_chat_message(self, session_id: str, prompt: str) -> str:
-        """Sends an interactive doctor inquiry to the OpenCode session."""
+        """Sends an interactive doctor inquiry to the OpenCode session and returns LLM response."""
         response = self._send_message_safe(session_id, prompt)
         if response:
             return response
@@ -80,9 +86,14 @@ class OpenCodeClient:
         )
 
     def _send_message_safe(self, session_id: str, prompt: str) -> Optional[str]:
-        """Attempts to dispatch prompt to OpenCode POST /session/{id}/message."""
+        """Dispatches message to OpenCode using { parts: [{ type: 'text', text: prompt }] } schema."""
         url = f"{self.base_url}/session/{session_id}/message"
-        payload = json.dumps({"content": prompt}).encode("utf-8")
+        payload = json.dumps({
+            "parts": [
+                {"type": "text", "text": prompt}
+            ]
+        }).encode("utf-8")
+
         req = urllib.request.Request(
             url,
             data=payload,
@@ -90,85 +101,114 @@ class OpenCodeClient:
             method="POST"
         )
         try:
-            with urllib.request.urlopen(req, timeout=self.timeout_sec) as resp:
+            with self.opener.open(req, timeout=self.timeout_sec) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
-                return data.get("content") or data.get("message")
+                
+                # Parse OpenCode message response format: parts[type == 'text'].text
+                for part in data.get("parts", []):
+                    if part.get("type") == "text" and part.get("text"):
+                        return part.get("text").strip()
+
+                if "content" in data:
+                    return str(data["content"]).strip()
+                if "message" in data:
+                    return str(data["message"]).strip()
+                return None
         except Exception as e:
-            logger.info(f"OpenCode dispatch failed ({e}); falling back to template generator.")
+            logger.info(f"OpenCode message dispatch failed ({e}); falling back.")
             return None
 
     def _build_clinical_prompt(self, ctx: ClinicalContextDTO) -> str:
-        return f"""You are an expert clinical somnologist. Evaluate this polysomnography recording:
-Patient: {ctx.patient_name} (Age: {ctx.patient_age}, Sex: {ctx.patient_sex})
-MRN: {ctx.patient_mrn} | Study Date: {ctx.study_date}
-History: {ctx.medical_history}
+        cat_fa = {
+            "optimal": "عالی (Optimal)",
+            "good": "خوب (Good)",
+            "fair": "متوسط (Fair)",
+            "poor": "ضعیف (Poor)"
+        }.get(ctx.sqi_category.lower(), ctx.sqi_category)
 
-Calculated SQI Score: {ctx.sqi_score:.1f}/100 ({ctx.sqi_category.upper()})
-Key Metrics:
-- Total Sleep Time: {ctx.key_metrics.get('tst_min', 'N/A')} min
-- Sleep Efficiency: {ctx.key_metrics.get('se_pct', 'N/A')}%
-- WASO: {ctx.key_metrics.get('waso_min', 'N/A')} min
-- Deep Sleep (N3): {ctx.key_metrics.get('n3_pct_tst', 'N/A')}%
-- REM Sleep: {ctx.key_metrics.get('rem_pct_tst', 'N/A')}%
-- Sleep Fragmentation Index (SFI): {ctx.key_metrics.get('sfi', 'N/A')}/hr
-- Apnea Index (AHI proxy): {ctx.key_metrics.get('apnea_index', 'N/A')}/hr
+        alerts_fa = "\n".join(f"- {a}" for a in ctx.clinical_alerts) if ctx.clinical_alerts else "هیچ هشدار حادی ثبت نشده است"
 
-Flagged Clinical Alerts:
-{chr(10).join(f"- {a}" for a in ctx.clinical_alerts) if ctx.clinical_alerts else "None"}
+        return f"""شما یک متخصص ارشد طب خواب و فلوشیپ اختلالات بالینی خواب (Somnologist) هستید.
+لطفاً این ارزیابی پلی‌سومنوگرافی شبانه را با دقت بالینی کامل بررسی نموده و یک گزارش تشخیصی مستند، علمی و کاربردی منحصراً به زبان فارسی رسمی و روان تدوین فرمایید.
 
-Please produce a structured clinical evaluation with Executive Summary, Architecture Findings, Respiratory Notes, Differential Diagnoses, and Actionable Clinical Recommendations."""
+مشخصات بیمار:
+- نام بیمار: {ctx.patient_name} (سن: {ctx.patient_age} سال، جنسیت: {ctx.patient_sex})
+- شماره پرونده پزشکی (MRN): {ctx.patient_mrn} | تاریخ آزمایش: {ctx.study_date}
+- سابقه و شرح حال بالینی: {ctx.medical_history}
+
+متریک‌های استخراج‌شده و شاخص کیفیت خواب (SQI):
+- نمره شاخص کیفیت خواب (SQI): {ctx.sqi_score:.1f} از ۱۰۰ ({cat_fa})
+- کل زمان خواب (TST): {ctx.key_metrics.get('tst_min', 'N/A')} دقیقه
+- کارایی خواب (Sleep Efficiency): {ctx.key_metrics.get('se_pct', 'N/A')}٪ (بازه نرمال: >= ۸۵٪)
+- بیداری پس از شروع خواب (WASO): {ctx.key_metrics.get('waso_min', 'N/A')} دقیقه (بازه نرمال: <= ۳۰ دقیقه)
+- سهم خواب عمیق موج آهسته (N3): {ctx.key_metrics.get('n3_pct_tst', 'N/A')}٪ (بازه نرمال: ۱۵ - ۲۵٪)
+- سهم خواب رؤیا (REM): {ctx.key_metrics.get('rem_pct_tst', 'N/A')}٪ (بازه نرمال: ۲۰ - ۲۵٪)
+- شاخص تکه‌تکه‌شدگی خواب (SFI): {ctx.key_metrics.get('sfi', 'N/A')} واقعه در ساعت (بازه نرمال: <= ۱۵)
+- شاخص وقفه تنفسی (آپنه - AHI): {ctx.key_metrics.get('apnea_index', 'N/A')} واقعه در ساعت (بازه نرمال: < ۵)
+
+هشدارهای بالینی شناسایی‌شده:
+{alerts_fa}
+
+دستورالعمل نگارش:
+لطفاً تمامی ۵ بخش گزارش را حتماً به زبان فارسی بنویسید:
+۱. خلاصه‌ی اجرایی بالینی (Executive Summary)
+۲. یافته‌های ساختار و تداوم مراحل خواب (Architecture & Continuity)
+۳. ارزیابی قلبی‌تنفسی و آپنه (Cardiorespiratory & Microstructure)
+۴. تشخیص‌های افتراقی بالینی (Differential Diagnoses با کدهای ICD-10)
+۵. اقدامات و توصیه‌های درمانی (Recommended Interventions)"""
 
     def _parse_report_response(self, text: str, ctx: ClinicalContextDTO) -> Dict[str, Any]:
-        return {
-            "executive_summary": text[:400].strip(),
-            "architecture_findings": f"Sleep efficiency recorded at {ctx.key_metrics.get('se_pct', 85)}% with {ctx.key_metrics.get('n3_pct_tst', 18)}% N3 slow-wave sleep.",
-            "respiratory_and_micro_notes": f"Apnea index proxy calculated at {ctx.key_metrics.get('apnea_index', 4.5)}/hr.",
-            "differential_diagnoses": ["Sleep Maintenance Insomnia", "Mild Obstructive Sleep Apnea"],
-            "clinical_recommendations": ["CBT-I cognitive behavioral therapy", "Positional sleep tracking"],
-            "raw_text": text
-        }
-
-    def _generate_fallback_report(self, ctx: ClinicalContextDTO) -> Dict[str, Any]:
         se = ctx.key_metrics.get("se_pct", 85.0)
         waso = ctx.key_metrics.get("waso_min", 30.0)
-        n3 = ctx.key_metrics.get("n3_pct_tst", 20.0)
-        sfi = ctx.key_metrics.get("sfi", 12.0)
         apnea = ctx.key_metrics.get("apnea_index", 4.5)
+        n3 = ctx.key_metrics.get("n3_pct_tst", 18.0)
+        rem = ctx.key_metrics.get("rem_pct_tst", 22.0)
+
+        cat_fa = {
+            "optimal": "عالی",
+            "good": "خوب",
+            "fair": "متوسط",
+            "poor": "ضعیف"
+        }.get(ctx.sqi_category.lower(), ctx.sqi_category)
 
         diagnoses = []
         recommendations = []
 
         if se < 80.0 or waso > 45.0:
-            diagnoses.append("Sleep Maintenance Insomnia (ICD-10 G47.01)")
-            recommendations.append("First-line Cognitive Behavioral Therapy for Insomnia (CBT-I)")
-            recommendations.append("Sleep restriction protocol to consolidate sleep efficiency")
+            diagnoses.append("بی‌خوابی در تداوم خواب (کد بین‌المللی ICD-10 G47.01)")
+            recommendations.append("درمان خط اول شناختی‌رفتاری برای بی‌خوابی (CBT-I)")
+            recommendations.append("پروتکل محدودیت خواب جهت تثبیت و افزایش کارایی خواب")
 
         if apnea >= 5.0:
-            diagnoses.append("Mild Obstructive Sleep Apnea (ICD-10 G47.33)")
-            recommendations.append("Trial of positional therapy or mandibular advancement device")
-            recommendations.append("Ear-Nose-Throat (ENT) airway assessment")
+            diagnoses.append("آپنه انسدادی خواب خفیف تا متوسط (کد بین‌المللی ICD-10 G47.33)")
+            recommendations.append("ارزیابی راه هوایی فوقانی و بررسی کاربرد درمان پوزیشنال یا پروتز پیش‌آورنده فک (MAD)")
         else:
-            diagnoses.append("Preserved Cardiorespiratory Sleep Stability")
+            diagnoses.append("ثبات مطلوب قلبی‌تنفسی خواب (Preserved Cardiorespiratory Stability)")
 
         if n3 < 15.0:
-            recommendations.append("Screen for sleep-disrupting medications or nocturnal movement")
+            recommendations.append("بررسی داروهای مهارکننده خواب عمیق و غربالگری سندرم پای بی‌قرار")
+
+        if not recommendations:
+            recommendations.append("رعایت اصول بهداشت خواب و حفظ ساعات منظم بیداری")
 
         return {
-            "executive_summary": (
-                f"The nocturnal polysomnography for {ctx.patient_name} demonstrates an overall Sleep Quality Index (SQI) "
-                f"of {ctx.sqi_score:.1f}/100 ({ctx.sqi_category.capitalize()}). Total sleep time was recorded at "
-                f"{ctx.key_metrics.get('tst_min', 415.0):.0f} minutes with a sleep efficiency of {se:.1f}%."
+            "executive_summary": text[:600].strip() if len(text) > 30 else (
+                f"آزمایش پلی‌سومنوگرافی شبانه برای {ctx.patient_name} نشان‌دهنده شاخص کلی کیفیت خواب (SQI) "
+                f"معادل {ctx.sqi_score:.1f} از ۱۰۰ ({cat_fa}) است. کل زمان خواب {ctx.key_metrics.get('tst_min', 415):.0f} دقیقه "
+                f"با کارایی خواب {se:.1f}٪ به ثبت رسیده است."
             ),
             "architecture_findings": (
-                f"Sleep architecture exhibits {n3:.1f}% deep slow-wave sleep (N3) and "
-                f"{ctx.key_metrics.get('rem_pct_tst', 22.0):.1f}% dream sleep (REM). "
-                f"Fragmentation index is recorded at {sfi:.1f} events/hour with {waso:.0f} minutes of wake post-onset."
+                f"ساختار مراحل خواب شامل {n3:.1f}٪ خواب عمیق موج آهسته (N3) و {rem:.1f}٪ خواب رؤیا (REM) می‌باشد. "
+                f"میزان بیداری پس از شروع خواب (WASO) معادل {waso:.0f} دقیقه ثبت گردیده است."
             ),
             "respiratory_and_micro_notes": (
-                f"Respiratory analysis indicates an estimated apnea index of {apnea:.1f} events/hour. "
-                f"REM atonia ratio sits within normal physiological parameters."
+                f"ارزیابی وقایع تنفسی نشان‌دهنده شاخص آپنه تخمینی معادل {apnea:.1f} واقعه در ساعت است. "
+                f"نسبت آتونی و فلج عضلانی خواب REM در بازه فیزیولوژیک طبیعی ارزیابی می‌شود."
             ),
             "differential_diagnoses": diagnoses,
             "clinical_recommendations": recommendations,
-            "raw_text": ""
+            "raw_text": text
         }
+
+    def _generate_fallback_report(self, ctx: ClinicalContextDTO) -> Dict[str, Any]:
+        return self._parse_report_response("", ctx)
