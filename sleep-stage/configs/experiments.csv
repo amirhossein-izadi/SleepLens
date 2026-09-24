@@ -1,0 +1,21 @@
+run_id,model,channels,window,training,status,notes
+E01,YASA,Fpz-Cz,FULL_VALID,none,pilot-done,macro 0.55 N1 0.11
+E02,YASA,Fpz-Cz+EOG,FULL_VALID,none,pilot-done,macro 0.53 N1 0.20 REM 0.61 N3-SC weak
+E03,YASA,Pz-Oz+EOG,FULL_VALID,none,pending,
+E04,YASA,dual-fusion,FULL_VALID,none,pending,0.5 YASA-Fpz + 0.5 YASA-Pz
+E05,YASA,best-of-E01-E04,FULL_VALID,Viterbi-lambda,pending,tune lambda on validation
+E06,SLEEPYLAND,SOMNUS,MAIN_SLEEP,none,pending,container first
+E07,SLEEPYLAND,U-Sleep,MAIN_SLEEP,none,pending,
+E08,SLEEPYLAND,DeepResNet,MAIN_SLEEP,none,pending,
+E09,SLEEPYLAND,SleepTransformer,MAIN_SLEEP,none,pending,
+E10,SleepFMStager,Fpz+Pz+EOG,MAIN_SLEEP,none+aggregation-ablation,pending,128Hz 6x5s aggregate on validation
+E11,AnySleep,Fpz+Pz+EOG,MAIN_SLEEP,none+finetune-later,pending,mark SleepEDF exposure
+E12,fusion,best-2-probs,MAIN_SLEEP,none,pending,w grid 0.25/0.5/0.75
+E13,fusion,best-3-probs,MAIN_SLEEP,none,pending,
+E14,fusion,ensemble+Viterbi,MAIN_SLEEP,none,pending,
+E15,stacker,OOF-probs,MAIN_SLEEP,tiny-MLP,pending,OOF only
+E16,SleepFM,head+blocks,MAIN_SLEEP,partial-finetune,pending,LR backbone << head
+E17,SleepEffFormer,Fpz-Cz,BENCHMARK_30,full-tiny,pending,verify repo loads first
+E18,DG,SC-ST,SLEEP-DG,SC→ST-train,pending,research track
+E19,DG,ST-SC,SLEEP-DG,ST→SC-train,pending,diagnostic (ST small)
+E20,DG,SleepDIFFormer,EEG+EOG,train-folds,pending,research track
