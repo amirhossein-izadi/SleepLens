@@ -1,0 +1,23 @@
+# Core Django & REST Framework
+Django>=5.1.0,<6.0
+djangorestframework>=3.15.0
+django-cors-headers>=4.4.0
+python-decouple>=3.8
+
+# UUIDv7 Generator for Python < 3.14
+uuid6>=2024.7.10
+
+# Database Connectors (PostgreSQL support)
+psycopg[binary]>=3.2.0
+
+# Scientific & Signal Processing (Epochs & SQI Metrics)
+numpy>=1.26.0
+pandas>=2.2.0
+scipy>=1.13.0
+
+# HTTP & API Utilities
+requests>=2.32.0
+
+# Testing & Quality Assurance
+pytest>=8.0.0
+pytest-django>=4.9.0

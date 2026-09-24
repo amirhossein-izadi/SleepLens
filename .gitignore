@@ -62,6 +62,8 @@ wheels/
 .installed.cfg
 *.egg
 
+*.sqlite3
+.env
 # --- Virtual Environments ---
 .venv/
 venv/
