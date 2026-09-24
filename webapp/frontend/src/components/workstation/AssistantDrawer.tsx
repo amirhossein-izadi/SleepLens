@@ -6,7 +6,9 @@ import {
   X, 
   User, 
   Loader2, 
-  Lightbulb
+  Lightbulb,
+  Copy,
+  Check
 } from 'lucide-react';
 import type { ChatSession, ChatMessage, SleepStudy } from '../../types';
 import { api } from '../../services/api';
@@ -28,8 +30,14 @@ export const AssistantDrawer: React.FC<AssistantDrawerProps> = ({
   const [inputPrompt, setInputPrompt] = useState('');
   const [streamingReply, setStreamingReply] = useState<string | null>(null);
   const [suggestedPrompts, setSuggestedPrompts] = useState<string[]>([]);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const handleCopy = (text: string, id: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 1500);
+  };
   useEffect(() => {
     if (!isOpen) return;
 
@@ -187,6 +195,26 @@ export const AssistantDrawer: React.FC<AssistantDrawerProps> = ({
                       ? 'bg-brand-600 text-white rounded-tr-none font-bold'
                       : 'bg-white border border-slate-200 text-slate-800 rounded-tl-none font-serif'
                   }`}>
+                    {!isPhysician && (
+                      <div className="flex justify-end border-b border-slate-100 pb-1 mb-1.5">
+                        <button
+                          onClick={() => handleCopy(m.content, m.id)}
+                          className="text-[10px] text-slate-400 hover:text-brand-600 flex items-center space-x-1 space-x-reverse"
+                        >
+                          {copiedId === m.id ? (
+                            <>
+                              <Check className="w-3 h-3 text-emerald-600" />
+                              <span className="text-emerald-600 font-bold">کپی شد</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3 h-3" />
+                              <span>کپی متن</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    )}
                     <ReactMarkdown>{m.content}</ReactMarkdown>
                   </div>
                 </div>

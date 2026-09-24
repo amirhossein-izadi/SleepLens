@@ -8,7 +8,8 @@ import {
   CheckSquare, 
   Edit3, 
   ShieldCheck,
-  Sparkles
+  Sparkles,
+  Printer
 } from 'lucide-react';
 import type { ClinicalReport } from '../../types';
 import { api } from '../../services/api';
@@ -85,14 +86,24 @@ export const ReportTab: React.FC<ReportTabProps> = ({
           </p>
         </div>
 
-        <button
-          onClick={handleRegenerate}
-          disabled={regenerating}
-          className="inline-flex items-center space-x-2 space-x-reverse px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition-colors disabled:opacity-50"
-        >
-          <RotateCcw className={`w-3.5 h-3.5 ${regenerating ? 'animate-spin' : ''}`} />
-          <span>{regenerating ? 'در حال بازتولید...' : 'بازتولید گزارش با آخرین متریک‌ها'}</span>
-        </button>
+        <div className="flex items-center space-x-2 space-x-reverse no-print">
+          <button
+            onClick={() => window.print()}
+            className="inline-flex items-center space-x-2 space-x-reverse px-4 py-2 rounded-xl text-xs font-bold bg-brand-600 hover:bg-brand-700 text-white shadow-md shadow-brand-600/20 transition-all hover:scale-105"
+          >
+            <Printer className="w-3.5 h-3.5" />
+            <span>چاپ / خروجی رسمی PDF</span>
+          </button>
+
+          <button
+            onClick={handleRegenerate}
+            disabled={regenerating}
+            className="inline-flex items-center space-x-2 space-x-reverse px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition-colors disabled:opacity-50"
+          >
+            <RotateCcw className={`w-3.5 h-3.5 ${regenerating ? 'animate-spin' : ''}`} />
+            <span>{regenerating ? 'در حال بازتولید...' : 'بازتولید گزارش با آخرین متریک‌ها'}</span>
+          </button>
+        </div>
       </div>
 
       {/* Main Report Body */}
