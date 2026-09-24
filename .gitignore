@@ -5,6 +5,8 @@
 # --- Raw & Processed Datasets (Large Binary Files) ---
 sleep-edf-database-expanded-1.0.0/
 data/processed/
+data/processed_telemetry/
+data/processed_cassette/
 data/raw/
 *.edf
 *.npz
@@ -14,6 +16,8 @@ data/raw/
 # Keep directory structure if empty placeholder (.gitkeep) is added
 !data/.gitkeep
 !data/processed/.gitkeep
+!data/processed_telemetry/.gitkeep
+!data/processed_cassette/.gitkeep
 
 # --- Machine Learning Models & Checkpoints ---
 models/

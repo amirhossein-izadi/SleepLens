@@ -1,17 +1,14 @@
 """
-SleepLens Data Preprocessing Pipeline
-====================================
+SleepLens Multi-Regime Data Preprocessing Pipeline
+=================================================
 Transforms raw Sleep-EDF Polysomnography (PSG) and Hypnogram EDF files into
-standardized, trimmed, filtered, and robustly scaled 30-second epoch arrays (.npz).
+standardized, filtered, trimmed, and robustly scaled 30-second epoch arrays (.npz).
 
-Features:
-- Dual-cohort matching (Sleep-Cassette and Sleep-Telemetry)
-- 4th-order Butterworth bandpass (0.5–35.0 Hz) + 50 Hz IIR Notch filter
-- Ground-truth remapping to 5 AASM classes (W, N1, N2, N3, REM)
-- In-bed wake trimming (30 minutes buffer before first sleep & after last sleep)
-- Robust per-record scaling using Interquartile Range (IQR)
-- Multi-channel support (EEG Fpz-Cz, EEG Pz-Oz, EOG horizontal)
-- Demographic integration (Age, Sex, Night from SC-subjects / ST-subjects spreadsheets)
+Supports Three Specialized Regimes:
+1. 'telemetry' (Regime 1): 4 channels @ 100 Hz (EEG Fpz-Cz, EEG Pz-Oz, EOG horizontal, raw 100Hz EMG).
+2. 'cassette'  (Regime 2): Dual-rate multi-modal (100 Hz EEG/EOG + 1 Hz Resp, Temp, EMG envelope).
+3. 'unified'   (Regime 3): 3 universal channels @ 100 Hz across all 197 files.
+4. 'all': Executes all missing regimes sequentially.
 """
 
 import os
@@ -28,7 +25,6 @@ from scipy.signal import butter, filtfilt, iirnotch
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("SleepLensPreprocess")
 
-# Standard AASM Stage Mapping
 STAGE_MAP = {
     'Sleep stage W': 0,
     'Sleep stage 1': 1,
@@ -54,7 +50,6 @@ def load_demographics(base_dir):
                 subj = int(row['subject'])
                 night = int(row['night'])
                 age = int(row['age']) if not pd.isna(row['age']) else -1
-                # In SC: 'sex (F=1)': 1=Female, 2=Male
                 sex = int(row['sex (F=1)']) if not pd.isna(row['sex (F=1)']) else -1
                 demographics[('cassette', subj, night)] = {
                     'age': age,
@@ -69,14 +64,12 @@ def load_demographics(base_dir):
     if os.path.exists(st_path):
         try:
             st_df = pd.read_excel(st_path, header=None)
-            # Row 0: Headers, Row 1: Subheaders, Data from Row 2
             for i in range(2, len(st_df)):
                 row = st_df.iloc[i]
                 if pd.isna(row[0]):
                     continue
                 subj = int(row[0])
                 age = int(row[1]) if not pd.isna(row[1]) else -1
-                # In ST: M1/F2 -> standardize to: 1=Female, 2=Male
                 raw_sex = int(row[2]) if not pd.isna(row[2]) else -1
                 sex = 2 if raw_sex == 1 else (1 if raw_sex == 2 else -1)
                 
@@ -106,17 +99,18 @@ def create_filters(fs=100.0, lowcut=0.5, highcut=35.0, notch_freq=50.0, notch_q=
     b_notch, a_notch = iirnotch(notch_freq / nyq, notch_q)
     return (b_band, a_band), (b_notch, a_notch)
 
-def filter_signal(signal, b_band, a_band, b_notch, a_notch):
-    # Apply zero-phase forward-backward filtering
-    filtered = filtfilt(b_band, a_band, signal)
+def create_emg_filter(fs=100.0, lowcut=10.0, highcut=45.0, notch_freq=50.0, notch_q=30.0):
+    nyq = 0.5 * fs
+    b_band, a_band = butter(4, [lowcut / nyq, highcut / nyq], btype='band')
+    b_notch, a_notch = iirnotch(notch_freq / nyq, notch_q)
+    return (b_band, a_band), (b_notch, a_notch)
+
+def filter_signal(sig, b_band, a_band, b_notch, a_notch):
+    filtered = filtfilt(b_band, a_band, sig)
     filtered = filtfilt(b_notch, a_notch, filtered)
     return filtered
 
 def robust_scale(epochs_array):
-    """
-    Applies per-record Robust IQR scaling across epochs.
-    epochs_array: shape (N, samples_per_epoch)
-    """
     flat = epochs_array.flatten()
     median = np.median(flat)
     q75 = np.percentile(flat, 75)
@@ -125,43 +119,6 @@ def robust_scale(epochs_array):
     iqr = iqr if iqr > 1e-6 else 1.0
     scaled = (epochs_array - median) / iqr
     return scaled.astype(np.float32)
-
-def find_matched_pairs(base_dir):
-    """
-    Identifies and matches all (PSG, Hypnogram) pairs in both sub-cohorts.
-    """
-    psg_files = sorted(glob.glob(os.path.join(base_dir, '**/*-PSG.edf'), recursive=True))
-    hyp_files = sorted(glob.glob(os.path.join(base_dir, '**/*-Hypnogram.edf'), recursive=True))
-
-    hyp_dict = {}
-    for h in hyp_files:
-        fname = os.path.basename(h)
-        # Prefix matching: first 6 chars (e.g. SC4001 or ST7011)
-        prefix = fname[:6]
-        hyp_dict[prefix] = h
-
-    pairs = []
-    for p in psg_files:
-        fname = os.path.basename(p)
-        prefix = fname[:6]
-        if prefix in hyp_dict:
-            pairs.append((p, hyp_dict[prefix]))
-        else:
-            logger.warning(f"Unmatched PSG file found: {p}")
-
-    return pairs
-
-def parse_record_identifiers(psg_fname):
-    """
-    Extracts study type, subject ID, and night number from the filename.
-    SC4001E0 -> ('cassette', 400, 1)
-    ST7011J0 -> ('telemetry', 701, 1)
-    """
-    base = os.path.basename(psg_fname)
-    study = 'cassette' if base.startswith('SC') else 'telemetry'
-    subj_id = int(base[2:5])
-    night = int(base[5])
-    return study, subj_id, night, base.replace('-PSG.edf', '')
 
 def read_annotations_fallback(hyp_path):
     """Fallback parser for non-standard EDF+ hypnogram files."""
@@ -199,77 +156,323 @@ def read_annotations_fallback(hyp_path):
                 descriptions.append(desc_part)
     return onsets, durations, descriptions
 
-def process_record(psg_path, hyp_path, output_dir, demographics, epoch_sec=30, fs_target=100.0):
+def get_annotations(hyp_path, epoch_sec=30):
+    try:
+        hyp = pyedflib.EdfReader(hyp_path)
+        onsets, durations, descriptions = hyp.readAnnotations()
+        hyp.close()
+    except Exception as e:
+        onsets, durations, descriptions = read_annotations_fallback(hyp_path)
+
+    epoch_labels = []
+    for onset, dur, desc in zip(onsets, durations, descriptions):
+        n_ep = int(round(dur / epoch_sec))
+        mapped_stage = STAGE_MAP.get(desc, -1)
+        epoch_labels.extend([mapped_stage] * n_ep)
+    return np.array(epoch_labels, dtype=np.int64)
+
+def parse_record_identifiers(psg_fname):
+    base = os.path.basename(psg_fname)
+    study = 'cassette' if base.startswith('SC') else 'telemetry'
+    subj_id = int(base[2:5])
+    night = int(base[5])
+    return study, subj_id, night, base.replace('-PSG.edf', '')
+
+def get_in_bed_slice(y, total_epochs, epoch_sec=30):
+    sleep_indices = np.where((y >= 1) & (y <= 4))[0]
+    if len(sleep_indices) == 0:
+        return None, None
+    first_sleep = sleep_indices[0]
+    last_sleep = sleep_indices[-1]
+    pad = int(30 * 60 / epoch_sec)  # 60 epochs (30 min)
+    start_idx = max(0, first_sleep - pad)
+    end_idx = min(total_epochs, last_sleep + pad + 1)
+    return start_idx, end_idx
+
+# ==============================================================================
+# Regime 1: Hospital Telemetry Specialized (4 Channels @ 100 Hz)
+# ==============================================================================
+def process_record_telemetry(psg_path, hyp_path, output_dir, demographics, epoch_sec=30):
     study, subj_id, night, record_id = parse_record_identifiers(psg_path)
+    if study != 'telemetry':
+        return record_id, "skipped_not_telemetry", 0
+
     out_file = os.path.join(output_dir, f"{record_id}.npz")
-    
     if os.path.exists(out_file):
         return record_id, "already_exists", 0
 
     try:
-        # 1. Read Hypnogram Annotations (with fallback for non-compliant EDF+ headers)
-        try:
-            hyp = pyedflib.EdfReader(hyp_path)
-            onsets, durations, descriptions = hyp.readAnnotations()
-            hyp.close()
-        except Exception as e:
-            logger.info(f"pyedflib failed on {os.path.basename(hyp_path)} ({e}); using TAL fallback parser.")
-            onsets, durations, descriptions = read_annotations_fallback(hyp_path)
-
-        epoch_labels = []
-        for onset, dur, desc in zip(onsets, durations, descriptions):
-            n_ep = int(round(dur / epoch_sec))
-            mapped_stage = STAGE_MAP.get(desc, -1)  # -1 for Movement time, ?, or artifacts
-            epoch_labels.extend([mapped_stage] * n_ep)
-        epoch_labels = np.array(epoch_labels, dtype=np.int64)
-
-        # 2. Read PSG Signals
+        epoch_labels = get_annotations(hyp_path, epoch_sec)
         psg = pyedflib.EdfReader(psg_path)
         labels = psg.getSignalLabels()
         
-        # Identify available channels
-        fpz_idx = labels.index('EEG Fpz-Cz') if 'EEG Fpz-Cz' in labels else -1
-        pz_idx = labels.index('EEG Pz-Oz') if 'EEG Pz-Oz' in labels else -1
-        eog_idx = labels.index('EOG horizontal') if 'EOG horizontal' in labels else -1
+        idx_fpz = labels.index('EEG Fpz-Cz')
+        idx_pz  = labels.index('EEG Pz-Oz')
+        idx_eog = labels.index('EOG horizontal')
+        idx_emg = labels.index('EMG submental')
 
-        if fpz_idx == -1:
-            psg.close()
-            return record_id, "missing_eeg_fpz", 0
-
-        fs_raw = psg.getSampleFrequency(fpz_idx)
-        raw_fpz = psg.readSignal(fpz_idx)
-        raw_pz = psg.readSignal(pz_idx) if pz_idx != -1 else None
-        raw_eog = psg.readSignal(eog_idx) if eog_idx != -1 else None
+        fs = psg.getSampleFrequency(idx_fpz)
+        raw_fpz = psg.readSignal(idx_fpz)
+        raw_pz  = psg.readSignal(idx_pz)
+        raw_eog = psg.readSignal(idx_eog)
+        raw_emg = psg.readSignal(idx_emg)
         psg.close()
 
-        # 3. Filtering
-        (b_band, a_band), (b_notch, a_notch) = create_filters(fs=fs_raw)
+        # Filters
+        (b_eeg, a_eeg), (b_notch, a_notch) = create_filters(fs=fs)
+        (b_emg, a_emg), _ = create_emg_filter(fs=fs)
+
+        filt_fpz = filter_signal(raw_fpz, b_eeg, a_eeg, b_notch, a_notch)
+        filt_pz  = filter_signal(raw_pz, b_eeg, a_eeg, b_notch, a_notch)
+        filt_eog = filter_signal(raw_eog, b_eeg, a_eeg, b_notch, a_notch)
+        filt_emg = filter_signal(raw_emg, b_emg, a_emg, b_notch, a_notch)
+
+        samples_per_ep = int(epoch_sec * fs)
+        total_epochs = min(len(filt_fpz) // samples_per_ep, len(epoch_labels))
+
+        ep_fpz = filt_fpz[:total_epochs * samples_per_ep].reshape(total_epochs, samples_per_ep)
+        ep_pz  = filt_pz[:total_epochs * samples_per_ep].reshape(total_epochs, samples_per_ep)
+        ep_eog = filt_eog[:total_epochs * samples_per_ep].reshape(total_epochs, samples_per_ep)
+        ep_emg = filt_emg[:total_epochs * samples_per_ep].reshape(total_epochs, samples_per_ep)
+        y = epoch_labels[:total_epochs]
+
+        start_idx, end_idx = get_in_bed_slice(y, total_epochs, epoch_sec)
+        if start_idx is None:
+            return record_id, "no_sleep_epochs", 0
+
+        ep_fpz = ep_fpz[start_idx:end_idx]
+        ep_pz  = ep_pz[start_idx:end_idx]
+        ep_eog = ep_eog[start_idx:end_idx]
+        ep_emg = ep_emg[start_idx:end_idx]
+        y_trimmed = y[start_idx:end_idx]
+        orig_indices = np.arange(start_idx, end_idx)
+
+        valid_mask = y_trimmed != -1
+        ep_fpz = ep_fpz[valid_mask]
+        ep_pz  = ep_pz[valid_mask]
+        ep_eog = ep_eog[valid_mask]
+        ep_emg = ep_emg[valid_mask]
+        y_valid = y_trimmed[valid_mask]
+        orig_indices = orig_indices[valid_mask]
+
+        if len(y_valid) == 0:
+            return record_id, "no_valid_epochs", 0
+
+        # Scale channels
+        sc_fpz = robust_scale(ep_fpz)
+        sc_pz  = robust_scale(ep_pz)
+        sc_eog = robust_scale(ep_eog)
+        sc_emg = robust_scale(ep_emg)
+
+        # 4-channel tensor: shape (N, 4, 3000)
+        x_4ch = np.stack([sc_fpz, sc_pz, sc_eog, sc_emg], axis=1)
+
+        demo_key = ('telemetry', subj_id % 100, night)
+        demo = demographics.get(demo_key, {'age': -1, 'sex': -1, 'condition': 'unknown'})
+
+        np.savez_compressed(
+            out_file,
+            x_4ch=x_4ch,
+            x_fpz=sc_fpz,
+            x_pz=sc_pz,
+            x_eog=sc_eog,
+            x_emg=sc_emg,
+            y=y_valid,
+            subject_id=subj_id,
+            night=night,
+            study=study,
+            record_id=record_id,
+            age=demo.get('age', -1),
+            sex=demo.get('sex', -1),
+            condition=demo.get('condition', 'unknown'),
+            epoch_indices=orig_indices,
+            fs=int(fs)
+        )
+        return record_id, "success", len(y_valid)
+
+    except Exception as e:
+        logger.error(f"Error processing {record_id} in telemetry regime: {e}")
+        return record_id, f"error: {str(e)}", 0
+
+# ==============================================================================
+# Regime 2: Home Cassette Specialized (Dual-Rate Multi-Modal)
+# ==============================================================================
+def process_record_cassette(psg_path, hyp_path, output_dir, demographics, epoch_sec=30):
+    study, subj_id, night, record_id = parse_record_identifiers(psg_path)
+    if study != 'cassette':
+        return record_id, "skipped_not_cassette", 0
+
+    out_file = os.path.join(output_dir, f"{record_id}.npz")
+    if os.path.exists(out_file):
+        return record_id, "already_exists", 0
+
+    try:
+        epoch_labels = get_annotations(hyp_path, epoch_sec)
+        psg = pyedflib.EdfReader(psg_path)
+        labels = psg.getSignalLabels()
+        
+        idx_fpz  = labels.index('EEG Fpz-Cz')
+        idx_pz   = labels.index('EEG Pz-Oz')
+        idx_eog  = labels.index('EOG horizontal')
+        idx_resp = labels.index('Resp oro-nasal')
+        idx_temp = labels.index('Temp rectal')
+        idx_emg  = labels.index('EMG submental')
+
+        fs_fast = psg.getSampleFrequency(idx_fpz)   # 100 Hz
+        fs_slow = psg.getSampleFrequency(idx_resp)  # 1 Hz
+
+        raw_fpz  = psg.readSignal(idx_fpz)
+        raw_pz   = psg.readSignal(idx_pz)
+        raw_eog  = psg.readSignal(idx_eog)
+        raw_resp = psg.readSignal(idx_resp)
+        raw_temp = psg.readSignal(idx_temp)
+        raw_emg  = psg.readSignal(idx_emg)
+        psg.close()
+
+        # 1. Filter Fast 100 Hz Streams
+        (b_band, a_band), (b_notch, a_notch) = create_filters(fs=fs_fast)
         filt_fpz = filter_signal(raw_fpz, b_band, a_band, b_notch, a_notch)
-        filt_pz = filter_signal(raw_pz, b_band, a_band, b_notch, a_notch) if raw_pz is not None else None
+        filt_pz  = filter_signal(raw_pz, b_band, a_band, b_notch, a_notch)
+        filt_eog = filter_signal(raw_eog, b_band, a_band, b_notch, a_notch)
+
+        # 2. Transform Slow 1 Hz Streams
+        # Temperature: Delta T relative to nocturnal mean
+        delta_temp = raw_temp - np.mean(raw_temp)
+        # Respiration: Z-Score standardized
+        std_resp = np.std(raw_resp)
+        std_resp = std_resp if std_resp > 1e-6 else 1.0
+        z_resp = (raw_resp - np.mean(raw_resp)) / std_resp
+        # EMG envelope
+        filt_emg_slow = raw_emg
+
+        # Slicing
+        samp_fast = int(epoch_sec * fs_fast) # 3000
+        samp_slow = int(epoch_sec * fs_slow) # 30
+
+        total_epochs = min(
+            len(filt_fpz) // samp_fast,
+            len(z_resp) // samp_slow,
+            len(epoch_labels)
+        )
+
+        ep_fpz  = filt_fpz[:total_epochs * samp_fast].reshape(total_epochs, samp_fast)
+        ep_pz   = filt_pz[:total_epochs * samp_fast].reshape(total_epochs, samp_fast)
+        ep_eog  = filt_eog[:total_epochs * samp_fast].reshape(total_epochs, samp_fast)
+        ep_resp = z_resp[:total_epochs * samp_slow].reshape(total_epochs, samp_slow)
+        ep_temp = delta_temp[:total_epochs * samp_slow].reshape(total_epochs, samp_slow)
+        ep_emg  = filt_emg_slow[:total_epochs * samp_slow].reshape(total_epochs, samp_slow)
+        y = epoch_labels[:total_epochs]
+
+        start_idx, end_idx = get_in_bed_slice(y, total_epochs, epoch_sec)
+        if start_idx is None:
+            return record_id, "no_sleep_epochs", 0
+
+        ep_fpz  = ep_fpz[start_idx:end_idx]
+        ep_pz   = ep_pz[start_idx:end_idx]
+        ep_eog  = ep_eog[start_idx:end_idx]
+        ep_resp = ep_resp[start_idx:end_idx]
+        ep_temp = ep_temp[start_idx:end_idx]
+        ep_emg  = ep_emg[start_idx:end_idx]
+        y_trimmed = y[start_idx:end_idx]
+        orig_indices = np.arange(start_idx, end_idx)
+
+        valid_mask = y_trimmed != -1
+        ep_fpz  = ep_fpz[valid_mask]
+        ep_pz   = ep_pz[valid_mask]
+        ep_eog  = ep_eog[valid_mask]
+        ep_resp = ep_resp[valid_mask]
+        ep_temp = ep_temp[valid_mask]
+        ep_emg  = ep_emg[valid_mask]
+        y_valid = y_trimmed[valid_mask]
+        orig_indices = orig_indices[valid_mask]
+
+        if len(y_valid) == 0:
+            return record_id, "no_valid_epochs", 0
+
+        # Scale 100 Hz streams
+        sc_fpz = robust_scale(ep_fpz)
+        sc_pz  = robust_scale(ep_pz)
+        sc_eog = robust_scale(ep_eog)
+        # Slow streams
+        sc_resp = ep_resp.astype(np.float32)
+        sc_temp = ep_temp.astype(np.float32)
+        sc_emg  = robust_scale(ep_emg)
+
+        # Multi-rate tensors
+        x_fast = np.stack([sc_fpz, sc_pz, sc_eog], axis=1)    # (N, 3, 3000)
+        x_slow = np.stack([sc_resp, sc_temp, sc_emg], axis=1) # (N, 3, 30)
+
+        demo_key = ('cassette', subj_id % 100, night)
+        demo = demographics.get(demo_key, {'age': -1, 'sex': -1})
+
+        np.savez_compressed(
+            out_file,
+            x_fast=x_fast,
+            x_slow=x_slow,
+            x_fpz=sc_fpz,
+            x_pz=sc_pz,
+            x_eog=sc_eog,
+            x_resp=sc_resp,
+            x_temp=sc_temp,
+            x_emg_slow=sc_emg,
+            y=y_valid,
+            subject_id=subj_id,
+            night=night,
+            study=study,
+            record_id=record_id,
+            age=demo.get('age', -1),
+            sex=demo.get('sex', -1),
+            epoch_indices=orig_indices,
+            fs_fast=int(fs_fast),
+            fs_slow=int(fs_slow)
+        )
+        return record_id, "success", len(y_valid)
+
+    except Exception as e:
+        logger.error(f"Error processing {record_id} in cassette regime: {e}")
+        return record_id, f"error: {str(e)}", 0
+
+# ==============================================================================
+# Regime 3: Unified Combined Pipeline
+# ==============================================================================
+def process_record_unified(psg_path, hyp_path, output_dir, demographics, epoch_sec=30):
+    study, subj_id, night, record_id = parse_record_identifiers(psg_path)
+    out_file = os.path.join(output_dir, f"{record_id}.npz")
+    if os.path.exists(out_file):
+        return record_id, "already_exists", 0
+
+    try:
+        epoch_labels = get_annotations(hyp_path, epoch_sec)
+        psg = pyedflib.EdfReader(psg_path)
+        labels = psg.getSignalLabels()
+        
+        idx_fpz = labels.index('EEG Fpz-Cz')
+        idx_pz  = labels.index('EEG Pz-Oz') if 'EEG Pz-Oz' in labels else -1
+        idx_eog = labels.index('EOG horizontal') if 'EOG horizontal' in labels else -1
+
+        fs = psg.getSampleFrequency(idx_fpz)
+        raw_fpz = psg.readSignal(idx_fpz)
+        raw_pz  = psg.readSignal(idx_pz) if idx_pz != -1 else None
+        raw_eog = psg.readSignal(idx_eog) if idx_eog != -1 else None
+        psg.close()
+
+        (b_band, a_band), (b_notch, a_notch) = create_filters(fs=fs)
+        filt_fpz = filter_signal(raw_fpz, b_band, a_band, b_notch, a_notch)
+        filt_pz  = filter_signal(raw_pz, b_band, a_band, b_notch, a_notch) if raw_pz is not None else None
         filt_eog = filter_signal(raw_eog, b_band, a_band, b_notch, a_notch) if raw_eog is not None else None
 
-        # 4. Epoch Segmentation
-        samples_per_ep = int(epoch_sec * fs_raw)
+        samples_per_ep = int(epoch_sec * fs)
         total_epochs = min(len(filt_fpz) // samples_per_ep, len(epoch_labels))
-        
+
         ep_fpz = filt_fpz[:total_epochs * samples_per_ep].reshape(total_epochs, samples_per_ep)
-        ep_pz = filt_pz[:total_epochs * samples_per_ep].reshape(total_epochs, samples_per_ep) if filt_pz is not None else None
+        ep_pz  = filt_pz[:total_epochs * samples_per_ep].reshape(total_epochs, samples_per_ep) if filt_pz is not None else None
         ep_eog = filt_eog[:total_epochs * samples_per_ep].reshape(total_epochs, samples_per_ep) if filt_eog is not None else None
         y = epoch_labels[:total_epochs]
 
-        # 5. In-Bed Wake Trimming (Fix 24h recording bias)
-        sleep_indices = np.where((y >= 1) & (y <= 4))[0]
-        if len(sleep_indices) == 0:
+        start_idx, end_idx = get_in_bed_slice(y, total_epochs, epoch_sec)
+        if start_idx is None:
             return record_id, "no_sleep_epochs", 0
 
-        first_sleep = sleep_indices[0]
-        last_sleep = sleep_indices[-1]
-        pad = int(30 * 60 / epoch_sec)  # 60 epochs (30 min)
-
-        start_idx = max(0, first_sleep - pad)
-        end_idx = min(total_epochs, last_sleep + pad + 1)
-
-        # Slice to trimmed in-bed window
         ep_fpz = ep_fpz[start_idx:end_idx]
         if ep_pz is not None:
             ep_pz = ep_pz[start_idx:end_idx]
@@ -278,7 +481,6 @@ def process_record(psg_path, hyp_path, output_dir, demographics, epoch_sec=30, f
         y_trimmed = y[start_idx:end_idx]
         orig_indices = np.arange(start_idx, end_idx)
 
-        # Filter out unscored / artifact epochs (-1)
         valid_mask = y_trimmed != -1
         ep_fpz = ep_fpz[valid_mask]
         if ep_pz is not None:
@@ -291,21 +493,18 @@ def process_record(psg_path, hyp_path, output_dir, demographics, epoch_sec=30, f
         if len(y_valid) == 0:
             return record_id, "no_valid_epochs", 0
 
-        # 6. Robust IQR Scaling
-        scaled_fpz = robust_scale(ep_fpz)
-        scaled_pz = robust_scale(ep_pz) if ep_pz is not None else np.zeros_like(scaled_fpz)
-        scaled_eog = robust_scale(ep_eog) if ep_eog is not None else np.zeros_like(scaled_fpz)
+        sc_fpz = robust_scale(ep_fpz)
+        sc_pz  = robust_scale(ep_pz) if ep_pz is not None else np.zeros_like(sc_fpz)
+        sc_eog = robust_scale(ep_eog) if ep_eog is not None else np.zeros_like(sc_fpz)
 
-        # 7. Attach Demographic Metadata
-        demo_key = (study, subj_id % 100 if study == 'cassette' else subj_id % 100, night)
-        demo = demographics.get(demo_key, {'age': -1, 'sex': -1, 'lights_off': ''})
+        demo_key = (study, subj_id % 100, night)
+        demo = demographics.get(demo_key, {'age': -1, 'sex': -1})
 
-        # Save to compressed .npz archive
         np.savez_compressed(
             out_file,
-            x_fpz=scaled_fpz,
-            x_pz=scaled_pz,
-            x_eog=scaled_eog,
+            x_fpz=sc_fpz,
+            x_pz=sc_pz,
+            x_eog=sc_eog,
             y=y_valid,
             subject_id=subj_id,
             night=night,
@@ -314,33 +513,64 @@ def process_record(psg_path, hyp_path, output_dir, demographics, epoch_sec=30, f
             age=demo.get('age', -1),
             sex=demo.get('sex', -1),
             epoch_indices=orig_indices,
-            fs=int(fs_raw)
+            fs=int(fs)
         )
         return record_id, "success", len(y_valid)
 
     except Exception as e:
-        logger.error(f"Error processing {record_id}: {e}")
+        logger.error(f"Error processing {record_id} in unified regime: {e}")
         return record_id, f"error: {str(e)}", 0
 
-def run_preprocessing(data_dir, output_dir, max_workers=4, limit=None):
+# ==============================================================================
+# Driver Function
+# ==============================================================================
+def find_matched_pairs(base_dir):
+    psg_files = sorted(glob.glob(os.path.join(base_dir, '**/*-PSG.edf'), recursive=True))
+    hyp_files = sorted(glob.glob(os.path.join(base_dir, '**/*-Hypnogram.edf'), recursive=True))
+
+    hyp_dict = {}
+    for h in hyp_files:
+        fname = os.path.basename(h)
+        prefix = fname[:6]
+        hyp_dict[prefix] = h
+
+    pairs = []
+    for p in psg_files:
+        fname = os.path.basename(p)
+        prefix = fname[:6]
+        if prefix in hyp_dict:
+            pairs.append((p, hyp_dict[prefix]))
+    return pairs
+
+def run_regime(regime_name, data_dir, output_dir, max_workers=4, limit=None):
     os.makedirs(output_dir, exist_ok=True)
     demographics = load_demographics(data_dir)
-    pairs = find_matched_pairs(data_dir)
+    all_pairs = find_matched_pairs(data_dir)
+
+    if regime_name == "telemetry":
+        pairs = [p for p in all_pairs if os.path.basename(p[0]).startswith("ST")]
+        proc_fn = process_record_telemetry
+    elif regime_name == "cassette":
+        pairs = [p for p in all_pairs if os.path.basename(p[0]).startswith("SC")]
+        proc_fn = process_record_cassette
+    else:  # unified
+        pairs = all_pairs
+        proc_fn = process_record_unified
 
     if limit is not None and limit > 0:
         pairs = pairs[:limit]
 
-    logger.info(f"Loaded {len(demographics)} demographic records.")
-    logger.info(f"Commencing preprocessing for {len(pairs)} records using {max_workers} worker processes...")
+    logger.info(f"=== Starting Preprocessing for Regime: '{regime_name}' ===")
+    logger.info(f"Target Directory: {output_dir}")
+    logger.info(f"Records to Process: {len(pairs)} using {max_workers} worker processes...")
 
     summary = {'success': 0, 'skipped': 0, 'failed': 0, 'total_epochs': 0}
 
     with ProcessPoolExecutor(max_workers=max_workers) as executor:
         futures = {
-            executor.submit(process_record, psg, hyp, output_dir, demographics): psg
+            executor.submit(proc_fn, psg, hyp, output_dir, demographics): psg
             for psg, hyp in pairs
         }
-        
         for future in as_completed(futures):
             record_id, status, n_epochs = future.result()
             if status == "success":
@@ -349,29 +579,36 @@ def run_preprocessing(data_dir, output_dir, max_workers=4, limit=None):
                 logger.info(f"[{summary['success'] + summary['skipped']}/{len(pairs)}] Processed {record_id}: {n_epochs} epochs")
             elif status == "already_exists":
                 summary['skipped'] += 1
-                logger.info(f"Skipped {record_id}: Already processed.")
+                logger.info(f"Skipped {record_id}: Already exists.")
             else:
                 summary['failed'] += 1
                 logger.error(f"Failed {record_id}: {status}")
 
-    logger.info(f"Preprocessing completed: {summary}")
+    logger.info(f"=== Regime '{regime_name}' Preprocessing Completed: {summary} ===")
     return summary
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="SleepLens Preprocessing Pipeline")
+    parser = argparse.ArgumentParser(description="SleepLens Multi-Regime Preprocessing Pipeline")
+    parser.add_argument("--regime", type=str, default="all", choices=["unified", "telemetry", "cassette", "all"],
+                        help="Which regime to preprocess")
     parser.add_argument("--data_dir", type=str, default="../SleepLens/sleep-edf-database-expanded-1.0.0",
                         help="Path to Sleep-EDF raw dataset directory")
-    parser.add_argument("--output_dir", type=str, default="../SleepLens/data/processed",
-                        help="Output directory for processed .npz files")
-    parser.add_argument("--max_workers", type=int, default=4,
+    parser.add_argument("--output_base", type=str, default="../SleepLens/data",
+                        help="Base output directory")
+    parser.add_argument("--max_workers", type=int, default=6,
                         help="Number of parallel worker processes")
     parser.add_argument("--limit", type=int, default=None,
                         help="Limit number of records to process (for debugging)")
     args = parser.parse_args()
 
-    run_preprocessing(
-        data_dir=args.data_dir,
-        output_dir=args.output_dir,
-        max_workers=args.max_workers,
-        limit=args.limit
-    )
+    if args.regime in ["unified", "all"]:
+        run_regime("unified", args.data_dir, os.path.join(args.output_base, "processed"),
+                   max_workers=args.max_workers, limit=args.limit)
+        
+    if args.regime in ["telemetry", "all"]:
+        run_regime("telemetry", args.data_dir, os.path.join(args.output_base, "processed_telemetry"),
+                   max_workers=args.max_workers, limit=args.limit)
+        
+    if args.regime in ["cassette", "all"]:
+        run_regime("cassette", args.data_dir, os.path.join(args.output_base, "processed_cassette"),
+                   max_workers=args.max_workers, limit=args.limit)
