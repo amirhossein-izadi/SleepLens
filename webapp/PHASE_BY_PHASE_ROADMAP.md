@@ -9,8 +9,8 @@ This document is the actionable, step-by-step implementation guide for **SleepLe
 | Phase | Description | Status | Verification Command |
 |---|---|---|---|
 | **Phase 1** | Backend Foundation, Data Models & Dynamic Schema | ✅ **COMPLETED** | `cd webapp && .venv/bin/python verify_phase1.py` |
-| **Phase 2** | Ingestion Pipeline & External Service Adapters | ⏳ **NEXT** | `cd webapp && .venv/bin/python verify_phase2.py` |
-| **Phase 3** | In-Process Task Runner Pipeline & REST APIs | 📋 Planned | `cd webapp && .venv/bin/pytest tests/test_phase3_api.py` |
+| **Phase 2** | Ingestion Pipeline & External Service Adapters | ✅ **COMPLETED** | `cd webapp && .venv/bin/python verify_phase2.py` |
+| **Phase 3** | In-Process Task Runner Pipeline & REST APIs | ⏳ **NEXT UP** | `cd webapp && .venv/bin/pytest tests/test_phase3_api.py` |
 | **Phase 4** | OpenCode LLM Clinical Report & Interactive Chat | 📋 Planned | `cd webapp && .venv/bin/python verify_phase4_llm.py` |
 | **Phase 5** | Frontend Core, Layout & Study Ingestion Wizard | 📋 Planned | `npm run dev` & browser upload check |
 | **Phase 6** | Frontend Hypnogram, File Explorer & Dynamic Metrics | 📋 Planned | Visual verification in browser |
@@ -59,7 +59,7 @@ cd webapp
 ---
 
 ### Phase 2: Ingestion Pipeline & External Service Adapters
-> **Status**: ⏳ **NEXT UP**
+> **Status**: ✅ **COMPLETED & VERIFIED**
 
 #### 1. Objective:
 Build the decoupled adapter layer (`infrastructure/`) to safely extract patient ZIP archives, invoke external AI staging models, compute SQI metrics, and connect to OpenCode.
