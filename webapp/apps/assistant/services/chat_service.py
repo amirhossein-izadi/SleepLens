@@ -15,7 +15,7 @@ from apps.assistant.models.chat_session import ChatSession
 from apps.assistant.models.chat_message import ChatMessage, ChatSender
 from apps.reports.services.prompt_builder import PromptBuilder
 from infrastructure.opencode.client import OpenCodeClient
-
+from infrastructure.storage.patient_storage_service import PatientStorageService
 logger = logging.getLogger("SleepLensChatService")
 User = get_user_model()
 
@@ -48,32 +48,33 @@ class ChatService:
             title=session_title
         )
 
-        # Pre-inject patient context as initial system message
-        context = PromptBuilder.build_clinical_context(study)
-        system_intro = (
-            f"Active Patient Context:\n"
-            f"- Patient: {context.patient_name} ({context.patient_age} yo {context.patient_sex})\n"
-            f"- SQI Score: {context.sqi_score:.1f}/100 ({context.sqi_category.upper()})\n"
-            f"- Efficiency: {context.key_metrics.get('se_pct', 'N/A')}%\n"
-            f"- Deep Sleep (N3): {context.key_metrics.get('n3_pct_tst', 'N/A')}%\n"
-            f"- Sleep Fragmentation Index: {context.key_metrics.get('sfi', 'N/A')}/hr\n"
-            f"- Apnea Index: {context.key_metrics.get('apnea_index', 'N/A')}/hr\n"
-            f"The assistant is initialized with this patient's full polysomnographic metrics."
+        # Pre-inject patient context and dedicated directory into OpenCode session
+        PatientStorageService.export_study_artifacts(study)
+        patient_context = PatientStorageService.get_patient_context_for_llm(study)
+        
+        # Send context directly to OpenCode session
+        opencode_client.send_chat_message(
+            opencode_sess_id,
+            f"System Initialization - Clinical Polysomnography Case:\n{patient_context}\n"
+            f"Please review the patient's data, hypnogram, and metrics above. Answer all subsequent physician questions "
+            f"with clinical precision grounded in this patient's specific recordings and metrics."
         )
 
         ChatMessage.objects.create(
             session=session,
             sender=ChatSender.SYSTEM,
-            content=system_intro
+            content=patient_context
         )
-
         # Initial greeting from assistant
+        summary = getattr(study, "metrics_summary", None)
+        sqi_val = f"{summary.sqi_score:.1f}" if summary else "N/A"
+        sqi_cat = summary.sqi_category.capitalize() if summary else "Pending"
         ChatMessage.objects.create(
             session=session,
             sender=ChatSender.ASSISTANT,
             content=(
-                f"Hello Doctor. I have reviewed the polysomnography metrics for {context.patient_name}. "
-                f"The recorded SQI score is {context.sqi_score:.1f} ({context.sqi_category.capitalize()}). "
+                f"Hello Doctor. I have reviewed the polysomnography metrics for {patient.first_name} {patient.last_name}. "
+                f"The recorded SQI score is {sqi_val} ({sqi_cat}). "
                 f"How can I assist you with this patient's findings or treatment plan?"
             )
         )
@@ -90,10 +91,14 @@ class ChatService:
             content=content
         )
 
-        # 2. Query OpenCode LLM
+        # 2. Query OpenCode LLM with patient grounding
         opencode_client = OpenCodeClient()
-        response_text = opencode_client.send_chat_message(session.opencode_session_id, content)
-
+        llm_prompt = (
+            f"[Patient: {session.study.patient.first_name} {session.study.patient.last_name} | "
+            f"MRN: {session.study.patient.mrn}]\n"
+            f"Physician Inquiry: {content}"
+        )
+        response_text = opencode_client.send_chat_message(session.opencode_session_id, llm_prompt)
         # 3. Record assistant message
         assistant_msg = ChatMessage.objects.create(
             session=session,
@@ -118,9 +123,12 @@ class ChatService:
         )
 
         opencode_client = OpenCodeClient()
-        full_text = opencode_client.send_chat_message(session.opencode_session_id, content)
-
-        # Stream words/tokens with natural typing cadence
+        llm_prompt = (
+            f"[Patient: {session.study.patient.first_name} {session.study.patient.last_name} | "
+            f"MRN: {session.study.patient.mrn}]\n"
+            f"Physician Inquiry: {content}"
+        )
+        full_text = opencode_client.send_chat_message(session.opencode_session_id, llm_prompt)
         accumulated = []
         tokens = full_text.split(" ")
         for token in tokens:

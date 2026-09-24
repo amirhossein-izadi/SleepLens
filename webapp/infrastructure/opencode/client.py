@@ -85,8 +85,27 @@ class OpenCodeClient:
             f"Further positional monitoring is clinically advisable."
         )
 
+    def _extract_text_from_opencode_obj(self, data: Any) -> Optional[str]:
+        """Extracts text part from either a single OpenCode message dict or a list of messages."""
+        if isinstance(data, list) and data:
+            for item in reversed(data):
+                txt = self._extract_text_from_opencode_obj(item)
+                if txt:
+                    return txt
+            return None
+
+        if isinstance(data, dict):
+            for part in data.get("parts", []):
+                if isinstance(part, dict) and part.get("type") == "text" and part.get("text"):
+                    return str(part.get("text")).strip()
+            if "content" in data and data["content"]:
+                return str(data["content"]).strip()
+            if "message" in data and data["message"]:
+                return str(data["message"]).strip()
+        return None
+
     def _send_message_safe(self, session_id: str, prompt: str) -> Optional[str]:
-        """Dispatches message to OpenCode using { parts: [{ type: 'text', text: prompt }] } schema."""
+        """Dispatches message to OpenCode with robust history recovery fallback."""
         url = f"{self.base_url}/session/{session_id}/message"
         payload = json.dumps({
             "parts": [
@@ -103,21 +122,26 @@ class OpenCodeClient:
         try:
             with self.opener.open(req, timeout=self.timeout_sec) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
-                
-                # Parse OpenCode message response format: parts[type == 'text'].text
-                for part in data.get("parts", []):
-                    if part.get("type") == "text" and part.get("text"):
-                        return part.get("text").strip()
-
-                if "content" in data:
-                    return str(data["content"]).strip()
-                if "message" in data:
-                    return str(data["message"]).strip()
-                return None
+                extracted = self._extract_text_from_opencode_obj(data)
+                if extracted:
+                    return extracted
         except Exception as e:
-            logger.info(f"OpenCode message dispatch failed ({e}); falling back.")
-            return None
+            logger.info(f"OpenCode POST message ended with ({e}); attempting session history recovery...")
 
+        # Session history recovery: query GET /session/{id}/message
+        try:
+            get_req = urllib.request.Request(f"{self.base_url}/session/{session_id}/message", method="GET")
+            with self.opener.open(get_req, timeout=10) as resp:
+                msgs = json.loads(resp.read().decode("utf-8"))
+                for m in reversed(msgs):
+                    if m.get("info", {}).get("role") == "assistant":
+                        extracted = self._extract_text_from_opencode_obj(m)
+                        if extracted:
+                            return extracted
+        except Exception as err:
+            logger.warning(f"Failed to recover OpenCode session history: {err}")
+
+        return None
     def _build_clinical_prompt(self, ctx: ClinicalContextDTO) -> str:
         cat_fa = {
             "optimal": "عالی (Optimal)",

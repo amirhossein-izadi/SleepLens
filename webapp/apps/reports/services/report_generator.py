@@ -41,6 +41,10 @@ class ReportGenerator:
             }
         )
 
+        # Synchronize report artifacts to patient directory
+        from infrastructure.storage.patient_storage_service import PatientStorageService
+        PatientStorageService.export_study_artifacts(study)
+
         action = "Generated" if created else "Regenerated"
         logger.info(f"{action} clinical report for study {study.id}")
         return report

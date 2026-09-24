@@ -87,11 +87,11 @@ class ThreadRunner:
         from apps.metrics.models.study_metric import StudyMetricsSummary
         from apps.reports.models.report import ClinicalReport
         from infrastructure.storage.zip_extractor import ZipExtractor
+        from infrastructure.storage.patient_storage_service import PatientStorageService
         from infrastructure.staging_service.client import StagingServiceClient
         from infrastructure.metrics_service.client import MetricsServiceClient
         from infrastructure.opencode.client import OpenCodeClient
         from lib.contracts.study_dto import ClinicalContextDTO
-
         try:
             study = SleepStudy.objects.get(id=study_id)
         except SleepStudy.DoesNotExist:
@@ -99,8 +99,7 @@ class ThreadRunner:
             return
 
         try:
-            work_dir = Path(settings.MEDIA_ROOT) / "studies_work" / str(study.id)
-            work_dir.mkdir(parents=True, exist_ok=True)
+            work_dir = PatientStorageService.get_study_directory(study)
             extracted_dir = work_dir / "extracted"
 
             # ---------------------------------------------------------
@@ -247,8 +246,10 @@ class ThreadRunner:
             study.status = StudyStatus.COMPLETED
             study.error_log = ""
             study.save(update_fields=["status", "error_log", "updated_at"])
-            logger.info(f"Pipeline completed successfully for study {study.id}")
 
+            # Synchronize all study artifacts to patient's dedicated directory
+            PatientStorageService.export_study_artifacts(study)
+            logger.info(f"Pipeline completed successfully for study {study.id}")
         except Exception as exc:
             study.status = StudyStatus.FAILED
             study.error_log = f"{exc}\n{traceback.format_exc()}"

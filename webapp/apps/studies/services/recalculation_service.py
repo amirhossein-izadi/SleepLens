@@ -77,5 +77,9 @@ class RecalculationService:
         summary.clinical_alerts = calculated_dto.clinical_alerts
         summary.save()
 
+        # Synchronize updated metrics to patient directory
+        from infrastructure.storage.patient_storage_service import PatientStorageService
+        PatientStorageService.export_study_artifacts(study)
+
         logger.info(f"Recalculated SQI for study {study.id}: {summary.sqi_score} ({summary.sqi_category})")
         return summary
