@@ -36,6 +36,7 @@ class ReportGenerator:
                 "respiratory_and_micro_notes": report_data.get("respiratory_and_micro_notes", ""),
                 "differential_diagnoses": report_data.get("differential_diagnoses", []),
                 "clinical_recommendations": report_data.get("clinical_recommendations", []),
+                "raw_markdown": report_data.get("raw_text", ""),
                 "is_signed_off": False,  # Reset sign-off on regeneration
             }
         )

@@ -4,6 +4,7 @@ Interacts with the local OpenCode AI server (default: http://127.0.0.1:4096).
 Adheres to backend_coding_guidelines (no Django dependencies in core adapter).
 """
 
+import re
 import json
 import logging
 import urllib.request
@@ -18,8 +19,7 @@ DEFAULT_OPENCODE_URL = "http://127.0.0.1:4096"
 
 class OpenCodeClient:
     """Client for local OpenCode LLM server to generate reports and power consultation chat."""
-
-    def __init__(self, base_url: str = DEFAULT_OPENCODE_URL, timeout_sec: int = 25):
+    def __init__(self, base_url: str = DEFAULT_OPENCODE_URL, timeout_sec: int = 120):
         self.base_url = base_url.rstrip("/")
         self.timeout_sec = timeout_sec
         # Bypass any environment HTTP proxies (e.g. 10808) for local 4096 communication
@@ -171,40 +171,82 @@ class OpenCodeClient:
             "poor": "ضعیف"
         }.get(ctx.sqi_category.lower(), ctx.sqi_category)
 
-        diagnoses = []
-        recommendations = []
-
+        fallback_exec = (
+            f"آزمایش پلی‌سومنوگرافی شبانه برای {ctx.patient_name} نشان‌دهنده شاخص کلی کیفیت خواب (SQI) "
+            f"معادل {ctx.sqi_score:.1f} از ۱۰۰ ({cat_fa}) است. کل زمان خواب {ctx.key_metrics.get('tst_min', 415):.0f} دقیقه "
+            f"با کارایی خواب {se:.1f}٪ به ثبت رسیده است."
+        )
+        fallback_arch = (
+            f"ساختار مراحل خواب شامل {n3:.1f}٪ خواب عمیق موج آهسته (N3) و {rem:.1f}٪ خواب رؤیا (REM) می‌باشد. "
+            f"میزان بیداری پس از شروع خواب (WASO) معادل {waso:.0f} دقیقه ثبت گردیده است."
+        )
+        fallback_resp = (
+            f"ارزیابی وقایع تنفسی نشان‌دهنده شاخص آپنه تخمینی معادل {apnea:.1f} واقعه در ساعت است. "
+            f"نسبت آتونی و فلج عضلانی خواب REM در بازه فیزیولوژیک طبیعی ارزیابی می‌شود."
+        )
+        fallback_diag = ["ثبات مطلوب قلبی‌تنفسی خواب (Preserved Cardiorespiratory Stability)"]
         if se < 80.0 or waso > 45.0:
-            diagnoses.append("بی‌خوابی در تداوم خواب (کد بین‌المللی ICD-10 G47.01)")
-            recommendations.append("درمان خط اول شناختی‌رفتاری برای بی‌خوابی (CBT-I)")
-            recommendations.append("پروتکل محدودیت خواب جهت تثبیت و افزایش کارایی خواب")
-
+            fallback_diag.append("بی‌خوابی در تداوم خواب (کد بین‌المللی ICD-10 G47.01)")
         if apnea >= 5.0:
-            diagnoses.append("آپنه انسدادی خواب خفیف تا متوسط (کد بین‌المللی ICD-10 G47.33)")
-            recommendations.append("ارزیابی راه هوایی فوقانی و بررسی کاربرد درمان پوزیشنال یا پروتز پیش‌آورنده فک (MAD)")
-        else:
-            diagnoses.append("ثبات مطلوب قلبی‌تنفسی خواب (Preserved Cardiorespiratory Stability)")
+            fallback_diag.append("آپنه انسدادی خواب خفیف تا متوسط (کد بین‌المللی ICD-10 G47.33)")
 
-        if n3 < 15.0:
-            recommendations.append("بررسی داروهای مهارکننده خواب عمیق و غربالگری سندرم پای بی‌قرار")
+        fallback_recs = ["رعایت اصول بهداشت خواب و حفظ ساعات منظم بیداری"]
+        if se < 80.0 or waso > 45.0:
+            fallback_recs.append("درمان خط اول شناختی‌رفتاری برای بی‌خوابی (CBT-I)")
+        if apnea >= 5.0:
+            fallback_recs.append("ارزیابی راه هوایی فوقانی و بررسی کاربرد درمان پوزیشنال یا پروتز پیش‌آورنده فک (MAD)")
 
+        if not text or len(text.strip()) < 50:
+            return {
+                "executive_summary": fallback_exec,
+                "architecture_findings": fallback_arch,
+                "respiratory_and_micro_notes": fallback_resp,
+                "differential_diagnoses": fallback_diag,
+                "clinical_recommendations": fallback_recs,
+                "raw_text": text or fallback_exec
+            }
+
+        # Dynamic extraction from OpenCode markdown sections
+        sec1_m = re.search(r'##\s*۱[.\s].*?\n(.*?)(?=##\s*۲|\Z)', text, re.DOTALL)
+        sec2_m = re.search(r'##\s*۲[.\s].*?\n(.*?)(?=##\s*۳|\Z)', text, re.DOTALL)
+        sec3_m = re.search(r'##\s*۳[.\s].*?\n(.*?)(?=##\s*۴|\Z)', text, re.DOTALL)
+        sec4_m = re.search(r'##\s*۴[.\s].*?\n(.*?)(?=##\s*۵|\Z)', text, re.DOTALL)
+        sec5_m = re.search(r'##\s*۵[.\s].*?\n(.*)', text, re.DOTALL)
+
+        exec_summary = sec1_m.group(1).strip() if sec1_m else text[:1000].strip()
+        arch_findings = sec2_m.group(1).strip() if sec2_m else fallback_arch
+        resp_notes = sec3_m.group(1).strip() if sec3_m else fallback_resp
+
+        # Extract diagnoses list
+        diagnoses = []
+        if sec4_m:
+            sec4_text = sec4_m.group(1).strip()
+            for line in sec4_text.split('\n'):
+                line_clean = line.strip('| -*0123456789.').strip()
+                if line_clean and not any(k in line_clean for k in ['اولویت', '---', 'ICD-10', 'کد']):
+                    parts = [p.strip() for p in line_clean.split('|') if p.strip()]
+                    if len(parts) >= 2:
+                        diagnoses.append(f"{parts[0]} ({parts[1]})")
+                    elif len(parts) == 1 and len(parts[0]) > 4:
+                        diagnoses.append(parts[0])
+        if not diagnoses:
+            diagnoses = fallback_diag
+
+        # Extract recommendations list
+        recommendations = []
+        if sec5_m:
+            sec5_text = sec5_m.group(1).strip()
+            for line in sec5_text.split('\n'):
+                line_clean = line.strip()
+                if re.match(r'^(\d+\.|[A-Z]\)|[-*])', line_clean):
+                    recommendations.append(line_clean)
         if not recommendations:
-            recommendations.append("رعایت اصول بهداشت خواب و حفظ ساعات منظم بیداری")
+            recommendations = fallback_recs
 
         return {
-            "executive_summary": text[:600].strip() if len(text) > 30 else (
-                f"آزمایش پلی‌سومنوگرافی شبانه برای {ctx.patient_name} نشان‌دهنده شاخص کلی کیفیت خواب (SQI) "
-                f"معادل {ctx.sqi_score:.1f} از ۱۰۰ ({cat_fa}) است. کل زمان خواب {ctx.key_metrics.get('tst_min', 415):.0f} دقیقه "
-                f"با کارایی خواب {se:.1f}٪ به ثبت رسیده است."
-            ),
-            "architecture_findings": (
-                f"ساختار مراحل خواب شامل {n3:.1f}٪ خواب عمیق موج آهسته (N3) و {rem:.1f}٪ خواب رؤیا (REM) می‌باشد. "
-                f"میزان بیداری پس از شروع خواب (WASO) معادل {waso:.0f} دقیقه ثبت گردیده است."
-            ),
-            "respiratory_and_micro_notes": (
-                f"ارزیابی وقایع تنفسی نشان‌دهنده شاخص آپنه تخمینی معادل {apnea:.1f} واقعه در ساعت است. "
-                f"نسبت آتونی و فلج عضلانی خواب REM در بازه فیزیولوژیک طبیعی ارزیابی می‌شود."
-            ),
+            "executive_summary": exec_summary,
+            "architecture_findings": arch_findings,
+            "respiratory_and_micro_notes": resp_notes,
             "differential_diagnoses": diagnoses,
             "clinical_recommendations": recommendations,
             "raw_text": text

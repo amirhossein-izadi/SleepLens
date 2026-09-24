@@ -122,6 +122,7 @@ export interface ClinicalReport {
   respiratory_and_micro_notes: string;
   differential_diagnoses: string[];
   clinical_recommendations: string[];
+  raw_markdown?: string;
   physician_notes?: string;
   is_signed_off: boolean;
   signed_off_at?: string | null;

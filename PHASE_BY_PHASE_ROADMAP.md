@@ -15,7 +15,7 @@ This document is the actionable, step-by-step implementation guide for **SleepLe
 | **Phase 5** | Frontend Core, Layout & Study Ingestion Wizard | ✅ **COMPLETED** | `cd webapp/frontend && npm run build` |
 | **Phase 6** | Frontend Hypnogram, File Explorer & Dynamic Metrics | ✅ **COMPLETED** | Visual interactive verification in browser |
 | **Phase 7** | Frontend AI Report Viewer & Real-Time Chat Drawer | ✅ **COMPLETED** | Real-time SSE streaming chat in browser UI |
-| **Phase 8** | End-to-End Testing & Polysomnography Integration | ⏳ **NEXT UP** | Full pipeline end-to-end rehearsal |
+| **Phase 8** | End-to-End Testing & Polysomnography Integration | ✅ **COMPLETED** | `cd webapp && .venv/bin/python verify_phase8_e2e.py` |
 
 ---
 
@@ -211,7 +211,7 @@ Deliver the narrative diagnostic report and the slide-out conversational assista
 ---
 
 ### Phase 8: End-to-End Testing & Polysomnography Integration
-> **Status**: 📋 **PLANNED**
+> **Status**: ✅ **COMPLETED & VERIFIED**
 
 #### 1. Objective:
 Conduct a complete end-to-end rehearsal using real Sleep-EDF sample recordings from the dataset.
@@ -223,3 +223,13 @@ Conduct a complete end-to-end rehearsal using real Sleep-EDF sample recordings f
 4. Physician overrides an epoch stage and recalculates SQI.
 5. Generate and sign off on the AI clinical report.
 6. Conduct an interactive consultation with the OpenCode LLM assistant.
+
+#### 3. How to test Phase 8:
+```bash
+cd webapp
+# Standalone E2E verification runner:
+.venv/bin/python verify_phase8_e2e.py
+
+# Automated pytest suite:
+.venv/bin/pytest tests/test_phase8_e2e.py
+```

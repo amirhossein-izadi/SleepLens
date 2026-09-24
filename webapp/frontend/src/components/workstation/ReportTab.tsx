@@ -32,7 +32,7 @@ export const ReportTab: React.FC<ReportTabProps> = ({
   const [physicianNotes, setPhysicianNotes] = useState(report?.physician_notes || '');
   const [savingSignOff, setSavingSignOff] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
-
+  const [viewMode, setViewMode] = useState<'structured' | 'full_narrative'>('structured');
   if (!report) {
     return (
       <div className="bg-white rounded-3xl p-12 text-center border border-slate-200">
@@ -270,8 +270,34 @@ export const ReportTab: React.FC<ReportTabProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center space-x-2 space-x-reverse no-print">
+        <div className="flex flex-wrap items-center gap-2 no-print">
+          <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+            <button
+              type="button"
+              onClick={() => setViewMode('structured')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                viewMode === 'structured'
+                  ? 'bg-white text-slate-900 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-700'
+              }`}
+            >
+              کارت‌های تفکیکی
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('full_narrative')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                viewMode === 'full_narrative'
+                  ? 'bg-white text-slate-900 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-700'
+              }`}
+            >
+              متن کامل گزارش (LLM)
+            </button>
+          </div>
+
           <button
+            type="button"
             onClick={handlePrintPDF}
             className="inline-flex items-center space-x-2 space-x-reverse px-4 py-2 rounded-xl text-xs font-bold bg-brand-600 hover:bg-brand-700 text-white shadow-md shadow-brand-600/20 transition-all hover:scale-105"
           >
@@ -280,6 +306,7 @@ export const ReportTab: React.FC<ReportTabProps> = ({
           </button>
 
           <button
+            type="button"
             onClick={handleRegenerate}
             disabled={regenerating}
             className="inline-flex items-center space-x-2 space-x-reverse px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition-colors disabled:opacity-50"
@@ -290,8 +317,26 @@ export const ReportTab: React.FC<ReportTabProps> = ({
         </div>
       </div>
 
-      {/* Main Report Body */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Full Narrative View */}
+      {viewMode === 'full_narrative' && (
+        <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+            <h4 className="text-sm font-black text-slate-900 flex items-center space-x-2 space-x-reverse">
+              <Sparkles className="w-4 h-4 text-brand-600" />
+              <span>متن مشروح و کامل گزارش بالینی تولیدشده توسط هوش مصنوعی</span>
+            </h4>
+            <span className="text-xs text-slate-400 font-mono">
+              {(report.raw_markdown || report.executive_summary).length.toLocaleString('fa-IR')} کاراکتر
+            </span>
+          </div>
+          <div className="prose prose-slate max-w-none text-sm text-slate-800 leading-relaxed font-sans [&_table]:w-full [&_table]:border-collapse [&_th]:border [&_th]:border-slate-200 [&_th]:bg-slate-50 [&_th]:p-2.5 [&_td]:border [&_td]:border-slate-200 [&_td]:p-2.5 [&_h1]:text-lg [&_h1]:font-black [&_h2]:text-base [&_h2]:font-bold [&_h2]:mt-6 [&_h2]:mb-2 [&_h2]:text-brand-900 [&_h3]:text-sm [&_h3]:font-bold [&_ul]:list-disc [&_ul]:pr-5 [&_ol]:list-decimal [&_ol]:pr-5">
+            <ReactMarkdown>{report.raw_markdown || report.executive_summary}</ReactMarkdown>
+          </div>
+        </div>
+      )}
+      {/* Main Report Body - Structured View */}
+      {viewMode === 'structured' && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Right (First in RTL): Report Content */}
         <div className="lg:col-span-2 space-y-6">
           {/* Executive Summary */}
@@ -359,44 +404,53 @@ export const ReportTab: React.FC<ReportTabProps> = ({
               )}
             </div>
           </div>
+        </div>
+      </div>
+      )}
 
-          {/* Physician Approval & Notes */}
-          <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-2 space-x-reverse">
-              <Edit3 className="w-4 h-4 text-slate-600" />
-              <span>یادداشت‌ها و نظر نهایی پزشک معالج</span>
-            </h4>
-            
-            <textarea
-              rows={4}
-              placeholder="نکات بالینی، ملاحظات تکمیلی، یا تغییرات مورد نظر در روند درمان را وارد نمایید..."
-              value={physicianNotes}
-              onChange={(e) => setPhysicianNotes(e.target.value)}
-              className="w-full p-3 text-xs rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 text-right leading-relaxed"
-            />
+      {/* Physician Approval & Notes - Always visible */}
+      <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+        <div className="flex items-center justify-between">
+          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-2 space-x-reverse">
+            <Edit3 className="w-4 h-4 text-slate-600" />
+            <span>یادداشت‌ها و نظر نهایی پزشک معالج</span>
+          </h4>
+          {report.is_signed_off && (
+            <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 flex items-center space-x-1 space-x-reverse">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>گزارش رسماً تایید و امضا شده است</span>
+            </span>
+          )}
+        </div>
+        
+        <textarea
+          rows={3}
+          placeholder="نکات بالینی، ملاحظات تکمیلی، یا تغییرات مورد نظر در روند درمان را وارد نمایید..."
+          value={physicianNotes}
+          onChange={(e) => setPhysicianNotes(e.target.value)}
+          className="w-full p-3.5 text-xs rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 text-right leading-relaxed"
+        />
 
-            <div className="pt-2">
-              {report.is_signed_off ? (
-                <button
-                  type="button"
-                  disabled={savingSignOff}
-                  onClick={() => handleSignOff(false)}
-                  className="w-full py-2.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
-                >
-                  {savingSignOff ? 'در حال ثبت...' : 'لغو تایید نهایی (بازگشت به حالت پیش‌نویس)'}
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  disabled={savingSignOff}
-                  onClick={() => handleSignOff(true)}
-                  className="w-full py-3 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20 transition-all hover:scale-[1.02]"
-                >
-                  {savingSignOff ? 'در حال امضا...' : 'امضا و تایید نهایی گزارش بالینی'}
-                </button>
-              )}
-            </div>
-          </div>
+        <div className="flex justify-end pt-1">
+          {report.is_signed_off ? (
+            <button
+              type="button"
+              disabled={savingSignOff}
+              onClick={() => handleSignOff(false)}
+              className="px-6 py-2.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
+            >
+              {savingSignOff ? 'در حال ثبت...' : 'لغو تایید نهایی (بازگشت به حالت پیش‌نویس)'}
+            </button>
+          ) : (
+            <button
+              type="button"
+              disabled={savingSignOff}
+              onClick={() => handleSignOff(true)}
+              className="px-8 py-3 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20 transition-all hover:scale-[1.02]"
+            >
+              {savingSignOff ? 'در حال امضا...' : 'امضا و تایید نهایی گزارش بالینی'}
+            </button>
+          )}
         </div>
       </div>
     </div>
