@@ -1,0 +1,19 @@
+{
+  "mrn": "SC464",
+  "age": 85,
+  "sex": "female",
+  "nights": {
+    "night_1": {
+      "psg_file": "SC4641E0-PSG.edf",
+      "hypnogram_file": "SC4641EP-Hypnogram.edf",
+      "lights_off": "22:30:00",
+      "condition": "Standard Ambulatory"
+    },
+    "night_2": {
+      "psg_file": "SC4642E0-PSG.edf",
+      "hypnogram_file": "SC4642EP-Hypnogram.edf",
+      "lights_off": "22:17:00",
+      "condition": "Standard Ambulatory"
+    }
+  }
+}

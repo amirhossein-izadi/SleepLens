@@ -1,0 +1,19 @@
+{
+  "mrn": "SC470",
+  "age": 89,
+  "sex": "male",
+  "nights": {
+    "night_1": {
+      "psg_file": "SC4701E0-PSG.edf",
+      "hypnogram_file": "SC4701EC-Hypnogram.edf",
+      "lights_off": "21:40:00",
+      "condition": "Standard Ambulatory"
+    },
+    "night_2": {
+      "psg_file": "SC4702E0-PSG.edf",
+      "hypnogram_file": "SC4702EA-Hypnogram.edf",
+      "lights_off": "21:39:00",
+      "condition": "Standard Ambulatory"
+    }
+  }
+}

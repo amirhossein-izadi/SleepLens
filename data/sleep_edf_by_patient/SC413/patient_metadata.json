@@ -1,0 +1,13 @@
+{
+  "mrn": "SC413",
+  "age": 27,
+  "sex": "male",
+  "nights": {
+    "night_1": {
+      "psg_file": "SC4131E0-PSG.edf",
+      "hypnogram_file": "SC4131EC-Hypnogram.edf",
+      "lights_off": "00:14:00",
+      "condition": "Standard Ambulatory"
+    }
+  }
+}

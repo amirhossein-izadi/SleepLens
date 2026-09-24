@@ -1,0 +1,19 @@
+{
+  "mrn": "SC428",
+  "age": 56,
+  "sex": "female",
+  "nights": {
+    "night_1": {
+      "psg_file": "SC4281G0-PSG.edf",
+      "hypnogram_file": "SC4281GC-Hypnogram.edf",
+      "lights_off": "23:55:00",
+      "condition": "Standard Ambulatory"
+    },
+    "night_2": {
+      "psg_file": "SC4282G0-PSG.edf",
+      "hypnogram_file": "SC4282GC-Hypnogram.edf",
+      "lights_off": "00:13:00",
+      "condition": "Standard Ambulatory"
+    }
+  }
+}
