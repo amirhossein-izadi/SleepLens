@@ -656,6 +656,10 @@
         <label for="backend-url-input">OpenCode Backend API URL</label>
         <input type="text" id="backend-url-input" placeholder="http://127.0.0.1:4096" />
       </div>
+      <div class="modal-field" style="display: flex; align-items: center; justify-content: space-between; margin-top: 14px;">
+        <label for="show-reasoning-toggle" style="margin-bottom: 0; cursor: pointer;">Show reasoning / thinking steps</label>
+        <input type="checkbox" id="show-reasoning-toggle" style="width: auto; cursor: pointer;" />
+      </div>
       <div class="modal-actions">
         <button class="modal-btn" onclick="closeSettings()">Cancel</button>
         <button class="modal-btn primary" onclick="saveSettings()">Save & Reconnect</button>
@@ -673,7 +677,9 @@
     let streamingElement = null;
     let accumulatedText = "";
     let accumulatedReasoning = "";
-
+    let showReasoning = localStorage.getItem("opencode_show_reasoning") === "true";
+    let knownPartTypes = new Map();
+    let assistantMsgIds = new Set();
     // Elements
     const sessionListEl = document.getElementById("session-list");
     const messagesContainer = document.getElementById("messages-container");
@@ -688,6 +694,7 @@
     const sessionCountEl = document.getElementById("session-count");
     const apiLabel = document.getElementById("api-label");
     const backendUrlInput = document.getElementById("backend-url-input");
+    const showReasoningToggle = document.getElementById("show-reasoning-toggle");
 
     // Initialize Markdown Renderer
     if (window.marked) {
@@ -779,12 +786,15 @@
     // Settings Modal
     function openSettings() {
       backendUrlInput.value = API_BASE;
+      showReasoningToggle.checked = showReasoning;
       document.getElementById("settings-modal").style.display = "flex";
     }
     function closeSettings() {
       document.getElementById("settings-modal").style.display = "none";
     }
     function saveSettings() {
+      showReasoning = showReasoningToggle.checked;
+      localStorage.setItem("opencode_show_reasoning", showReasoning);
       let val = backendUrlInput.value.trim().replace(/\/+$/, "");
       if (val) {
         API_BASE = val;
@@ -792,6 +802,8 @@
         apiLabel.innerText = API_BASE;
         closeSettings();
         connect();
+      } else {
+        closeSettings();
       }
     }
 
@@ -858,21 +870,46 @@
         return;
       }
 
-      if (evt.type === "message.part.delta") {
-        if (props.field === "text" && props.delta && streamingElement) {
-          accumulatedText += props.delta;
-          updateStreamingDisplay();
+      if (evt.type === "message.updated") {
+        if (props.info && props.info.role === "assistant") {
+          assistantMsgIds.add(props.info.id);
         }
       } else if (evt.type === "message.part.updated") {
-        if (props.part && props.part.type === "text" && streamingElement) {
-          if (props.part.text && props.part.text.length > accumulatedText.length) {
-            accumulatedText = props.part.text;
-            updateStreamingDisplay();
+        const part = props.part;
+        if (part && part.id) {
+          knownPartTypes.set(part.id, { type: part.type, messageID: part.messageID });
+        }
+        if (part && part.type === "text" && streamingElement) {
+          if (part.messageID && assistantMsgIds.has(part.messageID)) {
+            if (part.text && part.text.length > accumulatedText.length) {
+              accumulatedText = part.text;
+              updateStreamingDisplay();
+            }
           }
         }
-        if (props.part && props.part.type === "reasoning") {
-          accumulatedReasoning = props.part.text || "";
+        if (showReasoning && part && part.type === "reasoning" && streamingElement) {
+          accumulatedReasoning = part.text || "";
           updateStreamingDisplay();
+        }
+      } else if (evt.type === "message.part.delta") {
+        const pid = props.partID;
+        const partMeta = knownPartTypes.get(pid);
+        const ptype = partMeta ? partMeta.type : null;
+
+        if (ptype === "reasoning") {
+          if (showReasoning && streamingElement) {
+            accumulatedReasoning += props.delta || "";
+            updateStreamingDisplay();
+          }
+        } else {
+          const mid = props.messageID;
+          if (mid && !assistantMsgIds.has(mid)) {
+            return;
+          }
+          if (props.delta && streamingElement) {
+            accumulatedText += props.delta;
+            updateStreamingDisplay();
+          }
         }
       } else if (evt.type === "session.status") {
         if (props.status && props.status.type === "idle" && isGenerating) {
@@ -888,7 +925,7 @@
     function updateStreamingDisplay() {
       if (!streamingElement) return;
       let html = "";
-      if (accumulatedReasoning) {
+      if (showReasoning && accumulatedReasoning) {
         html += `
           <div class="reasoning-box">
             <div class="reasoning-toggle" onclick="toggleReasoning(this)">
@@ -898,7 +935,11 @@
           </div>
         `;
       }
-      html += renderMarkdown(accumulatedText) + '<span class="cursor-stream"></span>';
+      if (!accumulatedText) {
+        html += '<span style="color:var(--text-muted);font-style:italic;">Thinking...</span><span class="cursor-stream"></span>';
+      } else {
+        html += renderMarkdown(accumulatedText) + '<span class="cursor-stream"></span>';
+      }
       streamingElement.innerHTML = html;
       scrollToBottom();
     }
@@ -919,7 +960,7 @@
       if (streamingElement) {
         // remove blinking cursor
         let html = "";
-        if (accumulatedReasoning) {
+        if (showReasoning && accumulatedReasoning) {
           html += `
             <div class="reasoning-box">
               <div class="reasoning-toggle" onclick="toggleReasoning(this)">
@@ -929,7 +970,7 @@
             </div>
           `;
         }
-        html += renderMarkdown(accumulatedText);
+        html += renderMarkdown(accumulatedText || "No text response received.");
         streamingElement.innerHTML = html;
         streamingElement = null;
       }
@@ -986,7 +1027,7 @@
         history.forEach(item => {
           const role = item.info?.role || "assistant";
           const textPart = item.parts?.find(p => p.type === "text");
-          const reasoningPart = item.parts?.find(p => p.type === "reasoning");
+          const reasoningPart = showReasoning ? item.parts?.find(p => p.type === "reasoning") : null;
           if (textPart || reasoningPart) {
             appendMessageBubble(role, textPart?.text || "", reasoningPart?.text || "");
           }
@@ -1040,7 +1081,7 @@
       const avatar = role === "assistant" ? '<div class="message-avatar">⚡</div>' : '';
 
       let bodyHtml = "";
-      if (reasoning) {
+      if (showReasoning && reasoning) {
         bodyHtml += `
           <div class="reasoning-box">
             <div class="reasoning-toggle" onclick="toggleReasoning(this)">
@@ -1114,10 +1155,11 @@
 
       // Create assistant bubble placeholder for streaming
       streamingElement = appendMessageBubble("assistant", "");
-      streamingElement.innerHTML = '<span class="cursor-stream"></span>';
+      streamingElement.innerHTML = '<span style="color:var(--text-muted);font-style:italic;">Thinking...</span><span class="cursor-stream"></span>';
       accumulatedText = "";
       accumulatedReasoning = "";
-
+      knownPartTypes.clear();
+      assistantMsgIds.clear();
       setGeneratingUI(true);
 
       try {
@@ -1153,7 +1195,7 @@
 
         const data = await res.json();
         const textPart = data.parts?.find(p => p.type === "text");
-        const reasoningPart = data.parts?.find(p => p.type === "reasoning");
+        const reasoningPart = showReasoning ? data.parts?.find(p => p.type === "reasoning") : null;
 
         if (textPart?.text) {
           accumulatedText = textPart.text;
