@@ -79,3 +79,25 @@ class ReportViewSet(viewsets.ViewSet):
             data=ClinicalReportSerializer(report).data,
             message="Report sign-off status updated successfully."
         )
+
+    @action(detail=False, methods=["POST"], url_path=r"(?P<study_id>[^/.]+)/report/regenerate")
+    def regenerate_report(self, request: Request, study_id=None) -> Response:
+        """
+        Re-runs LLM report generation incorporating any updated metrics or stage edits.
+        POST /api/v1/studies/{study_id}/report/regenerate/
+        """
+        try:
+            study = SleepStudy.objects.get(id=study_id)
+        except SleepStudy.DoesNotExist:
+            return api_error(code="NOT_FOUND", message=f"Study {study_id} not found", status_code=status.HTTP_404_NOT_FOUND)
+
+        from apps.reports.services.report_generator import ReportGenerator
+        try:
+            report = ReportGenerator.generate_report_for_study(study)
+        except Exception as e:
+            return api_error(code="GENERATION_FAILED", message=str(e), status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return api_success(
+            data=ClinicalReportSerializer(report).data,
+            message="Clinical report regenerated successfully with latest metrics."
+        )

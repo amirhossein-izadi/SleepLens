@@ -11,8 +11,8 @@ This document is the actionable, step-by-step implementation guide for **SleepLe
 | **Phase 1** | Backend Foundation, Data Models & Dynamic Schema | ✅ **COMPLETED** | `cd webapp && .venv/bin/python verify_phase1.py` |
 | **Phase 2** | Ingestion Pipeline & External Service Adapters | ✅ **COMPLETED** | `cd webapp && .venv/bin/python verify_phase2.py` |
 | **Phase 3** | In-Process Task Runner Pipeline & REST APIs | ✅ **COMPLETED** | `cd webapp && .venv/bin/python verify_phase3.py` |
-| **Phase 4** | OpenCode LLM Clinical Report & Interactive Chat | ⏳ **NEXT UP** | `cd webapp && .venv/bin/python verify_phase4_llm.py` |
-| **Phase 5** | Frontend Core, Layout & Study Ingestion Wizard | 📋 Planned | `npm run dev` & browser upload check |
+| **Phase 4** | OpenCode LLM Clinical Report & Interactive Chat | ✅ **COMPLETED** | `cd webapp && .venv/bin/python verify_phase4_llm.py` |
+| **Phase 5** | Frontend Core, Layout & Study Ingestion Wizard | ⏳ **NEXT UP** | `npm run dev` & browser upload check |
 | **Phase 6** | Frontend Hypnogram, File Explorer & Dynamic Metrics | 📋 Planned | Visual verification in browser |
 | **Phase 7** | Frontend AI Report Viewer & Real-Time Chat Drawer | 📋 Planned | Interactive chat in browser UI |
 | **Phase 8** | End-to-End Testing & Polysomnography Integration | 📋 Planned | Full pipeline verification |
@@ -117,9 +117,8 @@ cd webapp
 ```
 
 ---
-
 ### Phase 4: OpenCode LLM Clinical Report & Interactive Chat
-> **Status**: 📋 **PLANNED**
+> **Status**: ✅ **COMPLETED & VERIFIED**
 
 #### 1. Objective:
 Integrate the local OpenCode LLM server to generate structured clinical summary reports and enable real-time doctor-LLM interactive consultations.
