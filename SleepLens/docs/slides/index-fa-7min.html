@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SleepLens — نسخه فشرده ۷ دقیقه‌ای · هکاتون پنجم کارخونه</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--lime:#daff00;--blk:#111;--cream:#f4f0e9;--sand:#efe9d7;--paper:#fff;--mut:#3d3d3d}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--cream);color:var(--blk);
+  font-family:"AnjomanMax",Vazirmatn,Tahoma,ui-sans-serif,system-ui,sans-serif}
+body{counter-reset:hk}
+.lt{direction:ltr;unicode-bidi:isolate}
+.num{font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate}
+.s{position:relative;min-height:100vh;padding:46px 60px 76px;background:var(--paper);
+  border-bottom:2px solid var(--blk);counter-increment:hk}
+.s:nth-child(even){background:var(--cream)}
+.s:before{content:"";position:absolute;top:0;left:0;right:0;height:8px;background:var(--lime);border-bottom:2px solid var(--blk)}
+.s:after{content:counter(hk);position:absolute;left:32px;bottom:18px;font-size:14px;font-weight:800;color:#8a8a8a}
+.s.dark{background:var(--blk);color:var(--cream)}
+.s.dark:after{color:#8a8a8a}.s.dark h2{color:var(--cream)}.s.dark p,.s.dark li{color:#d8d3c4}
+.center{display:flex;flex-direction:column;justify-content:center}
+h1{font-size:54px;line-height:1.25;margin:0 0 14px}
+h2{font-size:32px;line-height:1.5;margin:0 0 16px}
+h3{font-size:19px;margin:0 0 8px}
+.s.dark h3{color:var(--lime)}
+p,li{font-size:17.5px;line-height:1.85;color:var(--mut)}
+ul,ol{margin:8px 20px 0 0;padding:0}li{margin-bottom:4px}
+.k{display:block;width:fit-content;background:var(--lime);color:var(--blk);border:1px solid var(--blk);
+  padding:4px 12px;font-size:13px;font-weight:800;margin-bottom:10px}
+.sub{font-size:22px;line-height:1.85;color:#333;max-width:1080px}
+.s.dark .sub{color:var(--cream)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chips span{background:var(--blk);color:var(--lime);padding:6px 12px;border-radius:999px;font-size:13.5px;font-weight:800}
+.s.dark .chips span{background:var(--lime);color:var(--blk)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
+.pn{background:var(--paper);border:2px solid var(--blk);border-radius:4px;padding:14px 16px;box-shadow:8px 8px 0 rgba(0,0,0,.12)}
+.pn.good{background:var(--cream)}.pn.warn{background:var(--sand)}
+.pn.dark{background:var(--blk);color:var(--lime)}.pn.dark p,.pn.dark li{color:#d8d3c4}
+.cl{background:var(--lime);color:var(--blk);border:2px solid var(--blk);border-radius:4px;
+  padding:12px 16px;font-size:18.5px;line-height:1.8;margin-top:8px;font-weight:600;box-shadow:8px 8px 0 rgba(0,0,0,.15)}
+table{border-collapse:collapse;width:100%;background:var(--paper);margin:6px 0 10px;border:2px solid var(--blk);box-shadow:8px 8px 0 rgba(0,0,0,.1)}
+th,td{border:1px solid #999;padding:6px 8px;vertical-align:top;font-size:14px;line-height:1.6;color:#222}
+th{background:var(--blk);color:var(--lime);font-weight:800}
+tr:nth-child(even) td{background:#faf8f1}
+td.n,th.n{text-align:left;white-space:nowrap}
+tr.best td{background:#f4ffd2!important;font-weight:700}
+.flow{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin:8px 0}
+.flow div{padding:8px 11px;background:var(--paper);border:2px solid var(--blk);border-radius:4px;font-weight:800;font-size:14px}
+.flow span{background:var(--lime);border:1px solid var(--blk);font-weight:900;padding:0 7px}
+.mini{font-size:13.5px;line-height:1.75;color:#666}
+.ft{position:absolute;left:60px;bottom:20px;font-size:12px;color:#777;max-width:1020px}
+.s.dark .ft{color:#999}
+.frow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}
+.frow4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:10px 0}
+.cols2{column-count:2;column-gap:24px}
+.fig{background:var(--paper);border:2px solid var(--blk);border-radius:4px;padding:6px;box-shadow:8px 8px 0 rgba(0,0,0,.1)}
+.fig img{width:100%;height:auto;display:block}
+.fig figcaption{font-size:12px;color:#555;padding:4px 3px 1px;line-height:1.6}
+.fig.sm img{max-height:170px;object-fit:contain}
+.fig.md img{max-height:220px;object-fit:contain}
+a{color:#0b5cc0;text-decoration:none;border-bottom:1px solid rgba(11,92,192,.4)}
+.s.dark a{color:var(--lime)}
+@media(max-width:1000px){.s{padding:28px 20px 66px}h1{font-size:36px}h2{font-size:24px}
+.two,.three,.frow{grid-template-columns:1fr}}
+@media print{.s{page-break-after:always;min-height:100vh;padding:24px 42px 38px}
+.pn,.cl,.fig,table{box-shadow:none}th,td{font-size:10.5px;padding:3px 4.5px}
+p,li{font-size:14px;line-height:1.55}h2{font-size:25px;margin-bottom:9px}
+.pn{padding:9px 11px}h3{font-size:15.5px;margin-bottom:5px}
+li{margin-bottom:2px}
+.cl{font-size:17px;padding:10px 12px}
+.fig{padding:5px}.fig img{max-height:185px;object-fit:contain}
+.fig figcaption{font-size:11px}
+.fig.sm img{max-height:118px}.fig.md img{max-height:132px}
+.flow div{font-size:12.5px;padding:5px 8px}.flow{gap:5px;margin:6px 0}
+.k{font-size:12px;margin-bottom:8px}.mini{font-size:12px}
+.k,h2{break-after:avoid}.pn,table,.fig,.cl{break-inside:avoid}}
+</style>
+</head>
+<body>
+<main>
+
+<!-- ۱ · تایتل -->
+<section class="s dark center">
+  <div class="k">هکاتون پنجم کارخونه · هوش‌مصنوعی برای خواب بهتر · مهر ۱۴۰۵</div>
+  <h1>SleepLens — دستیار خبره خواب</h1>
+  <p class="sub">تشخیص پنج مرحله خواب با اطمینان سنجیده‌شده، مدل عمق خوابِ آموزش‌دیده روی داده ما،
+  ۹۶ سنجه شبانه، یک نمره کیفیت قابل‌توضیح و گزارش ساده با <span class="lt">LLM</span> —
+  همه روی ۱۹۷ شب واقعی Sleep-EDF.</p>
+  <div class="chips">
+    <span dir="ltr" style="unicode-bidi:isolate">Router (Home→Ensemble, Hospital→AnySleep) — 0.8458 Macro-F1</span>
+    <span>حداقل سیگنال: <span class="lt">Fpz+EOG</span> = <span class="num">99.5٪</span></span>
+    <span><span class="lt">SQI</span> آموزش‌دیده روی داده ما</span><span>~۲ دقیقه / شب روی <span class="lt">CPU</span></span>
+  </div>
+  <p class="ft">تیم: امیرحسین (staging / ensemble) · عرفان (SQI / depth) · مرتضی (product / agent)</p>
+</section>
+
+<!-- ۲ · مسئله -->
+<section class="s">
+  <div class="k">۱ · مسئله به زبان ساده</div>
+  <h2>دو مسئله داریم: تشخیص مرحله خواب (staging) و نمره کیفیت خواب (sleep quality score)</h2>
+  <div class="cl">آیا می‌توان با هوش‌مصنوعی کیفیت خواب را از سیگنال‌های بدن فهمید و این دانش را به یک
+  محصول قابل‌استفاده و قابل‌تجاری‌سازی تبدیل کرد؟</div>
+  <div class="two" style="margin-top:12px">
+    <div class="pn warn"><h3>امروز، بدون AI چه مشکلاتی داریم؟</h3>
+      <ul>
+        <li>رفتن به کلینیک خواب سخت، گران و محدود است — شبِ معمولیِ آدم را نمی‌بیند.</li>
+        <li><span class="lt">label</span> زدن هیپنوگرام دستی، کاری دشوار، کند و پرخطاست
+          (توافق داوران انسانی روی <span class="lt">N1</span> فقط ~<span class="num">63٪</span> است).</li>
+        <li>هیچ راه مشخص و استانداردی برای «اندازه‌گیری کیفیت خواب» نداریم؛ کیفیت چندبعدی است و یک عدد ثابت ندارد.</li>
+        <li><span class="lt">staging</span> به‌تنهایی عمقِ درونِ هر مرحله را از بین می‌برد
+          (مثلاً <span class="lt">N2</span> سبک و <span class="lt">N2</span> عمیق).</li>
+      </ul></div>
+    <div class="pn"><h3>هکاتون دقیقاً همین را می‌خواهد</h3>
+      <ul>
+        <li>یک <span class="lt">sleep quality score</span> قابل‌فهم از داده کامل بساز.</li>
+        <li>همان نمره را با <b>حداقل سیگنال</b> (یک/چند کانال) پیش‌بینی کن.</li>
+        <li>مدل ساده را در برابر مرجع <b>اعتبارسنجی</b> کن و <b>توضیح</b> بده چه الگویی مهم بود.</li>
+        <li>نتیجه را ساده <b>نمایش</b> بده و <b>محصول</b> قابل‌ساختش را نشان بده.</li>
+      </ul>
+      <p class="mini">هر ۸ خروجی خواسته‌شده تحویل شد: مدل کیفیت · تک‌کانال · اعتبارسنجی · دمو ·
+      توضیح‌پذیری · کانسپت محصول · کد/پایپ‌لاین · بونوس.</p></div>
+  </div>
+</section>
+
+<!-- ۳ · داده -->
+<section class="s">
+  <div class="k">۲ · داده‌ها — همه‌چیز در یک نگاه</div>
+  <h2>۱۹۷ شب واقعی، دو دنیا: خانه (SC) و بیمارستان (ST)</h2>
+  <div class="cl"><b>«بنچمارک ما» یعنی چه؟</b> از <b>اولین خواب تا آخرین خواب</b>، به‌علاوه
+  <b>نیم‌ساعت بیداری</b> در دو سر — همان روشی که در مقالات این حوزه استفاده می‌شود.
+  این‌طور بیداری طولانی روزانه از حساب خارج می‌شود و عددی که می‌ماند، واقعاً «خواب» را می‌سنجد.</div>
+  <div class="pn">
+    <h3>داده‌ها به زبان ساده</h3>
+    <p>۱۹۷ شب خواب از ۱۰۰ نفر داریم: ۱۵۳ شب خانگی و ۴۴ شب بیمارستانی. شب‌های خانگی طولانی‌اند
+    (تقریباً یک شبانه‌روز، با چرت روز) و شب‌های بیمارستانی حدود ۹ ساعت.</p>
+    <p>همه شب‌ها دو کانال مغزی و یک کانال چشم دارند؛ عضله دو نوع ثبت دارد و سنسور اکسیژن و قلب
+    نداریم — پس هرچه مربوط به تنفس و قلب است، «سنجیده نشده» اعلام می‌کنیم، نه اینکه حدس بزنیم.</p>
+    <p>برای مقایسه منصفانه، هر شب را از شروع تا پایان خواب در نظر گرفتیم (۲۳۷٬۹۳۶ بخش ۳۰ثانیه‌ای)
+    و آموزش و آزمون را بر اساس «فرد» جدا کردیم تا هیچ فردی در هر دو طرف نباشد.</p>
+    <p>در این داده مرحله N1 کم و مورداختلاف است و گذرِ بین مراحل قانون‌مند؛ همین دو نکته مسیر
+    مدل‌سازی ما را تعیین کرد.</p>
+  </div>
+  <div class="frow4">
+    <figure class="fig sm"><img src="assets/class_dist.png" alt="class distribution"><figcaption>توزیع خام کلاس‌ها — بیداری غالب</figcaption></figure>
+    <figure class="fig sm"><img src="assets/trim_impact.png" alt="trim impact"><figcaption>اثر برش در بنچمارک ما</figcaption></figure>
+    <figure class="fig sm"><img src="assets/duration_dist.png" alt="duration"><figcaption>مدت ضبط: دو قله SC/ST</figcaption></figure>
+    <figure class="fig sm"><img src="assets/fullnight_SC4001E0-PSG.png" alt="یک شب کامل"><figcaption>شب SC4001 (۲۲h): بیداری روزانه سپس خواب چرخه‌ای</figcaption></figure>
+  </div>
+</section>
+
+<!-- ۴ · جدول کامل نتایج -->
+<section class="s">
+  <div class="k">۳ · همه مدل‌ها، همه متریک‌ها — چیزی ساده نشده</div>
+  <h2>جدول کامل نتایج — با «بنچمارک ما» (اولین تا آخرین خواب، ±نیم‌ساعت؛
+  <span class="num">237,936</span> بخش ۳۰ثانیه‌ای) و روی کل داده معتبر</h2>
+  <table>
+    <tr><th>مدل</th><th class="n">n</th><th class="n">کل</th><th class="n">خانه</th><th class="n">بیمارستان</th><th class="n">N1</th><th class="n">N3</th><th class="n">REM</th><th class="n">full</th></tr>
+    <tr class="best"><td><b><span class="lt">Router</span></b> (خانه→Ensemble، بیمارستان→AnySleep)</td><td class="n num">197</td><td class="n num">0.8458</td><td class="n num">0.836</td><td class="n num">0.878</td><td class="n num">0.638</td><td class="n num">0.840</td><td class="n num">0.919</td><td class="n num">—</td></tr>
+    <tr><td>Ensemble + ۵ خبره دودویی کلاسی</td><td class="n num">197</td><td class="n num">0.8433</td><td class="n num">0.837</td><td class="n num">0.865</td><td class="n num">0.638</td><td class="n num">0.832</td><td class="n num">0.915</td><td class="n num">—</td></tr>
+    <tr class="best"><td><b>Ensemble</b> (AnySleep×2 + U-Sleep + LightGBM)</td><td class="n num">197</td><td class="n num">0.8425</td><td class="n num">0.836</td><td class="n num">0.865</td><td class="n num">0.635</td><td class="n num">0.833</td><td class="n num">0.915</td><td class="n num">0.8513</td></tr>
+    <tr><td>Ensemble + class bias</td><td class="n num">197</td><td class="n num">0.8417</td><td class="n num">0.835</td><td class="n num">0.868</td><td class="n num">0.638</td><td class="n num">0.833</td><td class="n num">0.915</td><td class="n num">0.8510</td></tr>
+    <tr><td>Ensemble + رأی خبره‌های قهرمان هر کلاس</td><td class="n num">197</td><td class="n num">0.8417</td><td class="n num">—</td><td class="n num">—</td><td class="n num">0.625</td><td class="n num">0.831</td><td class="n num">0.915</td><td class="n num">—</td></tr>
+    <tr><td>Ensemble (AnySleep×3 + LightGBM + bias)</td><td class="n num">197</td><td class="n num">0.8316</td><td class="n num">0.820</td><td class="n num">0.873</td><td class="n num">0.617</td><td class="n num">0.825</td><td class="n num">0.900</td><td class="n num">0.8404</td></tr>
+    <tr><td>Ensemble (AnySleep×3 + LightGBM)</td><td class="n num">197</td><td class="n num">0.8315</td><td class="n num">0.820</td><td class="n num">0.872</td><td class="n num">0.610</td><td class="n num">0.825</td><td class="n num">0.901</td><td class="n num">0.8398</td></tr>
+    <tr><td>Ensemble (0.7·AnySleep + 0.3·RobustSleepNet + bias)</td><td class="n num">197</td><td class="n num">0.8291</td><td class="n num">0.813</td><td class="n num">0.878</td><td class="n num">0.624</td><td class="n num">0.800</td><td class="n num">0.904</td><td class="n num">0.8370</td></tr>
+    <tr><td><span class="lt">U-Sleep CSDP</span> (وزن باز، ۲ کانال)</td><td class="n num">197</td><td class="n num">0.8275</td><td class="n num">0.833</td><td class="n num">0.775</td><td class="n num">0.605</td><td class="n num">0.801</td><td class="n num">0.914</td><td class="n num">0.8364</td></tr>
+    <tr><td><span class="lt">AnySleep</span> 3ch ‏(Fpz+Pz+EOG)</td><td class="n num">197</td><td class="n num">0.8267</td><td class="n num">0.809</td><td class="n num">0.878</td><td class="n num">0.622</td><td class="n num">0.788</td><td class="n num">0.904</td><td class="n num">0.8347</td></tr>
+    <tr><td><span class="lt">AnySleep</span> ‏Fpz+EOG</td><td class="n num">197</td><td class="n num">0.8227</td><td class="n num">0.811</td><td class="n num">0.865</td><td class="n num">0.592</td><td class="n num">0.812</td><td class="n num">0.905</td><td class="n num">0.8322</td></tr>
+    <tr><td><span class="lt">AnySleep</span> ‏Fpz+Pz</td><td class="n num">197</td><td class="n num">0.8134</td><td class="n num">0.797</td><td class="n num">0.863</td><td class="n num">0.594</td><td class="n num">0.785</td><td class="n num">0.878</td><td class="n num">0.8214</td></tr>
+    <tr><td><span class="lt">AnySleep</span> ‏Fpz only</td><td class="n num">197</td><td class="n num">0.8015</td><td class="n num">0.790</td><td class="n num">0.844</td><td class="n num">0.549</td><td class="n num">0.796</td><td class="n num">0.875</td><td class="n num">0.8093</td></tr>
+    <tr><td><span class="lt">SLEEPYLAND</span> ‏(partial, حذف‌شده)</td><td class="n num">49</td><td class="n num">0.7859</td><td class="n num">0.789</td><td class="n num">0.644</td><td class="n num">0.442</td><td class="n num">0.794</td><td class="n num">0.908</td><td class="n num">0.7929</td></tr>
+    <tr><td><span class="lt">AnySleep</span> ‏Pz only</td><td class="n num">197</td><td class="n num">0.7736</td><td class="n num">0.756</td><td class="n num">0.829</td><td class="n num">0.531</td><td class="n num">0.748</td><td class="n num">0.844</td><td class="n num">0.7608</td></tr>
+    <tr><td><span class="lt">RobustSleepNet</span> (تمیز، Sleep-EDF را ندیده)</td><td class="n num">197</td><td class="n num">0.7501</td><td class="n num">0.736</td><td class="n num">0.788</td><td class="n num">0.442</td><td class="n num">0.717</td><td class="n num">0.855</td><td class="n num">0.7615</td></tr>
+    <tr><td><span class="lt">LightGBM</span> (خودمان، ۱۱ سنجه)</td><td class="n num">197</td><td class="n num">0.6672</td><td class="n num">0.672</td><td class="n num">0.580</td><td class="n num">0.390</td><td class="n num">0.735</td><td class="n num">0.651</td><td class="n num">0.6726</td></tr>
+    <tr><td><span class="lt">YASA</span> ‏Fpz+EOG ‏(crop)</td><td class="n num">197</td><td class="n num">0.5463</td><td class="n num">0.531</td><td class="n num">0.562</td><td class="n num">0.069</td><td class="n num">0.580</td><td class="n num">0.649</td><td class="n num">0.5463</td></tr>
+    <tr><td><span class="lt">YASA</span> ‏Fpz</td><td class="n num">197</td><td class="n num">0.5225</td><td class="n num">0.486</td><td class="n num">0.611</td><td class="n num">0.100</td><td class="n num">0.538</td><td class="n num">0.557</td><td class="n num">0.5574</td></tr>
+    <tr><td><span class="lt">YASA</span> ‏Fpz+EOG</td><td class="n num">197</td><td class="n num">0.5171</td><td class="n num">0.480</td><td class="n num">0.548</td><td class="n num">0.122</td><td class="n num">0.364</td><td class="n num">0.665</td><td class="n num">0.5582</td></tr>
+    <tr><td><span class="lt">YASA</span> ‏Pz+EOG</td><td class="n num">197</td><td class="n num">0.4272</td><td class="n num">0.381</td><td class="n num">0.499</td><td class="n num">0.070</td><td class="n num">0.262</td><td class="n num">0.560</td><td class="n num">0.4744</td></tr>
+  </table>
+  <p class="mini">وزن‌های ترکیب روی داده آموزش انتخاب شده‌اند، نه با نگاه به داده آزمون؛
+  دو ردیف LightGBM چند سنجه کمتر دارند (پوشش <span class="num">237,310</span>).
+  <span class="lt">SleepFMStager</span> پارک شد (خروجی ثابت، مستند، بدون عدد جعلی) و
+  SLEEPYLAND به‌خاطر تحویل ناقص حذف شد؛ هر دو با شواهد در مخزن باقی مانده‌اند.</p>
+</section>
+
+<!-- ۵ · قهرمان‌های کلاس -->
+<section class="s">
+  <div class="k">۴ · قهرمان هر کلاس</div>
+  <h2>هیچ مدلی همه مراحل را نمی‌برد — انتخاب بر اساس کلاس و منبع داده</h2>
+  <table>
+    <tr><th>مرحله</th><th>بهترین سیستم</th><th class="n">F1</th><th class="n">Recall</th><th class="n">Precision</th><th>دومین · بهترین recall</th></tr>
+    <tr class="best"><td>Wake</td><td>Ensemble (AnySleep + RobustSleepNet)</td><td class="n num">0.941</td><td class="n num">0.928</td><td class="n num">0.955</td><td>AnySleep 3ch 0.941 · YASA recall 0.993</td></tr>
+    <tr class="best"><td>N1</td><td>Ensemble + class bias</td><td class="n num">0.638</td><td class="n num">0.691</td><td class="n num">0.592</td><td>Ensemble v2 0.635</td></tr>
+    <tr class="best"><td>N2</td><td>Ensemble (۴ جریان)</td><td class="n num">0.892</td><td class="n num">0.904</td><td class="n num">0.881</td><td>Ensemble + bias 0.891</td></tr>
+    <tr class="best"><td>N3</td><td>Ensemble + class bias</td><td class="n num">0.833</td><td class="n num">0.830</td><td class="n num">0.837</td><td>Ensemble v2 0.833 · <b>LightGBM recall 0.873</b></td></tr>
+    <tr class="best"><td>REM</td><td>Ensemble (۴ جریان)</td><td class="n num">0.915</td><td class="n num">0.915</td><td class="n num">0.915</td><td>Ensemble + bias 0.915</td></tr>
+  </table>
+  <div class="two">
+    <div class="pn"><h3>قهرمان بر اساس منبع (چرا Router ساختیم)</h3>
+      <table>
+        <tr><th>برش</th><th>بهترین</th><th class="n">F1</th></tr>
+        <tr><td>خانه SC — ‏REM</td><td>U-Sleep CSDP</td><td class="n num">0.919</td></tr>
+        <tr><td>بیمارستان ST — ‏N2</td><td>AnySleep 3ch</td><td class="n num">0.921</td></tr>
+        <tr><td>بیمارستان ST — ‏N3</td><td>AnySleep 3ch</td><td class="n num">0.873</td></tr>
+        <tr><td>بیمارستان ST — ‏REM</td><td>AnySleep 3ch</td><td class="n num">0.949</td></tr>
+        <tr><td>بیمارستان ST — ‏N1</td><td>Ensemble (0.7ANY + 0.3RSN)</td><td class="n num">0.745</td></tr>
+      </table></div>
+    <div class="pn good"><h3>خوانش</h3>
+      <p>در خانه، REM با <span class="lt">U-Sleep</span> برنده است؛ در بیمارستان، <span class="lt">AnySleep</span>
+      تقریباً همه‌چیز را می‌برد. <span class="lt">N1</span> سخت‌ترین کلاس است
+      (<span class="num">0.638</span> کلی، ولی <span class="num">0.745</span> در بیمارستان) — منبع داده
+      از خود مدل مهم‌تر است. این جدول پایه‌ی منطقی <span class="lt">Router</span> است.</p></div>
+  </div>
+</section>
+
+<!-- ۶ · مدل‌ها و روش پیشنهادی -->
+<section class="s">
+  <div class="k">۵ · مدل‌ها و روش پیشنهادی ما</div>
+  <h2>Ensemble برای تنوع و robustness؛ Router برای domain shift — هر دو را داریم</h2>
+  <table>
+    <tr><th>مدل</th><th>ایده</th><th class="n">Macro-F1</th><th>نکته کلیدی</th></tr>
+    <tr><td><span class="lt">LightGBM</span> (خودمان)</td><td>۱۱ سنجه باندی، بدون حافظه زمانی</td><td class="n num">0.667</td><td>موتور تنوع <span class="lt">ensemble</span> · بازیابی <span class="lt">N3</span> <span class="num">0.873</span></td></tr>
+    <tr><td><a class="lt" href="https://elifesciences.org/articles/70092" target="_blank">YASA</a> (کلاسیک)</td><td>~۱۱۶ سنجه طیفی + <span class="lt">LightGBM</span> آماده</td><td class="n num">0.52–0.55</td><td>خط‌پایه قابل‌تفسیر · شکست در <span class="lt">N1</span> (~<span class="num">0.07</span>)</td></tr>
+    <tr><td><a class="lt" href="https://www.alphaxiv.org/abs/2512.14461" target="_blank">AnySleep</a> (<span class="lt">deep</span>، <span class="lt">attention</span> روی کانال)</td><td>با هر چیدمان کانالی</td><td class="n num">0.8267</td><td>بهترین تک‌مدل در بیمارستان (<span class="num">0.878</span>)</td></tr>
+    <tr><td><a class="lt" href="https://doi.org/10.1038/s41746-021-00440-5" target="_blank">U-Sleep CSDP</a> (وزن باز)</td><td>۲ کانال، دقیقاً <span class="lt">minimal set</span></td><td class="n num">0.8275</td><td>بهترین تک‌مدل در خانه (<span class="num">0.833</span>) · کالیبره‌ترین تک‌مدل</td></tr>
+    <tr><td><a class="lt" href="https://www.alphaxiv.org/abs/2101.02452" target="_blank">RobustSleepNet</a> (<span class="lt">temporal</span>)</td><td>با نگاه به ۹۰۰ ثانیه قبل و بعد</td><td class="n num">0.7501</td><td>تمیزترین <span class="lt">zero-shot</span> (Sleep-EDF را ندیده)</td></tr>
+    <tr class="best"><td><b>Ensemble</b> (۴ جریان ناهم‌خانواده)</td><td>میانگین هم‌وزن: AnySleep 3ch + AnySleep Fpz+EOG + U-Sleep + LightGBM</td><td class="n num"><b>0.8425</b></td><td>هر ۵ دور آموزش مستقل همین ترکیب را انتخاب کرد</td></tr>
+    <tr class="best"><td><b>Router</b> (پیشنهاد نهایی ما)</td><td>خانه → ‏Ensemble (0.836) · بیمارستان → ‏AnySleep (0.878)</td><td class="n num"><b>0.8458</b></td><td>قانون قطعی از metadata ضبط، نه یک مدل یادگرفته</td></tr>
+  </table>
+  <div class="two">
+    <div class="pn"><h3>چرا ensemble؟ (شاهد عددی)</h3>
+      <ul>
+        <li>ترکیب ضعیفِ متفاوت (<span class="lt">LightGBM</span>) کمک می‌کند
+          (<span class="num">0.8267→0.8307</span>)؛ قویِ هم‌خانواده (<span class="lt">RSN</span>) ضرر می‌زند
+          (<span class="num">0.8108</span>).</li>
+        <li>شکاف خانه↔بیمارستان از <span class="num">0.069</span> به <span class="num">0.029</span> کم می‌شود —
+          سیستم متوازن، نه فقط بالاترین عدد.</li>
+      </ul></div>
+    <div class="pn good"><h3>Router یا Ensemble؟ هر دو سودمندند</h3>
+      <ul>
+        <li>اگر <span class="lt">domain shift</span> بین خانه/بیمارستان نداشتیم، <b>ensemble تنها کافی بود</b> —
+          مدل آماده است و یک مسیر واحد، ساده‌تر.</li>
+        <li>چون shift واقعی است (دامنه ۲–۳×، نرخ EMG، چرت روزانه) router هر cohort را به بهترین سیستمش می‌فرستد.</li>
+        <li>هزینه router ~صفر است: از metadata ضبط استفاده می‌کند، نه یک شبکه اضافه.</li>
+        <li><b>در خانه</b> با همین مسیر می‌شود حداقل مجموعه کافی سیگنال را گرفت: <span class="lt">Fpz+EOG</span>
+          فقط <span class="num">−0.004</span> و <span class="lt">Fpz</span> تنها <span class="num">97٪</span> امتیاز کامل.</li>
+      </ul></div>
+  </div>
+  <p class="ft">ما برای staging آموزش نمی‌دهیم (داده‌های برچسب‌دار کامل‌اند و مدل‌های مرجع خوبی هست)؛ برای SQI آموزش می‌دهیم
+  چون چیز جدیدی است و کالیبراسیون روی داده ما می‌خواهد — صفحه بعد.</p>
+</section>
+
+<!-- ۶ · توضیح‌پذیری -->
+<section class="s">
+  <div class="k">۶ · توضیح‌پذیری + اعتماد به مدل</div>
+  <h2>مدل قواعد AASM را خودش کشف کرد — و می‌داند کجا حدس می‌زند</h2>
+  <div class="two">
+    <div class="pn"><h3>SHAP: نگاشت یک‌به‌یک با پزشکی</h3>
+      <table>
+        <tr><th>مرحله</th><th>محرک اول</th><th class="n">SHAP</th><th>معادل بالینی</th></tr>
+        <tr><td>Wake</td><td><span class="lt">eog_ptp</span></td><td class="n num">1.30</td><td>حرکت چشم</td></tr>
+        <tr><td>N1</td><td><span class="lt">alpha</span></td><td class="n num">0.56</td><td>محو آلفا</td></tr>
+        <tr><td>N2</td><td><span class="lt">sigma</span></td><td class="n num">0.53</td><td>spindle</td></tr>
+        <tr><td>N3</td><td><span class="lt">eeg_std</span></td><td class="n num">1.88</td><td>موج آهسته دامنه‌بلند</td></tr>
+        <tr><td>REM</td><td><span class="lt">emg_rms</span></td><td class="n num">0.48</td><td>آتونی عضلانی</td></tr>
+      </table>
+      <p class="mini"><b>ابلشن سیگنال:</b> افزودن EOG به N1 ‏<span class="num">+0.027</span> و
+      REM ‏<span class="num">+0.026</span>؛ Fpz از Pz همه‌جا بهتر (N3 ‏<span class="num">+0.048</span>)؛
+      بهترین زوج <span class="lt">Fpz+EOG</span> با بازیابی REM ‏<span class="num">0.913</span>.
+      توجه مدل هم همین را دید: EOG در REM وزن <span class="num">0.52</span> و در N3 فقط
+      <span class="num">0.07</span>.</p></div>
+    <div class="pn good"><h3>اطمینان مدل در برابر برچسب پزشک</h3>
+      <table>
+        <tr><th>باند اطمینان</th><th class="n">سهم شب</th><th class="n">دقت واقعی</th><th>سیاست</th></tr>
+        <tr class="best"><td><span class="num">≥0.9</span></td><td class="n num">30.3٪</td><td class="n num"><b>99.5٪</b></td><td>قبول خودکار</td></tr>
+        <tr><td><span class="num">0.7–0.9</span></td><td class="n num">37.4٪</td><td class="n num">90–96٪</td><td>نمایش با اطمینان</td></tr>
+        <tr><td><span class="num">0.5–0.7</span></td><td class="n num">25.0٪</td><td class="n num">64–78٪</td><td>بازبینی</td></tr>
+        <tr><td><span class="num">&lt;0.5</span></td><td class="n num">7.4٪</td><td class="n num">43–54٪</td><td>بازبینی اجباری</td></tr>
+      </table>
+      <p class="mini">رابطه یکنوا: دو سوم شب با دقت ≥<span class="num">90٪</span> و فقط
+      <span class="num">7٪</span> شب وقت متخصص را می‌گیرد — صف بازبینی خودش نوشته می‌شود.
+      سرویس برای هر بخش ۳۰ثانیه‌ای، هر پنج احتمال را می‌دهد و بخش‌های مشکوک را
+      علامت‌دار می‌کند.</p></div>
+  </div>
+</section>
+
+<!-- ۷ · ویژگی‌ها + روش سرتاسری -->
+<section class="s">
+  <div class="k">۷ · ویژگی‌ها و روش سرتاسری</div>
+  <h2>۹۶ سنجه شبانه + مدل عمق — <b>ما هر دو را استفاده می‌کنیم، نه فقط یکی</b></h2>
+  <p>یک فایل خواب می‌دهید؛ اول مرحله‌های خواب مشخص می‌شود، بعد عمق خواب لحظه‌به‌لحظه
+  سنجیده می‌شود؛ از این دو، جدول سنجه‌های شب ساخته می‌شود و در پایان گزارش ساده و
+  امکان پرسش‌وپاسخ درباره همان شب می‌آید.</p>
+  <div class="three">
+    <div class="pn"><h3>تداوم — چقدر خوابیدی؟</h3><p><span class="lt">TST · SE · SOL · WASO · REM-lat</span> —
+      میانگین TST ‏<span class="num">417</span> دقیقه و SE ‏<span class="num">79.7٪</span>.
+      <b>چرا SE:</b> لنگر همه گزارش‌های بالینی و عدد پیوندخورده با پیامد.</p></div>
+    <div class="pn"><h3>تکه‌تکه‌شدن — چطور خوابیدی؟</h3><p>بیدارشدگی، stage shift،
+      <span class="lt">SFI</span> ‏<span class="num">20.8</span> و نشانه غیرمستقیم بیداری ‏<span class="num">13.2</span> —
+      «شب خُردشده» را آشکار می‌کند که درصد مراحل پنهانش می‌کند.</p></div>
+    <div class="pn"><h3>معماری و ریزساختار — چه نوع خوابی؟</h3><p>درصد مراحل، نیم‌شب‌ها، چرخه‌ها، ماتریس گذار ۵×۵،
+      <span class="lt">spindle</span> ‏<span class="num">1.86</span>/دقیقه و <span class="lt">EMG atonia</span> (تأیید REM).</p></div>
+  </div>
+  <div class="two">
+    <div class="pn warn"><h3>قرارداد صداقت سنجه‌ها</h3>
+      <p><b>دقیق:</b> TST · درصد مراحل · تأخیر REM · گذرها. <b>تقریبی:</b> SE · WASO · SOL.
+      <b>ناممکن:</b> arousal index · AHI/آپنه (بدون SpO2) · HR · پوزیشن →
+      به‌جای جعل، «غیرقابل‌ارزیابی» ثبت می‌شود.</p></div>
+    <div class="pn good"><h3>چرا فقط سنجه‌ها کافی نیستند؟</h3>
+      <p>بخش بزرگی از سنجه‌ها از <span class="lt">staging</span> می‌آید و خطایش
+      (مثل <span class="num">−4.2٪</span> در سهم خواب عمیق نسبت به برچسب پزشک) به همه‌شان سرایت می‌کند.
+      مدل SQI از <b>جریان عمق</b> می‌آید: درون‌مرحله‌ای و کم‌حساس به خطای کلاس —
+      پس <b>هر دو</b> را داریم و نمره از مجموعشان می‌آید.</p></div>
+  </div>
+</section>
+
+<!-- ۸ · مدل SQI ما (آموزش‌دیده) -->
+<section class="s">
+  <div class="k">۸ · مدل SQI ما — آموزش‌دیده روی داده ما، نه صفرشات</div>
+  <h2>بدنه اصلی مدل دست‌نخورده ماند؛ فقط بخش کوچکی روی داده خودمان تنظیم شد</h2>
+  <div class="two">
+    <div class="pn"><h3>چه چیزی و چطور آموزش دید</h3>
+      <ul>
+        <li>پایه: مدل عمق خواب مقاله (<span class="lt">npj 2025</span>) که از قبل روی داده‌های دیگران آموزش دیده بود.</li>
+        <li>ما فقط ورودی کانال‌ها و لایه‌های آخر را روی داده خودمان تنظیم کردیم
+          (حدود <span class="num">۴</span> میلیون پارامتر)؛ بقیه مدل دست‌نخورده ماند.</li>
+        <li>آموزش با جداسازی افراد: <span class="num">۸۰</span> نفر برای آموزش و
+          <span class="num">۲۰</span> نفر برای آزمون؛ در ۵ تقسیم تکرار شد و بهترین نتیجه در دور دهم به دست آمد.</li>
+        <li>ورودی: سیگنال مغز، عضله و چشم. سیگنال قلب در این داده نبود، پس از مدل حذفش کردیم.</li>
+        <li>نتیجه، مدلی مخصوص داده ماست؛ اعداد پیامدی مقاله اصلی به آن منتقل نمی‌شود.</li>
+      </ul></div>
+    <div class="pn good"><h3>نتیجه روی ۴۰ شبِ آزمون (خارج از آموزش)</h3>
+      <table>
+        <tr><th>سنجه</th><th class="n">قبل از تنظیم</th><th class="n">بعد از تنظیم</th><th class="n">بهبود</th></tr>
+        <tr class="best"><td>هم‌خوانی عمق با برچسب‌ها</td><td class="n num">0.796±0.102</td><td class="n num">0.858±0.045</td><td class="n num">+0.062</td></tr>
+        <tr class="best"><td>دقت تشخیص REM ‏(F1)</td><td class="n num">0.670±0.165</td><td class="n num">0.745±0.128</td><td class="n num">+0.074</td></tr>
+        <tr><td>تشخیص REM ‏(AUROC)</td><td class="n num">0.946±0.057</td><td class="n num">0.963±0.035</td><td class="n num">+0.017</td></tr>
+        <tr><td>تفکیک بیداری از خواب عمیق</td><td class="n num">0.070 / 0.859</td><td class="n num">0.023 / 0.878</td><td class="n num">تیزتر</td></tr>
+      </table>
+      <p class="mini">نمره شب از پنج مؤلفه ساخته می‌شود (سهم خواب سبک، میانگین عمق،
+      نوسان عمق، عمق بخش رؤیا و سهم رؤیا)؛ همین پنج به عدد و صدک شبانه تبدیل می‌شوند.
+      تکرارپذیری شب‌به‌شب <span class="lt">ICC = 0.54</span> روی ۹۳ جفت شب ·
+      ۴ شب بدون بخش رؤیا: <b>نمره صادر نشد</b>، نه جعل.</p></div>
+  </div>
+  <div class="cl">سنجه‌های جدولی حسابرسی‌پذیرند و مدل عمق چیزی می‌دهد که برچسب‌های پنج‌گانه ندارند —
+  ما هر دو را داریم و نمره از مجموعشان می‌آید.</div>
+  <p class="ft">مقاله پایه: <a class="lt" href="https://www.alphaxiv.org/abs/2407.04753">arXiv 2407.04753</a> ·
+  نسخه ژورنال: <a class="lt" href="https://doi.org/10.1038/s41746-025-01607-0">npj Digital Medicine 8:203 (2025)</a> ·
+  کد مرجع: <span class="lt">sczzz3/SDI</span></p>
+</section>
+
+<!-- ۹ · نمره کیفیت ما (۰ تا ۱۰۰) -->
+<section class="s">
+  <div class="k">۹ · نمره کیفیت ۰ تا ۱۰۰ — جدا از خروجی عمق، همخانواده با نمرههای بالینی</div>
+  <h2>امتیاز برای خواب خوب، جریمهٔ سقف‌دار برای خواب تکه‌تکه — با آستانه‌های مستند</h2>
+  <div class="two">
+    <div class="pn"><h3>نمره چطور ساخته می‌شود؟</h3>
+      <ul>
+        <li><b>امتیازها (حداکثر ۷۵):</b> کارایی خواب تا ۳۵ · عمق خواب (شاخص SDI) تا ۲۰ ·
+          سهم خواب عمیق تا ۱۲ · سهم خواب رؤیا تا ۱۰.</li>
+        <li><b>پایه ۲۵</b> که جریمه‌ها از آن کم می‌کنند: تکه‌تکه‌شدن شب تا ۱۲ ·
+          بیداری بعد از شروع خواب تا ۸ · زمان به‌خواب‌رفتن تا ۵.</li>
+        <li>خروجی ۰ تا ۱۰۰ با برچسب: <b>عالی ≥۸۵ · خوب ≥۷۵ · متوسط ≥۶۰ · ضعیف کمتر.</b></li>
+        <li>اگر خروجی عمق در دسترس نبود، سهمش حذف و بقیه بزرگ می‌شود —
+          <b>هیچ بخشی از نمره بی‌صدا صفر نمی‌شود.</b></li>
+      </ul></div>
+    <div class="pn good"><h3>چرا این شکل؟</h3>
+      <ul>
+        <li>همان ساختار مقالات این حوزه: امتیاز برای مقادیر خوب + جریمهٔ سقف‌دار —
+          نه جمع وزنی سلیقه‌ای.</li>
+        <li>مخرج‌ها درست‌اند: کارایی روی زمان خواب و درصدها روی کل خواب حساب می‌شوند،
+          نه روی کل ضبط.</li>
+        <li>آستانه‌ها توصیه‌ای‌اند: کارایی ≥۸۵٪، بیداری بعد از خواب ≤۲۰ دقیقه و
+          زمان به‌خواب‌رفتن ≤۱۵ دقیقه (توصیه‌های بنیاد ملی خواب)؛ تکه‌تکه‌شدن از
+          تعریف علمی رایج (Haba-Rubio 2004).</li>
+        <li>جای مدل ما دقیقاً همین‌جاست: ردیف «عمق» که فرمول‌های قبلی فقط با خواب عمیق
+          می‌ساختند، حالا یک سنجه پیوسته عمق از داده خودمان دارد.</li>
+        <li>نمره فقط در سرور محاسبه می‌شود؛ داشبورد، گزارش و دستیار یک عدد واحد می‌بینند.</li>
+      </ul></div>
+  </div>
+  <div class="two">
+    <div class="pn"><h3>چه چیزهایی امتیاز نمی‌گیرند (شفاف)</h3>
+      <p>سهم خواب سبک، نوسان عمق، عمق رؤیا و سهم رؤیای مدل محاسبه و نمایش داده می‌شوند
+      ولی فعلاً امتیاز نمی‌گیرند (برای کالیبراسیون آینده). شاخص آپنه، شاخص بیداری و آتونی
+      چون در این داده سنجیده نشده‌اند وارد نمره نمی‌شوند و «ارزیابی‌نشده» ثبت می‌شوند.</p></div>
+    <div class="pn warn"><h3>منابع</h3>
+      <p>ساختار امتیاز/جریمه: <span class="lt">De Fazio et al., Sensors 2026;26(13):4091</span> ·
+      آستانه‌ها: توصیه‌های کیفیت خواب بنیاد ملی خواب (<span class="lt">Ohayon 2017</span>) ·
+      تکه‌تکه‌شدن: <span class="lt">Haba-Rubio 2004</span> · عمق (SDI):
+      <a class="lt" href="https://www.alphaxiv.org/abs/2407.04753">arXiv 2407.04753</a> /
+      <a class="lt" href="https://doi.org/10.1038/s41746-025-01607-0">npj Digital Medicine 8:203</a> ·
+      قواعد نمره‌گذاری خواب: دفترچه <span class="lt">AASM</span>.</p></div>
+  </div>
+</section>
+
+<!-- ۱۰ · محصول -->
+<section class="s">
+  <div class="k">۱۰ · محصول</div>
+  <h2>محصول در عمل: چه می‌سازیم و مشتری چه می‌بیند؟</h2>
+  <div class="three">
+    <div class="pn"><h3>یک فایل خواب می‌فرستید، نتیجه می‌گیرید</h3>
+      <p>فایل ثبت خواب را می‌دهید و چند دقیقه بعد نمودار مراحل خواب، منحنی عمق و جدول سنجه‌ها را
+      می‌بینید. همان محاسباتی که اینجا ارائه کردیم، در عمل هم اجرا می‌شود و نتیجه‌اش یکی است.</p></div>
+    <div class="pn"><h3>با دو الکترود هم کار می‌کند</h3>
+      <p>برای استفاده خانگی لازم نیست همه سنسورها باشند؛ دو الکترود (پیشانی و چشم) تقریباً همان
+      نتیجه اتاق خواب را می‌دهد و در تشخیص خواب رؤیایی حتی کمی بهتر عمل می‌کند.</p></div>
+    <div class="pn"><h3>فقط برچسب پنج‌گانه نیست</h3>
+      <p>علاوه بر مراحل خواب، «چقدر عمیق» را لحظه‌به‌لحظه می‌سنجیم. این تفاوتِ شبِ سبک و شبِ
+      عمیق را نشان می‌دهد؛ چیزی که در دسته‌بندی کلاسیک گم می‌شود.</p></div>
+  </div>
+  <div class="three">
+    <div class="pn good"><h3>نتیجه را می‌شود فهمید و درباره‌اش پرسید</h3>
+      <p>گزارش به زبان ساده نوشته می‌شود، بخش‌های نامعلوم را صریح نامعلوم می‌گوید و می‌شود
+      درباره همان شب سؤال پرسید؛ جواب هم از خود داده می‌آید، نه از حافظه.</p></div>
+    <div class="pn good"><h3>مشتری و درآمد</h3>
+      <p>مشتری اول کلینیک‌های خواب و شرکت‌هایی‌اند که گجت خواب می‌سازند. درآمد از تحلیل هر فایل،
+      اشتراک ماهانه و واگذاری مدل به تولیدکننده‌ها می‌آید.</p></div>
+    <div class="pn warn"><h3>مرزها را خودمان می‌گوییم</h3>
+      <p>این ابزار پزشکی نیست و تشخیص نمی‌دهد. نمره کیفیت ما یک برآورد پژوهشی است و پیش از
+      استفاده بالینی باید با پرسشنامه‌های استاندارد خواب اعتبارسنجی شود.</p></div>
+  </div>
+</section>
+
+<!-- ۱۱ · پایانی -->
+<section class="s dark center">
+  <div class="k">پایان — ممنون از توجه‌تان</div>
+  <h1>SleepLens</h1>
+  <p class="sub">استیجینگ با اطمینان سنجیده‌شده، مدل عمق آموزش‌دیده روی داده ما، ۹۶ سنجه قابل‌توضیح،
+  یک sleep quality score حسابرسی‌پذیر، و agent ای که کارش را نشان می‌دهد.</p>
+  <div class="chips">
+    <span>Router 0.8458 Macro-F1</span><span>Fpz+EOG = 99.5٪</span>
+    <span>مدل عمق آموزش‌دیده + تکرارپذیری 0.54</span><span>~۲ دقیقه / شب CPU</span><span>وزن‌ها در مخزن</span>
+  </div>
+  <p class="ft">مخزن: github.com/amirhossein-izadi/SleepLens · شاخه amirhossein ·
+  اسلایدها: SleepLens/docs/slides/ · تیم: امیرحسین · عرفان · مرتضی</p>
+</section>
+
+</main>
+</body>
+</html>

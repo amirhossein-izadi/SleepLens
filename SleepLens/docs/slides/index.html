@@ -1,0 +1,1182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SleepLens — AI for Better Sleep · 5th AI Factory Hackathon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800;900&display=swap" rel="stylesheet">
+<style>
+/* SleepLens deck — 5th AI Factory Hackathon skin on the reference single-file structure.
+   Brand tokens from the official hackathon page: lime #daff00 · black #111 · cream #f4f0e9 · sand #efe9d7.
+   Font: AnjomanMax (brand, if installed) -> Vazirmatn (web) -> system. */
+:root{
+  --hk-lime:#daff00; --hk-black:#111; --hk-ink:#1a1a1a; --hk-card:#222;
+  --hk-cream:#f4f0e9; --hk-sand:#efe9d7; --hk-paper:#fff; --hk-grey:#8a8a8a;
+  --hk-muted:#3d3d3d; --hk-mini:#666;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--hk-cream);color:var(--hk-black);
+  font-family:"AnjomanMax",Vazirmatn,Tahoma,ui-sans-serif,system-ui,"Segoe UI",Roboto,Arial,sans-serif}
+body{counter-reset:hk}
+.fa{direction:rtl;unicode-bidi:embed;text-align:right;line-height:2}
+.hk-deck{width:100%}
+.hk-slide{position:relative;min-height:100vh;padding:54px 72px 86px;background:var(--hk-paper);
+  border-bottom:2px solid var(--hk-black);counter-increment:hk}
+.hk-slide:nth-child(even){background:var(--hk-cream)}
+.hk-slide:before{content:"";position:absolute;top:0;left:0;right:0;height:8px;
+  background:var(--hk-lime);border-bottom:2px solid var(--hk-black)}
+.hk-slide:after{content:counter(hk);position:absolute;right:36px;bottom:22px;font-size:14px;
+  font-weight:800;color:var(--hk-grey)}
+.hk-slide.dark{background:var(--hk-black);color:var(--hk-cream)}
+.hk-slide.dark:after{color:var(--hk-grey)}
+.hk-slide.dark h2{color:var(--hk-cream)}
+.hk-slide.dark p,.hk-slide.dark li{color:#d8d3c4}
+.center{display:flex;flex-direction:column;justify-content:center}
+h1{font-size:58px;line-height:1.02;letter-spacing:-.03em;margin:0 0 18px;max-width:1160px}
+h2{font-size:38px;line-height:1.1;letter-spacing:-.02em;margin:0 0 22px;max-width:1250px}
+h3{font-size:21px;margin:0 0 10px;color:var(--hk-black)}
+.hk-slide.dark h3{color:var(--hk-lime)}
+p,li{font-size:19px;line-height:1.5;color:var(--hk-muted)}
+ul,ol{margin:8px 0 0 22px;padding:0}li{margin-bottom:7px}
+.hk-kicker{display:inline-block;background:var(--hk-lime);color:var(--hk-black);border:1px solid var(--hk-black);
+  padding:4px 12px;font-size:13px;font-weight:800;letter-spacing:.06em;margin-bottom:14px}
+.hk-slide.dark .hk-kicker{background:var(--hk-lime)}
+.subtitle{font-size:25px;line-height:1.4;color:#333;max-width:1080px}
+.hk-slide.dark .subtitle{color:var(--hk-cream)}
+.hk-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.hk-chips span{background:var(--hk-black);color:var(--hk-lime);padding:7px 13px;border-radius:999px;
+  font-size:14px;font-weight:800}
+.hk-slide.dark .hk-chips span{background:var(--hk-lime);color:var(--hk-black)}
+.hk-two{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:16px}
+.hk-three{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px}
+.hk-four{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+.hk-panel{background:var(--hk-paper);border:2px solid var(--hk-black);border-radius:4px;
+  padding:18px 20px;box-shadow:8px 8px 0 rgba(0,0,0,.12)}
+.hk-panel.is-good{background:var(--hk-cream)}
+.hk-panel.is-dark{background:var(--hk-black);color:var(--hk-lime)}
+.hk-panel.is-dark p,.hk-panel.is-dark li{color:#d8d3c4}
+.hk-panel.is-warn{background:var(--hk-sand)}
+.hk-claim{background:var(--hk-lime);color:var(--hk-black);border:2px solid var(--hk-black);
+  border-radius:4px;padding:16px 20px;font-size:21px;line-height:1.4;margin-top:12px;font-weight:600;
+  box-shadow:8px 8px 0 rgba(0,0,0,.15)}
+.hk-example{background:var(--hk-cream);border:2px dashed var(--hk-black);border-radius:4px;
+  padding:14px 18px;margin:10px 0}
+.hk-quote{font-size:23px;line-height:1.45;color:var(--hk-black);border-left:6px solid var(--hk-lime);
+  padding-left:16px;margin:8px 0 12px;font-weight:600}
+.hk-num{background:var(--hk-lime);padding:0 7px;font-weight:800;border:1px solid var(--hk-black)}
+table{border-collapse:collapse;width:100%;background:var(--hk-paper);margin:8px 0 14px;
+  border:2px solid var(--hk-black);box-shadow:8px 8px 0 rgba(0,0,0,.1)}
+th,td{border:1px solid #999;padding:8px 10px;vertical-align:top;text-align:left;color:#222;
+  font-size:15px;line-height:1.32}
+th{background:var(--hk-black);color:var(--hk-lime);font-weight:800}
+tr:nth-child(even) td{background:#faf8f1}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.dense th,.dense td{font-size:12.5px;padding:5px 7px}
+tr.best td{background:#f4ffd2!important;font-weight:700}
+.hk-flow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0}
+.hk-flow div{padding:11px 14px;background:var(--hk-paper);border:2px solid var(--hk-black);
+  border-radius:4px;color:var(--hk-black);font-weight:800;font-size:16px;box-shadow:4px 4px 0 rgba(0,0,0,.12)}
+.hk-flow span{color:var(--hk-black);background:var(--hk-lime);border:1px solid var(--hk-black);
+  font-weight:900;font-size:18px;padding:0 8px}
+.fig{background:var(--hk-paper);border:2px solid var(--hk-black);border-radius:4px;padding:10px;
+  box-shadow:8px 8px 0 rgba(0,0,0,.1)}
+.fig img{width:100%;height:auto;display:block}
+.fig figcaption{font-size:13.5px;color:#555;padding:8px 4px 2px;line-height:1.4}
+.figrow{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px}
+.mini{font-size:15px;line-height:1.45;color:var(--hk-mini)}
+.hk-foot{position:absolute;left:72px;bottom:24px;font-size:12px;color:#777;max-width:1100px;line-height:1.4}
+.hk-slide.dark .hk-foot{color:#999}
+a{color:#0b5cc0;text-decoration:none;border-bottom:1px solid rgba(11,92,192,.4)}
+a:hover{color:var(--hk-black);border-bottom-color:var(--hk-black)}
+.hk-slide.dark a{color:var(--hk-lime);border-bottom-color:rgba(218,255,0,.5)}
+.badge{display:inline-block;background:var(--hk-lime);color:var(--hk-black);border:1px solid var(--hk-black);
+  border-radius:4px;padding:2px 9px;font-size:13px;font-weight:800;vertical-align:middle}
+.badge.red{background:#e24f35;color:#fff;border-color:#111}
+.badge.grey{background:#e5e2d6;color:#333}
+.big{font-size:56px;font-weight:900;letter-spacing:-.03em;line-height:1}
+@media(max-width:1000px){.hk-slide{padding:32px 24px 74px}h1{font-size:40px}h2{font-size:28px}
+  .hk-two,.hk-three,.hk-four,.figrow{grid-template-columns:1fr}.hk-foot{left:24px;right:24px}}
+@media print{.hk-slide{page-break-after:always;min-height:100vh}
+.hk-slide{padding:36px 56px 60px}
+h1{font-size:44px}h2{font-size:30px}p,li{font-size:17px}
+.fig img{max-height:300px;object-fit:contain;margin:0 auto}
+table{box-shadow:none}.hk-panel,.hk-claim,.fig{box-shadow:none}
+.hk-kicker,h2{break-after:avoid}.hk-panel,.fig,table,.hk-claim{break-inside:avoid}}
+</style>
+</head>
+<body>
+<main class="hk-deck">
+
+<!-- ═════ 0 · HERO ═════ -->
+<section class="hk-slide dark center">
+  <div class="hk-kicker">هکاتون پنجم کارخونه · هوش‌مصنوعی برای خواب بهتر · مهر ۱۴۰۵</div>
+  <h1>SleepLens</h1>
+  <p class="subtitle">An <b>expert-assistant</b> for sleep: five-class staging with calibrated confidence, a
+  published <b>sleep-depth transformer</b>, 96 night-level features, and one explainable quality score —
+  built inference-first on <b>Sleep-EDF Expanded (197 nights)</b>, with a self-contained backend.</p>
+  <div class="hk-chips">
+    <span>Best system 0.8425 Macro-F1</span>
+    <span>Minimal sensor Fpz+EOG −0.004</span>
+    <span>SDI depth + composite, ICC 0.54</span>
+    <span>56-test backend suite</span>
+    <span>~40 s / night on CPU</span>
+  </div>
+  <p class="hk-foot">5th AI Factory Hackathon · Brain Innovation Center (IUMS). Every number traces to a
+  committed artifact — no rounded-up claims, failed experiments kept in the same tables.</p>
+</section>
+
+<!-- ═════ 1 · TASK ═════ -->
+<section class="hk-slide">
+  <div class="hk-kicker">0 · The assignment</div>
+  <h2>What the hackathon asks — 6 missions, 8 outputs</h2>
+  <p class="fa" style="font-size:17px">آیا می‌توان با هوش‌مصنوعی کیفیت خواب را از سیگنال‌های بدن فهمید و این دانش را
+  به یک محصول ساده، قابل‌استفاده و قابل‌تجاری‌سازی تبدیل کرد؟</p>
+  <div class="hk-two">
+    <div class="hk-panel">
+      <h3>Six missions (paraphrased from the brief)</h3>
+      <ol>
+        <li>Build an interpretable <b>Sleep Quality Score</b> from full PSG.</li>
+        <li>Predict the same score from <b>minimal signal</b> (one/few EEG or ECG channels).</li>
+        <li><b>Validate</b> simplified vs reference model.</li>
+        <li><b>Explain</b> which signal patterns the model found important.</li>
+        <li><b>Display</b> results in plain, user-friendly language.</li>
+        <li>Show what <b>product</b> can be built on the algorithm.</li>
+      </ol>
+    </div>
+    <div class="hk-panel is-dark">
+      <h3>Logistics we designed against</h3>
+      <ul>
+        <li>Event: Wed 1 → Fri 3 Mehr · teams of 1–4 · laptop required</li>
+        <li>First prize 50M IRT + startup-space memberships</li>
+        <li>Jury: Dr. F. Kashaninasab (sleep psychiatrist) · Dr. F. Mirfazeli (IUMS)</li>
+        <li><b>No published scoring weights</b> — so we over-deliver on the measurable outputs:
+          model + minimal channel + validation + explainability</li>
+      </ul>
+    </div>
+  </div>
+  <table class="dense">
+    <tr><th>#</th><th>Required output</th><th>Our deliverable</th><th>Status</th></tr>
+    <tr><td>01</td><td>Sleep Quality Model (full data)</td><td>E19 ensemble + night features + SDI composite</td><td><span class="badge">done</span></td></tr>
+    <tr><td>02</td><td>Single-Channel / minimal model</td><td>Fpz+EOG = −0.004 vs 3ch; Fpz-only keeps 97%</td><td><span class="badge">done</span></td></tr>
+    <tr><td>03</td><td>Validation vs reference</td><td>Full-197 tables (ALL/SC/ST/per-class), fold-honest ensembles</td><td><span class="badge">done</span></td></tr>
+    <tr><td>04</td><td>Demo</td><td>Django+DRF API + Next.js dashboard (hypnogram, depth, signals, report)</td><td><span class="badge">done</span></td></tr>
+    <tr><td>05</td><td>Explainability</td><td>SHAP ×2 families, attention, intervention, calibrated confidence</td><td><span class="badge">done</span></td></tr>
+    <tr><td>06</td><td>Product concept</td><td>Expert-assistant framing, PSQI intake, LLM report, chat</td><td><span class="badge">done</span></td></tr>
+    <tr><td>07</td><td>Code / pipeline</td><td>Repro harness: adapters, evaluator, 56 tests, weights in-repo</td><td><span class="badge">done</span></td></tr>
+    <tr><td>08</td><td>Bonus (customer / revenue)</td><td>Clinics + wearables; per-study API / subscription / OEM licensing</td><td><span class="badge">done</span></td></tr>
+  </table>
+  <p class="hk-foot">Source: official hackathon page (aiif.ai/pol-hackathon5.html) + Persian brief extraction.</p>
+</section>
+
+<!-- ═════ 2 · PROBLEM ═════ -->
+<section class="hk-slide">
+  <div class="hk-kicker">1 · Problem</div>
+  <h2>Lab precision vs everyday data — the gap we close</h2>
+  <div class="hk-two">
+    <div class="hk-panel">
+      <h3>Full PSG is rich, daily life is poor</h3>
+      <p>A sleep lab records brain activity, eye movements, muscle tone, heart, breathing, oxygen —
+      but nobody sleeps in a lab every night. The hackathon bet: a quality score learned on full PSG
+      should survive on <b>minimal everyday signal</b>.</p>
+      <div class="hk-claim">Nearly <b>one billion</b> adults aged 30–69 may have some degree of
+      obstructive sleep apnea — most of them will never see a sleep lab.</div>
+    </div>
+    <div class="hk-panel is-good">
+      <h3>Six quality dimensions (from the brief)</h3>
+      <ol>
+        <li>Sleep continuity · 2. Sleep stages · 3. Breathing · 4. Heart rate ·
+            5. Brain activity · 6. Apneas &amp; oxygen drops</li>
+      </ol>
+      <p class="mini">Our dataset reality check (slide 3): dimensions 3–6 are only partially observable —
+      no SpO2, no ECG, no leg EMG anywhere. We mark what we cannot assess instead of faking it.</p>
+    </div>
+  </div>
+  <p class="hk-foot">Domain framing from the hackathon brief; sensor audit from sleep-eda tables/channels.csv.</p>
+</section>
+
+<!-- ═════ 3 · DATA ═════ -->
+<section class="hk-slide">
+  <div class="hk-kicker">2 · Data</div>
+  <h2>Sleep-EDF Expanded — 197 real nights, two different worlds</h2>
+  <div class="hk-two">
+    <div class="hk-panel">
+      <h3>Inventory (399 files · 394 EDF · 8.715 GB)</h3>
+      <ul>
+        <li><b>SC — sleep-cassette (home)</b>: 153 nights · 78 subjects · mean <b>22.68 h</b> (17–24 h).
+          Daytime naps included. EMG is a <b>1-Hz envelope</b> (±5 µV).</li>
+        <li><b>ST — sleep-telemetry (hospital)</b>: 44 nights · 22 subjects · mean <b>8.61 h</b>
+          (7.5–10.7 h). Raw <b>100-Hz EMG</b> (±3000 µV). Amplitudes <b>~2–3× SC</b>.</li>
+        <li>100 subject-prefixes, mostly 2 nights each; 3 nights lost upstream
+          (SC36-n1, SC52-n1, SC13-n2). Pairing PSG↔hypnogram perfect by stem.</li>
+      </ul>
+    </div>
+    <div class="hk-panel is-good">
+      <h3>Channels — present vs absent</h3>
+      <table class="dense">
+        <tr><th>Channel</th><th class="num">n/197</th><th>Note</th></tr>
+        <tr><td>EEG Fpz-Cz · Pz-Oz · EOG horiz.</td><td class="num">197</td><td>@100 Hz, all nights</td></tr>
+        <tr><td>EMG submental</td><td class="num">197</td><td><b>two sample rates</b> — never pooled raw</td></tr>
+        <tr><td>Resp / Temp / Event</td><td class="num">153</td><td>SC only (1 Hz)</td></tr>
+        <tr><td>Marker</td><td class="num">44</td><td>ST only (10 Hz)</td></tr>
+        <tr><td>SpO2 · ECG/HR · leg EMG · position</td><td class="num">0</td><td>absent everywhere</td></tr>
+      </table>
+      <p class="mini">Consequence: AHI/ODI/PLMI/HR features are <b>impossible</b> here
+      (sqi_feature_feasibility.csv) — our SQI is built only from computable quantities.</p>
+    </div>
+  </div>
+  <p class="hk-foot">Sources: sleep-eda tables/recordings.csv, channels.csv, cohort_compare.csv, llm/01–02.</p>
+</section>
+
+<!-- ═════ 4 · EDA LABELS ═════ -->
+<section class="hk-slide">
+  <div class="hk-kicker">2 · EDA — labels</div>
+  <h2>Class balance, the trimming decision, and why N1 is the story</h2>
+  <div class="figrow">
+    <figure class="fig"><img src="assets/class_dist.png" alt="class distribution">
+      <figcaption>Raw epochs: Wake 290,365 (60.1%) ≫ N2 88,983 &gt; REM 34,184 &gt; N1 25,175 &gt; N3 19,454.
+      Imbalance 14.9×. Most Wake is daytime SC wake — not sleep.</figcaption></figure>
+    <figure class="fig"><img src="assets/trim_impact.png" alt="trim impact">
+      <figcaption>BENCHMARK_30 trim (≤60 Wake epochs around sleep): Wake 60.1%→<b>29.4%</b>,
+      N2 18.4%→<b>37.3%</b>. The benchmark measures sleep, not time in bed.</figcaption></figure>
+  </div>
+  <div class="hk-two">
+    <div class="hk-panel is-warn"><h3>N1 is rare and ambiguous</h3><p>Only ~5.2% of epochs; literature
+      inter-rater agreement for N1 ≈ 63%. It dominates macro-F1 differences: our final system reaches
+      <b>N1 F1 0.638</b> where YASA gets 0.07 and RSN 0.44.</p></div>
+    <div class="hk-panel"><h3>Three windows, one contract</h3><p>FULL_VALID <b>457,652</b> ·
+      BENCHMARK_30 <b>237,936</b> (headline) · MAIN (SQI) <b>196,959</b> epochs.
+      Splits are subject-atomic (folds5_v3) — zero leakage. SQI is always computed untrimmed.</p></div>
+  </div>
+  <p class="hk-foot">Sources: tables/class_distribution.csv, annotations_summary.csv, llm/04, eda_summary_v3.json.</p>
+</section>
+
+<!-- ═════ 5 · EDA PHYSIOLOGY ═════ -->
+<section class="hk-slide">
+  <div class="hk-kicker">2 · EDA — physiology</div>
+  <h2>Signals behave the way sleep medicine says they should</h2>
+  <div class="figrow">
+    <figure class="fig"><img src="assets/psd_SC4001E0-PSG.png" alt="per-stage PSD">
+      <figcaption>Per-stage spectra (SC4001): N3 carries the &lt;4 Hz slow-wave peak; REM/N1 the 4–8 Hz
+      hump; Wake is flattest with posterior alpha.</figcaption></figure>
+    <figure class="fig"><img src="assets/emg_eog_by_stage.png" alt="EMG/EOG by stage">
+      <figcaption>EMG U-shape (high Wake → lowest REM = atonia) in <b>both</b> cohorts despite the
+      1-Hz vs 100-Hz mismatch; EOG is cohort-variable.</figcaption></figure>
+  </div>
+  <div class="hk-three">
+    <div class="hk-panel"><h3>EOG ladder (µV ptp)</h3><p>Wake <b>548</b> ≫ REM <b>242</b> &gt;
+      N3 145 ≈ N1 142 &gt; N2 <b>102</b> — the strongest single Wake/REM discriminator.</p></div>
+    <div class="hk-panel"><h3>EMG ladder (µV rms)</h3><p>Wake 3.31 &gt; N1 2.96 &gt; N3 2.62 &gt;
+      N2 2.50 &gt; REM <b>1.46</b> — REM atonia holds dataset-wide (SC 3.3×, ST 3.2×).</p></div>
+    <div class="hk-panel"><h3>EEG markers</h3><p>Delta: N3 .924 · sigma: N1 .045 &gt; N2 .0375 (spindles) ·
+      theta: REM .147 · alpha: N1 .076 · eeg_std: N3 28.6 vs N1 11.8 µV.</p></div>
+  </div>
+  <p class="hk-foot">Sources: tables/stage_band_medians_full.csv, eog_emg_by_stage.csv, llm/06, llm/24.</p>
+</section>
+
+<!-- ═════ 6 · EDA SAMPLE ═════ -->
+<section class="hk-slide">
+  <div class="hk-kicker">2 · EDA — one night, end to end</div>
+  <h2>SC4001: 22.1 h, 2,880 epochs — the unit every model sees</h2>
+  <div class="figrow">
+    <figure class="fig"><img src="assets/fullnight_SC4001E0-PSG.png" alt="full night">
+      <figcaption>Full night: long daytime Wake, then ~8 h of cyclic sleep (epochs 1021–1741).
+      This is why BENCHMARK_30 exists.</figcaption></figure>
+    <figure class="fig"><img src="assets/eeg30s_SC4001E0-PSG.png" alt="30 s N2 epoch">
+      <figcaption>One 30-s N2 epoch: frontal slow waves + riding spindle; EOG quiet ±20 µV.</figcaption></figure>
+  </div>
+  <div class="hk-panel"><h3>Expert architecture of this night</h3>
+    <p>TIB 369 min · TST <b>326.5</b> · SE <b>88.5%</b> · SOL 5.5 · WASO 67 · REM-lat 89 ·
+    N1 8.9% · N2 38.3% · N3 33.7% · REM 19.1% · 113 transitions · 0 unscored.
+    Cohort context: MAIN-window SE 85.9% (SC 84.7 / ST 91.8); age↔N3% r = <b>−0.40</b>;
+    sleep cycles/night mean 3.53, median 4.</p></div>
+  <p class="hk-foot">Sources: tables/sleep_architecture_main.csv, subject_class_distribution.csv, llm/12, llm/17.</p>
+</section>
+
+<!-- ═════ 7 · EDA TEMPORAL ═════ -->
+<section class="hk-slide">
+  <div class="hk-kicker">2 · EDA — time &amp; domain shift</div>
+  <h2>Transitions are lawful; cohorts are not interchangeable</h2>
+  <div class="figrow">
+    <figure class="fig"><img src="assets/transition_matrix.png" alt="transition matrix">
+      <figcaption>Self-transitions: Wake .985 · N1 .711 · N2 .909 · N3 .818 · REM .945.
+      N1 is the most transient state (→N2 .17, →Wake .089) — context models win here.</figcaption></figure>
+    <figure class="fig"><img src="assets/eeg_compare.png" alt="SC vs ST EEG">
+      <figcaption>Same filter, same scale: ST amplitudes run ~2–3× SC. Every adapter normalizes
+      per record; every result is reported per cohort. Never pool raw EMG (Fisher SC .96 vs pooled .001).</figcaption></figure>
+  </div>
+  <div class="hk-two">
+    <div class="hk-panel"><h3>Run structure</h3><p>Median run lengths (epochs): REM <b>11</b> · N2 4 ·
+      Wake 2 · N1 2 · N3 1. A 5–11-epoch context covers N2/REM runs — the design argument for
+      temporal models (RSN 900-s window, AnySleep ~14-min field).</p></div>
+    <div class="hk-panel is-warn"><h3>Wake–REM ambiguity (measured)</h3><p>Daytime Wake with eyes open
+      looks REM-like on EEG (Fisher δ ≈ 0.06, useless). Separation comes from EOG + EMG atonia —
+      which is exactly what the channel ablations later confirm.</p></div>
+  </div>
+  <p class="hk-foot">Sources: tables/transition_matrix.csv, trans_in_bench_SC.csv, llm/07, llm/23, llm/24, llm/20.</p>
+</section>
+
+<!-- ═════ 8 · METHOD ═════ -->
+<section class="hk-slide">
+  <div class="hk-kicker">3 · Method</div>
+  <h2>Inference-first ladder, one contract, fold-honest evaluation</h2>
+  <div class="hk-flow">
+    <div>zero-shot pretrained</div><span>→</span><div>channel ablations</div><span>→</span>
+    <div>equal-weight fusions</div><span>→</span><div>fold-honest ensembles</div><span>→</span>
+    <div>threshold calibration</div>
+  </div>
+  <div class="hk-three">
+    <div class="hk-panel"><h3>One contract per model</h3><p>Each adapter loads raw EDF through the canonical
+      100-Hz loader, applies the model's <b>own</b> preprocessing, writes
+      <code>stem, epoch_index, p_Wake…p_REM</code> — never a shared pipeline.</p></div>
+    <div class="hk-panel"><h3>One benchmark window</h3><p>BENCHMARK_30 = first sleep −30 min → last sleep
+      +30 min: <b>237,936 epochs</b> from 197 nights; FULL_VALID 457,652 for robustness.</p></div>
+    <div class="hk-panel"><h3>Honesty machinery</h3><p>Shift sweeps (all peak at 0), 5-class permutation
+      checks, per-cohort reporting, fold-honest selection (pick on 4 folds, score the 5th).</p></div>
+  </div>
+  <div class="hk-panel is-good"><h3>Bugs the harness caught (fixed, documented)</h3>
+    <p>RobustSleepNet context padding leaked into outputs → trim fix <b>0.43 → 0.80</b> ·
+    YASA before-vs-after window crop: <b>+0.085</b> ·
+    Windows DLL order (torch before pandas) · ST gap misalignment fixed by authoritative grid.</p></div>
+  <p class="hk-foot">sleep-stage/eval/run_eval.py, debug_checks.py, docs/METRICS.md, MODELING_LOG.md.</p>
+</section>
+
+<!-- ═════ 9 · E00 ═════ -->
+<section class="hk-slide">
+  <div class="hk-kicker">4 · Model 1/7 — our own baseline</div>
+  <h2>E00 · LightGBM on 11 bandpower features <span class="badge grey">trained on our data</span></h2>
+  <div class="hk-two">
+    <div class="hk-panel">
+      <h3>What it is</h3>
+      <ul>
+        <li>11 per-epoch features: eeg_std, eeg_ptp, zero-crossing rate, 5 relative band powers
+          (δ/θ/α/σ/β), eog_ptp, eog_std, emg_rms</li>
+        <li>300 trees · lr 0.05 · 63 leaves · balanced weights · subject-wise OOF (237,310 epochs)</li>
+        <li>No temporal context — a pure signal-statistics floor</li>
+      </ul>
+      <h3>Why we keep it</h3>
+      <p>The <b>diversity engine</b> of the winning ensemble (bandpower vs raw waveform) and the
+      primary source of <b>N3 recall 0.873</b> — the highest in the study.</p>
+    </div>
+    <div class="hk-panel"><h3>Results (BENCHMARK_30)</h3>
+      <table class="dense">
+        <tr><th>Metric</th><th class="num">ALL</th><th class="num">SC</th><th class="num">ST</th></tr>
+        <tr><td>Macro-F1</td><td class="num">0.6672</td><td class="num">0.6717</td><td class="num">0.5802</td></tr>
+        <tr><td>N1 / N3 / REM</td><td class="num">0.390 / 0.735 / 0.651</td><td class="num">—</td><td class="num">—</td></tr>
+        <tr><td>Full-valid macro</td><td class="num" colspan="3">0.6726</td></tr>
+      </table>
+      <p class="mini">Unique profile: <b>better on SC than ST</b> — the only model where home is easier,
+      because it was fit on our SC-heavy data with no domain prior to break.</p></div>
+  </div>
+  <p class="hk-foot">adapters/e00_baseline.py · runs/E00/oof.parquet · feeds slides 18 (SHAP) + 17 (ensemble).</p>
+</section>
+
+<!-- ═════ 10 · YASA ═════ -->
+<section class="hk-slide">
+  <div class="hk-kicker">4 · Model 2/7 — interpretable classical</div>
+  <h2>YASA · LightGBM + ~116 spectral features <span class="badge">zero-shot, never saw Sleep-EDF</span></h2>
+  <div class="hk-two">
+    <div class="hk-panel">
+      <h3>What it is</h3>
+      <ul>
+        <li>Published classifier (<a href="https://elifesciences.org/articles/70092">Vallat &amp; Walker, eLife 2021</a>),
+          <code>pip install yasa</code> — the most cited interpretable stager</li>
+        <li>Per-epoch band powers, spectral edge, Hjorth, entropy + 15-epoch rolling context
+          (<code>_c7min_norm</code>, <code>_p2min_norm</code>)</li>
+        <li>Four configs: Fpz / Fpz+EOG / Pz+EOG / Fpz+EOG <b>crop-before-inference</b></li>
+      </ul>
+      <h3>Why it matters</h3>
+      <p>Our <b>interpretable baseline</b> (TreeSHAP, slide 20) and the cheapest full-dataset
+      channel ablation.</p>
+    </div>
+    <div class="hk-panel"><h3>Results (BENCHMARK_30, 197 nights each)</h3>
+      <table class="dense">
+        <tr><th>Config</th><th class="num">ALL</th><th class="num">SC</th><th class="num">ST</th><th class="num">N1</th><th class="num">N3</th><th class="num">REM</th></tr>
+        <tr><td>E02c Fpz+EOG crop</td><td class="num">0.5463</td><td class="num">0.531</td><td class="num">0.562</td><td class="num">0.069</td><td class="num">0.580</td><td class="num">0.649</td></tr>
+        <tr><td>E01 Fpz</td><td class="num">0.5225</td><td class="num">0.486</td><td class="num">0.611</td><td class="num">0.100</td><td class="num">0.538</td><td class="num">0.557</td></tr>
+        <tr><td>E02 Fpz+EOG</td><td class="num">0.5171</td><td class="num">0.480</td><td class="num">0.548</td><td class="num">0.122</td><td class="num">0.364</td><td class="num">0.665</td></tr>
+        <tr><td>E03 Pz+EOG</td><td class="num">0.4272</td><td class="num">0.381</td><td class="num">0.499</td><td class="num">0.070</td><td class="num">0.262</td><td class="num">0.560</td></tr>
+      </table>
+      <p class="mini">Two lessons: cropping to the scored window is worth <b>+0.085</b>; <b>N1 is the
+      failure mode</b> (0.07–0.12) — the motivation for the deep models.</p></div>
+  </div>
+  <p class="hk-foot">Paper: eLife 10:70092 (2021) · artifacts: docs/interp_yasa_*.csv (116 features, 13,298 epochs).</p>
+</section>
+
+<!-- ═════ 11 · AnySleep ═════ -->
+<section class="hk-slide">
+  <div class="hk-kicker">4 · Model 3/7 — best deep model on ST</div>
+  <h2>AnySleep · attention U-Sleep <span class="badge red">saw Sleep-EDF variants in training</span></h2>
+  <div class="hk-two">
+    <div class="hk-panel">
+      <h3>What it is</h3>
+      <ul>
+        <li>U-Sleep backbone + <b>13 channel-attention modules</b> for variable montages
+          (<a href="https://www.alphaxiv.org/abs/2512.14461">alphaxiv 2512.14461</a>)</li>
+        <li>3.16M params; 100→128 Hz polyphase, median/IQR clip ±20; logit order verified by
+          permutation search; weights vendored (MIT)</li>
+        <li>Strongest on the hospital cohort (ST 0.878)</li>
+      </ul>
+    </div>
+    <div class="hk-panel"><h3>Channel ablation = the minimal-sensor answer (BENCHMARK_30, 197 nights each)</h3>
+      <table class="dense">
+        <tr><th>Run</th><th>Input</th><th class="num">ALL</th><th class="num">SC home</th><th class="num">ST hosp.</th><th class="num">N1</th><th class="num">REM</th><th class="num">Δ vs full</th></tr>
+        <tr class="best"><td>E11</td><td>Fpz+Pz+EOG</td><td class="num">0.8267</td><td class="num">0.809</td><td class="num">0.878</td><td class="num">0.622</td><td class="num">0.904</td><td class="num">—</td></tr>
+        <tr><td>E11d</td><td>Fpz+EOG</td><td class="num">0.8227</td><td class="num">0.811</td><td class="num">0.865</td><td class="num">0.592</td><td class="num">0.905</td><td class="num">−0.004</td></tr>
+        <tr><td>E11c</td><td>Fpz+Pz</td><td class="num">0.8134</td><td class="num">0.797</td><td class="num">0.863</td><td class="num">0.594</td><td class="num">0.878</td><td class="num">−0.013</td></tr>
+        <tr><td>E11a</td><td>Fpz only</td><td class="num">0.8015</td><td class="num">0.790</td><td class="num">0.844</td><td class="num">0.549</td><td class="num">0.875</td><td class="num">−0.025</td></tr>
+        <tr><td>E11b</td><td>Pz only</td><td class="num">0.7736</td><td class="num">0.756</td><td class="num">0.829</td><td class="num">0.531</td><td class="num">0.844</td><td class="num">−0.053</td></tr>
+      </table>
+      <p class="mini"><b>Fpz+EOG keeps 99.5%</b> and owns the best REM recall in the study
+      (<b>0.913</b> vs 0.897 for 3ch). Single Fpz keeps 97%. Note the source gap inside every row:
+      hospital ST is +0.05–0.07 easier than home SC for the same electrodes — the constrained choice
+      depends on <i>where</i> you record, not just how many channels (see “best under constraints”).</p></div>
+  </div>
+  <p class="hk-foot">Disclosure: checkpoint saw Sleep-EDF variants → “reference” numbers; clean zero-shot is RSN (next).</p>
+</section>
+
+<!-- ═════ 12 · RSN ═════ -->
+<section class="hk-slide">
+  <div class="hk-kicker">4 · Model 4/7 — the clean zero-shot reference</div>
+  <h2>RobustSleepNet · temporal transformer <span class="badge">zero-shot, never saw Sleep-EDF</span></h2>
+  <div class="hk-two">
+    <div class="hk-panel">
+      <h3>What it is</h3>
+      <ul>
+        <li>Published architecture (<a href="https://www.alphaxiv.org/abs/2101.02452">alphaxiv 2101.02452</a>),
+          MIT code, LODO checkpoint (7 other datasets)</li>
+        <li>Predicts each epoch from a <b>900-s context</b> → temporal by construction</li>
+        <li>Adaptation we ship: their zero-padding <b>leaked into outputs</b> for the first/last
+          30 epochs — trimming recovered <b>0.43 → 0.80</b> macro</li>
+      </ul>
+    </div>
+    <div class="hk-panel"><h3>Results (BENCHMARK_30)</h3>
+      <table class="dense">
+        <tr><th>Metric</th><th class="num">ALL</th><th class="num">SC</th><th class="num">ST</th></tr>
+        <tr class="best"><td>Macro-F1</td><td class="num">0.7501</td><td class="num">0.736</td><td class="num">0.788</td></tr>
+        <tr><td>Wake / N1 / N2 / N3 / REM</td><td class="num">0.908 / 0.442 / 0.828 / 0.717 / 0.855</td><td class="num">—</td><td class="num">—</td></tr>
+        <tr><td>Full-valid</td><td class="num" colspan="3">0.7615 · κ 0.747 · ECE 0.036</td></tr>
+      </table>
+      <p class="mini"><b>The clean number to quote.</b> Also the ST/N1 specialist inside E16 —
+      and the clean-ensemble anchor (RSN+GBM+YASA = 0.7608).</p></div>
+  </div>
+  <p class="hk-foot">adapters/rsn_adapter.py + rsn_full.py (padding-trim documented inline) · runs/E20.</p>
+</section>
+
+<!-- ═════ 13 · U-SLEEP ═════ -->
+<section class="hk-slide">
+  <div class="hk-kicker">4 · Model 5/7 — best single on the home cohort</div>
+  <h2>U-Sleep (CSDP open weights) · 0.8275 <span class="badge red">saw Sleep-EDF variants</span></h2>
+  <div class="hk-two">
+    <div class="hk-panel">
+      <h3>What it is</h3>
+      <ul>
+        <li>The only public U-Sleep checkpoint (CSDP training). Paper:
+          <a href="https://doi.org/10.1038/s41746-021-00440-5">npj Digital Medicine 2021</a>;
+          lineage: <a href="https://www.alphaxiv.org/abs/1910.11162">U-Time, alphaxiv 1910.11162</a></li>
+        <li>2-channel (Fpz+EOG) @128 Hz — exactly the minimal sensor set; 0.1–40 Hz, robust
+          scaling, 480-epoch chunks; source vendored, weights in-repo</li>
+        <li>Mirror profile of everything else: <b>SC-strong, ST-weak</b> — adding it gave the
+          largest single jump measured (<b>+0.011</b>)</li>
+      </ul>
+    </div>
+    <div class="hk-panel"><h3>Results (BENCHMARK_30)</h3>
+      <table class="dense">
+        <tr><th>Metric</th><th class="num">ALL</th><th class="num">SC</th><th class="num">ST</th></tr>
+        <tr class="best"><td>Macro-F1</td><td class="num">0.8275</td><td class="num">0.833</td><td class="num">0.775</td></tr>
+        <tr><td>N1 / N3 / REM</td><td class="num">0.605 / 0.801 / 0.914</td><td class="num">—</td><td class="num">—</td></tr>
+        <tr><td>Calibration</td><td class="num" colspan="3">ECE 0.013 (ALL) · 0.005 (SC) — best-behaved probabilities</td></tr>
+        <tr><td>Full-valid</td><td class="num" colspan="3">0.8364 · fastest “good” model (~45 s/night)</td></tr>
+      </table></div>
+  </div>
+  <p class="hk-foot">runs/E21 (full 197) · adapters/usleep_csdp_adapter.py · disclosed pretraining exposure.</p>
+</section>
+
+<!-- ═════ 14 · DROPPED ═════ -->
+<section class="hk-slide">
+  <div class="hk-kicker">4 · Models 6–7/7 — negative results matter too</div>
+  <h2>SLEEPYLAND (dropped) &amp; SleepFMStager (parked with evidence)</h2>
+  <div class="hk-two">
+    <div class="hk-panel is-warn">
+      <h3>SLEEPYLAND · E07 (top-ranked in our bank)</h3>
+      <ul>
+        <li><a href="https://www.alphaxiv.org/abs/2506.08574">alphaxiv 2506.08574</a> — but delivered as
+          <b>Docker containers</b>, a poor fit for a self-contained backend</li>
+        <li>Partial sweep (49/197): <b>0.7859</b> (SC .789 / ST .644 · N1 .442 · REM .908).
+          Pilot file n=2,327: 0.739 (SC .812 / ST .644)</li>
+        <li>Team decision: drop the container family; keep its insight (N1 confusion is
+          architecture-wide) and its evaluation window</li>
+      </ul>
+    </div>
+    <div class="hk-panel">
+      <h3>SleepFMStager · E10 — parked with evidence</h3>
+      <ul>
+        <li>Weights verified <b>bit-identical</b> to upstream (56 tokenizer + fc tensors); responds to
+          synthetic inputs (spikes→class 3 @0.895, sines→class 0)…</li>
+        <li>…but collapses to <b>constant Wake</b> on real EEG in 6/6 regimes
+          (macro 0.056–0.073, ECE 0.374) → the HDF5/embedding pipeline is not reproducible
+          from the release (CC BY-NC 4.0)</li>
+        <li>Documented in runs/E10/NOTES.md + e10_diagnostic.csv — <b>no fake numbers enter any table</b></li>
+      </ul>
+    </div>
+  </div>
+  <div class="hk-claim">Reporting what failed — with evidence — is part of a credible validation story,
+  and it is why the final system contains no pseudo-models.</div>
+  <p class="hk-foot">SleepFM-1 recipe: <a href="https://www.alphaxiv.org/abs/2405.17766">alphaxiv 2405.17766</a>.</p>
+</section>
+
+<!-- ═════ 15 · FULL TABLE ═════ -->
+<section class="hk-slide">
+  <div class="hk-kicker">5 · All models, all metrics — nothing simplified</div>
+  <h2>Every run — BENCHMARK_30 (237,936 epochs) + full-valid</h2>
+  <table class="dense">
+    <tr><th>Run</th><th>Model</th><th class="num">rec</th><th class="num">ALL</th><th class="num">SC</th><th class="num">ST</th><th class="num">N1</th><th class="num">N3</th><th class="num">REM</th><th class="num">full</th></tr>
+    <tr class="best"><td>E22</td><td>Router SC→E19 / ST→E11</td><td class="num">197</td><td class="num">0.8458</td><td class="num">0.836</td><td class="num">0.878</td><td class="num">0.638</td><td class="num">0.840</td><td class="num">0.919</td><td class="num">—</td></tr>
+    <tr><td>E23b</td><td>5 binary experts, margin vote</td><td class="num">197</td><td class="num">0.8433</td><td class="num">0.837</td><td class="num">0.865</td><td class="num">0.638</td><td class="num">0.832</td><td class="num">0.915</td><td class="num">—</td></tr>
+    <tr class="best"><td>E19</td><td>ANY3ch+ANYFpzEOG+USleep+LGBM</td><td class="num">197</td><td class="num">0.8425</td><td class="num">0.836</td><td class="num">0.865</td><td class="num">0.635</td><td class="num">0.833</td><td class="num">0.915</td><td class="num">0.8513</td></tr>
+    <tr><td>E19b</td><td>E19 + class bias</td><td class="num">197</td><td class="num">0.8417</td><td class="num">0.835</td><td class="num">0.868</td><td class="num">0.638</td><td class="num">0.833</td><td class="num">0.915</td><td class="num">0.8510</td></tr>
+    <tr><td>E18</td><td>AnySleep×3+LGBM+bias</td><td class="num">197</td><td class="num">0.8316</td><td class="num">0.820</td><td class="num">0.873</td><td class="num">0.617</td><td class="num">0.825</td><td class="num">0.900</td><td class="num">0.8404</td></tr>
+    <tr><td>E17</td><td>AnySleep×3+LGBM</td><td class="num">197</td><td class="num">0.8315</td><td class="num">0.820</td><td class="num">0.872</td><td class="num">0.610</td><td class="num">0.825</td><td class="num">0.901</td><td class="num">0.8398</td></tr>
+    <tr><td>E16</td><td>0.7ANY+0.3RSN+bias</td><td class="num">197</td><td class="num">0.8291</td><td class="num">0.813</td><td class="num">0.878</td><td class="num">0.624</td><td class="num">0.800</td><td class="num">0.904</td><td class="num">0.8370</td></tr>
+    <tr><td>E21</td><td>U-Sleep CSDP</td><td class="num">197</td><td class="num">0.8275</td><td class="num">0.833</td><td class="num">0.775</td><td class="num">0.605</td><td class="num">0.801</td><td class="num">0.914</td><td class="num">0.8364</td></tr>
+    <tr><td>E11</td><td>AnySleep 3ch</td><td class="num">197</td><td class="num">0.8267</td><td class="num">0.809</td><td class="num">0.878</td><td class="num">0.622</td><td class="num">0.788</td><td class="num">0.904</td><td class="num">0.8347</td></tr>
+    <tr><td>E11d</td><td>AnySleep Fpz+EOG</td><td class="num">197</td><td class="num">0.8227</td><td class="num">0.811</td><td class="num">0.865</td><td class="num">0.592</td><td class="num">0.812</td><td class="num">0.905</td><td class="num">0.8322</td></tr>
+    <tr><td>E11c</td><td>AnySleep Fpz+Pz</td><td class="num">197</td><td class="num">0.8134</td><td class="num">0.797</td><td class="num">0.863</td><td class="num">0.594</td><td class="num">0.785</td><td class="num">0.878</td><td class="num">0.8214</td></tr>
+    <tr><td>E11a</td><td>AnySleep Fpz</td><td class="num">197</td><td class="num">0.8015</td><td class="num">0.790</td><td class="num">0.844</td><td class="num">0.549</td><td class="num">0.796</td><td class="num">0.875</td><td class="num">0.8093</td></tr>
+    <tr><td>E07</td><td>SLEEPYLAND (partial)</td><td class="num">49</td><td class="num">0.7859</td><td class="num">0.789</td><td class="num">0.644</td><td class="num">0.442</td><td class="num">0.794</td><td class="num">0.908</td><td class="num">0.7929</td></tr>
+    <tr><td>E11b</td><td>AnySleep Pz</td><td class="num">197</td><td class="num">0.7736</td><td class="num">0.756</td><td class="num">0.829</td><td class="num">0.531</td><td class="num">0.748</td><td class="num">0.844</td><td class="num">0.7608</td></tr>
+    <tr><td>E20</td><td>RobustSleepNet</td><td class="num">197</td><td class="num">0.7501</td><td class="num">0.736</td><td class="num">0.788</td><td class="num">0.442</td><td class="num">0.717</td><td class="num">0.855</td><td class="num">0.7615</td></tr>
+    <tr><td>E00</td><td>LightGBM</td><td class="num">197</td><td class="num">0.6672</td><td class="num">0.672</td><td class="num">0.580</td><td class="num">0.390</td><td class="num">0.735</td><td class="num">0.651</td><td class="num">0.6726</td></tr>
+    <tr><td>E02c</td><td>YASA crop</td><td class="num">197</td><td class="num">0.5463</td><td class="num">0.531</td><td class="num">0.562</td><td class="num">0.069</td><td class="num">0.580</td><td class="num">0.649</td><td class="num">0.5463</td></tr>
+    <tr><td>E01</td><td>YASA Fpz</td><td class="num">197</td><td class="num">0.5225</td><td class="num">0.486</td><td class="num">0.611</td><td class="num">0.100</td><td class="num">0.538</td><td class="num">0.557</td><td class="num">0.5574</td></tr>
+    <tr><td>E02</td><td>YASA Fpz+EOG</td><td class="num">197</td><td class="num">0.5171</td><td class="num">0.480</td><td class="num">0.548</td><td class="num">0.122</td><td class="num">0.364</td><td class="num">0.665</td><td class="num">0.5582</td></tr>
+    <tr><td>E03</td><td>YASA Pz+EOG</td><td class="num">197</td><td class="num">0.4272</td><td class="num">0.381</td><td class="num">0.499</td><td class="num">0.070</td><td class="num">0.262</td><td class="num">0.560</td><td class="num">0.4744</td></tr>
+    <tr><td>E10</td><td>SleepFMStager</td><td class="num">3</td><td class="num">0.063</td><td class="num">—</td><td class="num">—</td><td class="num">0.000</td><td class="num">0.000</td><td class="num">0.000</td><td class="num">0.1487</td></tr>
+  </table>
+  <p class="mini">Equal-weight probes: E11+E00+E11c <b>0.8307</b> · top-4 0.8303 · E11+E00+E11a 0.8288 ·
+  all-five 0.8279 · E11+E20 0.8108 (&lt; E11 alone). Clean-only (RSN+GBM+YASA) 0.7608.
+  E17/E18 lose 626 epochs (LightGBM gaps; n=237,310).</p>
+  <p class="hk-foot">Machine-readable: sleep-stage/docs/results_table.csv, results_per_cohort.csv, runs/*/metrics_in_bench.csv.</p>
+</section>
+
+<!-- ═════ 16 · CHAMPIONS ═════ -->
+<section class="hk-slide">
+  <div class="hk-kicker">5 · Per-class analysis</div>
+  <h2>Class champions — no single run wins every stage</h2>
+  <table>
+    <tr><th>Stage</th><th>Champion (bench ALL)</th><th class="num">F1</th><th class="num">Recall</th><th class="num">Prec.</th><th>Runner-up · best-recall expert</th></tr>
+    <tr class="best"><td>Wake</td><td>E16 (0.7ANY+0.3RSN+bias)</td><td class="num">0.941</td><td class="num">0.928</td><td class="num">0.955</td><td>E11 0.941 · YASA-crop recall 0.993</td></tr>
+    <tr class="best"><td>N1</td><td>E19b (+bias)</td><td class="num">0.638</td><td class="num">0.691</td><td class="num">0.592</td><td>E19 0.635 · itself</td></tr>
+    <tr class="best"><td>N2</td><td>E19</td><td class="num">0.892</td><td class="num">0.904</td><td class="num">0.881</td><td>E19b 0.891 · itself</td></tr>
+    <tr class="best"><td>N3</td><td>E19b</td><td class="num">0.833</td><td class="num">0.830</td><td class="num">0.837</td><td>E19 0.833 · <b>LGBM recall 0.873</b></td></tr>
+    <tr class="best"><td>REM</td><td>E19</td><td class="num">0.915</td><td class="num">0.915</td><td class="num">0.915</td><td>E19b 0.915 · E19b recall 0.918</td></tr>
+  </table>
+  <div class="hk-two">
+    <div class="hk-panel is-good"><h3>Cohorts want different models</h3><p>SC: REM champion is <b>E21 U-Sleep
+      0.919</b>; Wake/N1/N3 stay E16/E19b. ST: <b>E11 sweeps N2 0.921 · N3 0.873 · REM 0.949</b>,
+      N1 goes to E16 at 0.745. This grid is the empirical basis of the E22 router.</p></div>
+    <div class="hk-panel"><h3>Full-valid agrees</h3><p>Same champions on all 457,652 valid epochs
+      (Wake E16 0.985 — daytime Wake inflates it, another reason the headline is BENCHMARK_30).</p></div>
+  </div>
+  <p class="hk-foot">Sources: docs/CLASS_CHAMPIONS.md, class_champions.csv, class_recall_champions.csv.</p>
+</section>
+
+<!-- ═════ 17 · BEST ═════ -->
+<section class="hk-slide">
+  <div class="hk-kicker">5 · The best model</div>
+  <h2>E19 → E22: how the winner was built, fold-honestly</h2>
+  <div class="hk-flow">
+    <div>E00 floor 0.667</div><span>→</span><div>E13 fusion 0.822</div><span>→</span>
+    <div>E16 +RSN 0.8291</div><span>→</span><div>E17/E18 0.8315/0.8316</div><span>→</span>
+    <div>E19 +U-Sleep <b>0.8425</b></div><span>→</span><div>E22 router <b>0.8458</b></div>
+  </div>
+  <div class="hk-three">
+    <div class="hk-panel"><h3>E19 = mean of 4 streams</h3><p><code>p = mean(AnySleep-3ch, AnySleep-FpzEOG,
+      U-Sleep CSDP, LightGBM)</code>, argmax. Equal weights — no tuning to overfit.
+      All 5 folds independently chose ANY3ch + U-Sleep + LGBM; 4/5 added ANY-FpzEOG.</p></div>
+    <div class="hk-panel"><h3>E22 = domain router</h3><p>SC epochs → E19 (0.836), ST epochs → E11 (0.878).
+      Routing key = recording source metadata — <b>deterministic, not learned</b>, nothing leaks.
+      Per class: Wake .936 · N1 .638 · N2 .896 · N3 .840 · REM .919 · κ .834.</p></div>
+    <div class="hk-panel is-warn"><h3>Rejected with numbers</h3><p>Viterbi on E11: 0.8259 (−0.0008) ·
+      fusion+Viterbi: 0.806–0.820 · E23b experts 0.8433 but ECE 0.123 with one-hot probs ·
+      class bias ≈ tie (E19b 0.8417). Deep models already internalize transition priors.</p></div>
+  </div>
+  <div class="hk-claim"><b>Diversity beats strength:</b> weak-but-different LightGBM (0.667) helps;
+  same-family RSN hurts. ST-strong AnySleep + SC-strong U-Sleep + feature-diverse GBM = the most
+  robust system (domain gap 0.029).</div>
+  <p class="hk-foot">eval/ensemble_v2.py (CANDS, per-fold combo), route_best.py, runs/E19*, E22/metrics_in_bench.csv.</p>
+</section>
+
+<!-- ═════ 17b · PROPOSED METHOD ═════ -->
+<section class="hk-slide">
+  <div class="hk-kicker">5 · Our proposed method — why ensembling</div>
+  <h2>Diversity + robustness, not model worship: equal weights, fold-honest picks</h2>
+  <div class="hk-two">
+    <div class="hk-panel">
+      <h3>The thesis (tested, not assumed)</h3>
+      <ul>
+        <li>Errors from <b>different inductive biases</b> cancel; errors from the same family stack.
+          Waveform CNN (AnySleep) + waveform U-Net (U-Sleep) + bandpower trees (LightGBM) see
+          different nights differently.</li>
+        <li>Equal-weight mean — <b>no learned weights to overfit</b>. The only learned things are
+          <i>which members</i> (picked on 4 folds, scored on the 5th) and whether a class bias helps
+          (it doesn’t: E19b 0.8417 ≈ E19).</li>
+        <li>All 5 folds independently converged on ANY3ch + U-Sleep CSDP + LGBM (4/5 add ANY-FpzEOG) —
+          the combo is stable, not selection noise.</li>
+      </ul>
+    </div>
+    <div class="hk-panel"><h3>Diversity beats strength (measured, full 197)</h3>
+      <table class="dense">
+        <tr><th>Probe</th><th class="num">Macro</th><th class="num">Δ vs E11</th><th>Verdict</th></tr>
+        <tr><td>E11 + E00 + E11c (different spaces)</td><td class="num">0.8307</td><td class="num">+0.004</td><td>weak-but-different helps</td></tr>
+        <tr><td>E11 + E20 top-2 (same family)</td><td class="num">0.8108</td><td class="num">−0.016</td><td>strong-but-similar hurts</td></tr>
+        <tr><td>E17/E18 (AnySleep×3+LGBM ±bias)</td><td class="num">0.8315/0.8316</td><td class="num">+0.005</td><td>stable across folds</td></tr>
+        <tr class="best"><td>E19 (+U-Sleep CSDP, SC-strong)</td><td class="num">0.8425</td><td class="num">+0.016</td><td>mirror profiles combine</td></tr>
+      </table>
+      <p class="mini">Robustness dividend: domain gap SC↔ST shrinks <b>0.069 (E11) → 0.029 (E19)</b>.
+      The ensemble is the most <i>even</i> system, not just the highest.</p></div>
+  </div>
+  <div class="hk-claim">AnySleep is ST-strong (0.878), U-Sleep CSDP is SC-strong (0.833), LightGBM adds a
+  third feature space — the router then gives each cohort its best system (E22, 0.8458).</div>
+  <p class="hk-foot">eval/ensemble_v2.py (CANDS sizes 1–4, OOF macro printed per fold) · FINAL_RESULTS §2–3.</p>
+</section>
+
+<!-- ═════ 17c · CONSTRAINED ═════ -->
+<section class="hk-slide">
+  <div class="hk-kicker">5 · Best under constraints — the buyer’s guide</div>
+  <h2>No limits? E22. Limited? Pick by electrodes, source, and target class</h2>
+  <table>
+    <tr><th>Constraint</th><th>Winner</th><th class="num">Macro</th><th>Why this one</th></tr>
+    <tr class="best"><td>None — all signals, both cohorts</td><td>E22 router (SC→E19, ST→E11)</td><td class="num">0.8458</td><td>Best per-cohort system each side; κ 0.834</td></tr>
+    <tr><td>2 electrodes anywhere</td><td>E11d: Fpz-Cz + EOG</td><td class="num">0.8227</td><td>−0.004 vs 3ch; best REM recall 0.913 in the study</td></tr>
+    <tr><td>1 electrode</td><td>E11a: Fpz-Cz only</td><td class="num">0.8015</td><td>97% of full; frontal N3+Wake beats posterior everywhere</td></tr>
+    <tr><td>Home recordings (SC)</td><td>E19 ensemble (SC slice)</td><td class="num">0.8362</td><td>Single-model alt: E21 U-Sleep 0.8327, best SC single</td></tr>
+    <tr><td>Hospital nights (ST)</td><td>E11 AnySleep 3ch</td><td class="num">0.8777</td><td>Sweeps ST N2 0.921 · N3 0.873 · REM 0.949; ECE 0.006</td></tr>
+    <tr><td>Target = N1 (hardest class)</td><td>E19b overall 0.638; E16 on ST 0.745</td><td class="num">—</td><td>ST N1 is far easier (0.745 vs SC 0.624) — source matters more than model</td></tr>
+    <tr><td>Target = N3 recall</td><td>E00 LightGBM 0.873</td><td class="num">—</td><td>Amplitude features catch deep sleep the deep nets smooth away</td></tr>
+    <tr><td>Target = REM, home</td><td>E21 U-Sleep 0.919</td><td class="num">—</td><td>Target = REM, hospital: E11 0.949</td></tr>
+    <tr><td>No Sleep-EDF exposure allowed</td><td>E20 RobustSleepNet (LODO)</td><td class="num">0.7501</td><td>Clean zero-shot; clean ensemble 0.7608</td></tr>
+    <tr><td>No EEG at all (wearable)</td><td>RF on surrogates</td><td class="num">0.556</td><td>EEG-free staging; the gap is the hardware story (next slides)</td></tr>
+  </table>
+  <p class="hk-foot">Numbers: runs/E22,E19,E11,E21,E11d,E11a,E20 metrics_in_bench.csv · CLASS_CHAMPIONS SC/ST ·
+  wearable/reports (RF 0.556 / UNet1D 0.542 OOF).</p>
+</section>
+
+<!-- ═════ 18 · SHAP ═════ -->
+<section class="hk-slide">
+  <div class="hk-kicker">6 · Explainability 1/3</div>
+  <h2>LightGBM SHAP — the model re-derives the AASM rules</h2>
+  <div class="hk-two">
+    <div class="hk-panel">
+      <h3>Global importance (mean |SHAP|)</h3>
+      <table class="dense">
+        <tr><th>#</th><th>Feature</th><th class="num">|SHAP|</th><th>Physiology</th></tr>
+        <tr><td>1</td><td>eeg_std</td><td class="num">0.670</td><td>EEG amplitude — the N3 lever</td></tr>
+        <tr><td>2</td><td>eog_ptp</td><td class="num">0.513</td><td>eye movements — Wake &amp; REM</td></tr>
+        <tr><td>3</td><td>beta</td><td class="num">0.458</td><td>cortical arousal</td></tr>
+        <tr><td>4</td><td>zcr</td><td class="num">0.400</td><td>frequency proxy</td></tr>
+        <tr><td>5</td><td>sigma</td><td class="num">0.367</td><td>spindles — N2</td></tr>
+        <tr><td>6</td><td>emg_rms</td><td class="num">0.307</td><td>tone / atonia — REM</td></tr>
+        <tr><td>7–11</td><td>alpha · eog_std · theta · eeg_ptp · delta</td><td class="num">0.208–0.086</td><td>—</td></tr>
+      </table>
+    </div>
+    <div class="hk-panel"><h3>Per-class top drivers</h3>
+      <table class="dense">
+        <tr><th>Stage</th><th>#1</th><th>#2</th><th>#3</th></tr>
+        <tr><td>Wake</td><td>eog_ptp <b>1.30</b></td><td>zcr 0.82</td><td>emg_rms 0.66</td></tr>
+        <tr><td>N1</td><td>alpha 0.56</td><td>eeg_std 0.55</td><td>eog_ptp 0.21</td></tr>
+        <tr><td>N2</td><td>sigma 0.53</td><td>beta 0.46</td><td>eog_ptp 0.43</td></tr>
+        <tr><td>N3</td><td>eeg_std <b>1.88</b></td><td>beta 0.83</td><td>zcr 0.49</td></tr>
+        <tr><td>REM</td><td>emg_rms 0.48</td><td>theta 0.37</td><td>eeg_std 0.33</td></tr>
+      </table>
+      <p class="mini">Given only 11 numbers per epoch, the model uses <b>EOG for Wake</b> (blinks),
+      <b>alpha for N1</b>, <b>sigma for N2</b> (spindles), <b>amplitude for N3</b> (slow waves),
+      <b>EMG for REM</b> (atonia) — exactly the AASM logic. So the “why” charts we show clinicians
+      are meaningful, not cosmetic.</p></div>
+  </div>
+  <p class="hk-foot">docs/interp_shap_global.csv, interp_shap_class.csv (train folds 1–4, explain fold 0).</p>
+</section>
+
+<!-- ═════ 19 · CONFIDENCE ═════ -->
+<section class="hk-slide">
+  <div class="hk-kicker">6 · Explainability 2/3</div>
+  <h2>Calibrated confidence — the review queue writes itself</h2>
+  <div class="hk-two">
+    <div class="hk-panel">
+      <h3>Confidence → accuracy (E18, 237,310 epochs)</h3>
+      <table>
+        <tr><th>Band</th><th class="num">n</th><th class="num">Share</th><th class="num">Accuracy</th></tr>
+        <tr><td>0.0–0.4</td><td class="num">3,005</td><td class="num">1.27%</td><td class="num">42.6%</td></tr>
+        <tr><td>0.4–0.5</td><td class="num">14,442</td><td class="num">6.09%</td><td class="num">53.6%</td></tr>
+        <tr><td>0.5–0.6</td><td class="num">27,408</td><td class="num">11.55%</td><td class="num">64.4%</td></tr>
+        <tr><td>0.6–0.7</td><td class="num">31,869</td><td class="num">13.43%</td><td class="num">78.4%</td></tr>
+        <tr><td>0.7–0.8</td><td class="num">42,045</td><td class="num">17.72%</td><td class="num">90.4%</td></tr>
+        <tr><td>0.8–0.9</td><td class="num">46,724</td><td class="num">19.69%</td><td class="num">96.2%</td></tr>
+        <tr><td>0.9–1.0</td><td class="num">71,817</td><td class="num">30.26%</td><td class="num"><b>99.5%</b></td></tr>
+      </table>
+      <p class="mini"><b>Monotone — the model knows when it doesn’t know.</b> GT-vs-confidence
+      operating points we ship:</p>
+      <table class="dense">
+        <tr><th>Policy</th><th class="num">Share</th><th class="num">GT accuracy</th></tr>
+        <tr><td>Auto-accept (≥0.9)</td><td class="num">30.3%</td><td class="num">99.5%</td></tr>
+        <tr><td>Trust but show (0.7–0.9)</td><td class="num">37.4%</td><td class="num">90.4–96.2%</td></tr>
+        <tr><td>Review (0.5–0.7)</td><td class="num">25.0%</td><td class="num">64.4–78.4%</td></tr>
+        <tr><td>Must-review (&lt;0.5)</td><td class="num">7.4%</td><td class="num">42.6–53.6%</td></tr>
+      </table>
+      <p class="mini">Two-thirds of the night (≥0.7) is ≥90% right; the flagged 7.4% is where the
+      expert’s time goes. The API exposes the full 5-probability vector + per-epoch
+      <code>needs_review</code> + mean entropy per band (1.30 → 0.21).</p>
+    </div>
+    <div class="hk-panel"><h3>Calibration error (ECE) per run</h3>
+      <table class="dense">
+        <tr><th>Run</th><th class="num">ECE</th><th>Note</th></tr>
+        <tr class="best"><td>E11 AnySleep</td><td class="num">0.0034</td><td>best-calibrated single</td></tr>
+        <tr><td>E11d</td><td class="num">0.0047</td><td>—</td></tr>
+        <tr><td>E21 U-Sleep</td><td class="num">0.0131</td><td>best-behaved ensemble member</td></tr>
+        <tr><td>E16</td><td class="num">0.0287</td><td>—</td></tr>
+        <tr><td>E20 RSN</td><td class="num">0.0364</td><td>—</td></tr>
+        <tr><td>E22 router</td><td class="num">0.0634</td><td>ships in product</td></tr>
+        <tr><td>E19 / E19b</td><td class="num">0.082 / 0.083</td><td>accuracy costs calibration</td></tr>
+        <tr><td>E17 / E18</td><td class="num">0.094 / 0.097</td><td>—</td></tr>
+        <tr><td>E23b experts</td><td class="num">0.123</td><td>one-hot — rejected</td></tr>
+        <tr><td>E10 (parked)</td><td class="num">0.374</td><td>confident + wrong</td></tr>
+      </table>
+      <p class="mini">Confusion concentrates where medicine is ambiguous: N1↔N2, N1↔Wake
+      (transition epochs), Wake↔REM (daytime eye movements).</p></div>
+  </div>
+  <p class="hk-foot">docs/interp_confidence.csv · ECE from runs/*/metrics_in_bench.csv · contract in FRONTEND_GUIDE.md.</p>
+</section>
+
+<!-- ═════ 20 · ATTENTION+ ═════ -->
+<section class="hk-slide">
+  <div class="hk-kicker">6 · Explainability 3/3</div>
+  <h2>Which sensor matters — attention, intervention, and YASA agree</h2>
+  <div class="hk-two">
+    <div class="hk-panel">
+      <h3>A · AnySleep deepest layer (L12) routing</h3>
+      <table class="dense">
+        <tr><th>Stage</th><th class="num">Fpz</th><th class="num">Pz</th><th class="num">EOG</th><th>Reading</th></tr>
+        <tr><td>Wake</td><td class="num">0.172</td><td class="num">0.672</td><td class="num">0.156</td><td>posterior alpha</td></tr>
+        <tr><td>N1</td><td class="num">0.239</td><td class="num">0.463</td><td class="num">0.299</td><td>posterior + eye</td></tr>
+        <tr><td>N2</td><td class="num">0.375</td><td class="num">0.436</td><td class="num">0.188</td><td>balanced EEG</td></tr>
+        <tr><td>N3</td><td class="num">0.413</td><td class="num">0.517</td><td class="num"><b>0.071</b></td><td>EEG-only</td></tr>
+        <tr><td>REM</td><td class="num">0.259</td><td class="num">0.221</td><td class="num"><b>0.520</b></td><td>EOG takes over</td></tr>
+      </table>
+      <p class="mini">The network discovers the clinical rule: <b>EOG defines REM</b>, EOG is ignored
+      in deep sleep. (13 layers × 5 stages, 16 recordings, 20-min sliding windows.)</p>
+    </div>
+    <div class="hk-panel">
+      <h3>B · Intervention deltas (ΔF1)</h3>
+      <table class="dense">
+        <tr><th>Change</th><th class="num">Wake</th><th class="num">N1</th><th class="num">N2</th><th class="num">N3</th><th class="num">REM</th></tr>
+        <tr><td>+EOG (2EEG→3ch)</td><td class="num">+.003</td><td class="num"><b>+.027</b></td><td class="num">+.008</td><td class="num">+.003</td><td class="num"><b>+.026</b></td></tr>
+        <tr><td>Fpz instead of Pz</td><td class="num">+.026</td><td class="num">+.019</td><td class="num">+.016</td><td class="num"><b>+.048</b></td><td class="num">+.031</td></tr>
+        <tr><td>+Pz to Fpz</td><td class="num">+.015</td><td class="num">+.045</td><td class="num">+.007</td><td class="num">−.011</td><td class="num">+.003</td></tr>
+      </table>
+      <p class="mini">Flips: +EOG changes 5.8% of epochs (13,828), correct 55.4% vs corrupt 38.2% —
+      <b>1.5× more likely a fix than a break</b>. Fpz→3ch: 10.6% (25,111), 55.6% vs 37.1%.</p>
+    </div>
+  </div>
+  <div class="hk-claim"><b>C · YASA TreeSHAP</b> (116 feats, 13,298 epochs): global top
+  eeg_iqr_c7min_norm <b>1.77</b> · eeg_abspow 1.12 · <b>time_hour 0.97</b> (elapsed-night prior — YASA
+  leans on sleep-progression context) · eeg_std 0.90 · eog_nzc 0.86. N3 driver 8.58; Wake/N1/REM all
+  eye-movement features. → <b>Minimal-sensor verdict: Fpz + EOG (2 electrodes).</b></div>
+  <p class="hk-foot">docs/interp_attn_by_stage.csv, interp_channel_delta.csv, interp_channel_flips.csv, interp_yasa_*.csv.</p>
+</section>
+
+<!-- ═════ 21 · FEATURES ═════ -->
+<section class="hk-slide">
+  <div class="hk-kicker">7 · Features — the bridge from labels to a score</div>
+  <h2>96 night parameters — what each family is, and why it exists</h2>
+  <div class="hk-three">
+    <div class="hk-panel"><h3>Continuity</h3><p>TST, SE, SOL, WASO, REM latency, TIB. <b>Why:</b> how
+      much and how long you sleep. Whole-night means: TST 417 · SE 79.7% · SOL 20.8 · WASO 102 ·
+      REM-lat 88. Reference ranges shipped for SE/SOL/REM-lat/WASO.</p></div>
+    <div class="hk-panel"><h3>Fragmentation</h3><p>Awakenings + index, stage shifts + index, SFI
+      (mean 20.8), arousal proxy (mean 13.2, winsorized 40/h). <b>Why:</b> the “chopped night”
+      that stage percentages hide.</p></div>
+    <div class="hk-panel"><h3>Architecture</h3><p>Stage %TST (N1 14.7 · N2 53.1 · N3 11.6 · REM 20.6),
+      first/second-half splits, REM episodes + bouts, full 5×5 transition counts. <b>Why:</b>
+      what kind of sleep — the clinician’s native language.</p></div>
+  </div>
+  <div class="hk-three">
+    <div class="hk-panel"><h3>EEG microstructure</h3><p>Welch δ/θ/α/σ/β (abs+rel), SWA, spectral +
+      permutation entropy, YASA spindles (density 1.86/min N2) + slow waves (1.75/min).
+      <b>Why:</b> depth and the closest link to daytime function.</p></div>
+    <div class="hk-panel"><h3>EMG + respiration</h3><p>Atonia ratio NREM/REM (mean 1.87), movement index.
+      Apnea proxy is cassette-only, coarse (index 0.036), telemetry NaN. <b>Why:</b> atonia
+      confirms REM; the proxy is labeled as a proxy.</p></div>
+    <div class="hk-panel"><h3>QC + SQI join keys</h3><p>Valid-epoch fraction, unscored/move fractions,
+      PSD coverage, flow flag. 10 SQI join keys (TST/SE/SOL/WASO/REM-lat/SFI/arousal/apnea/N3%/REM%)
+      feed the descriptive composite↔clinic correlations.</p></div>
+  </div>
+  <div class="hk-panel"><h3>Reliability contract (from the feasibility audit) + why the headliners matter</h3>
+    <p><b>High:</b> TST · stage % · REM latency · transition counts (direct from hypnogram).
+    <b>Approximate:</b> SE (=TST/TRT, trim-dependent) · WASO · SOL · awakenings (brief arousals invisible).
+    <b>Impossible here:</b> arousal index (no labels) · AHI/apnea (1-Hz thermistor only, no SpO2) · ODI ·
+    PLMI (no leg EMG) · HR (no ECG) · position. — <b>Why SE:</b> the anchor metric of every sleep report
+    and the outcome-linked number in the literature. <b>Why arousal/fragmentation:</b> SFI + arousal proxy
+    capture the “chopped night” that stage percentages hide — the closest measurable link to daytime
+    function, and the SDI-drop↔arousal r≈0.99 backs the proxy. <b>Why spindles/atonia:</b> N2-spindle
+    density (memory-consolidation literature) and REM atonia (the REM confirmation rule).</p></div>
+  <p class="hk-foot">sleep-quality-index/features/ (extractor + 197×96 expert table + 5-night E22 table) ·
+  tables/sqi_feature_feasibility.csv (14 rows: yes/approx/no per feature).</p>
+</section>
+
+<!-- ═════ 22 · SDI ═════ -->
+<section class="hk-slide">
+  <div class="hk-kicker">8 · Sleep quality 1/3 — the depth model</div>
+  <h2>SDI — a transformer that scores <i>how deep</i>, not just which class</h2>
+  <div class="hk-two">
+    <div class="hk-panel">
+      <h3>Model card</h3>
+      <ul>
+        <li>Zhou et al., <a href="https://www.alphaxiv.org/abs/2407.04753">alphaxiv 2407.04753</a>;
+          journal: <a href="https://doi.org/10.1038/s41746-025-01607-0">npj Digital Medicine 8:203 (2025)</a></li>
+        <li>ViT-style, <b>23.18M params</b> (~89 MB); 30-s epochs @100 Hz, 4ch [EEG, EMG, EOG, ECG];
+          <b>depth head</b> (0–1) + <b>REM head</b>; pairwise-ranking loss + REM cross-entropy</li>
+        <li>Their validation: depth concordance ρ&gt;0.85 · REM AUROC 0.975–0.990 ·
+          SDI-drop↔arousal r≈0.99 · mortality HR 1.33 (published — cite published, not preprint)</li>
+        <li>Our deployment: Fpz-Cz ≠ C4 · cassette 1-Hz EMG · <b>ECG zero-filled</b> ·
+          conditions never pooled. Full 197-night sweep in-repo.</li>
+      </ul>
+    </div>
+    <div class="hk-panel is-good">
+      <h3>Sanity: it rediscovered the depth ladder (197 nights, zero-shot)</h3>
+      <table>
+        <tr><th>Expert stage</th><th class="num">Mean SDI</th></tr>
+        <tr><td>N3</td><td class="num">0.853</td></tr>
+        <tr><td>N2</td><td class="num">0.407</td></tr>
+        <tr><td>REM</td><td class="num">0.288</td></tr>
+        <tr><td>N1</td><td class="num">0.135</td></tr>
+        <tr><td>Wake</td><td class="num">0.067</td></tr>
+      </table>
+      <p class="mini">Monotone with <b>no supervision on our data</b>. Night-level depth↔NREM-order
+      Spearman: mean <b>0.77</b>, median 0.81. Example SC4001: W .115 · N1 .165 · N2 .526 ·
+      N3 .948 · R .316, ρ 0.90, REM F1 0.70.</p></div>
+  </div>
+  <div class="figrow">
+    <figure class="fig"><img src="assets/cycles.png" alt="sleep cycles">
+      <figcaption>Sleep cycles/night (mean 3.53, median 4) recovered from the depth stream — the
+      product plots this curve instead of asking users to read 800 labeled epochs.</figcaption></figure>
+    <figure class="fig"><img src="assets/eeg_per_stage_SC4001.png" alt="EEG per stage">
+      <figcaption>Same-night 30-s Fpz traces per stage: Wake spiky → N1 mixed → N2 K/spindle →
+      N3 large slow → REM low flat. Depth orders what labels only name.</figcaption></figure>
+  </div>
+  <p class="hk-foot">sleep-quality-index/sdi/ (vendored net, infer logs, runs/*.parquet) · papers-bank/sleep-quality-index/README.md.</p>
+</section>
+
+<!-- ═════ 23 · COMPOSITE ═════ -->
+<section class="hk-slide">
+  <div class="hk-kicker">8 · Sleep quality 2/3 — one explainable number</div>
+  <h2>The night composite — components, repeatability, cohort behavior</h2>
+  <div class="hk-two">
+    <div class="hk-panel">
+      <h3>Definition (our implementation — the paper defines depth, not this score)</h3>
+      <table class="dense">
+        <tr><th>Comp.</th><th>Meaning</th><th class="num">Mean</th><th>Orient.</th></tr>
+        <tr><td>RB</td><td>share of sleep with SDI&lt;0.2</td><td class="num">0.261</td><td>−z</td></tr>
+        <tr><td>AP</td><td>mean SDI over sleep</td><td class="num">0.404</td><td>+z</td></tr>
+        <tr><td>CV</td><td>SD/mean of sleep SDI</td><td class="num">0.662</td><td>−z</td></tr>
+        <tr><td>MDR</td><td>mean SDI over pred. REM</td><td class="num">0.315</td><td>+z</td></tr>
+        <tr><td>PR</td><td>predicted REM share</td><td class="num">0.152</td><td>+z</td></tr>
+      </table>
+      <p class="mini"><b>Composite = equal-weight mean of the five z-scores</b> → empirical 0–100
+      percentile. Skew/ApEn/DFA reported, <b>not scored</b>; apnea index displayed, never folded in.
+      Eligible ⇔ ≥30 sleep epochs AND ≥1 predicted REM epoch.</p>
+    </div>
+    <div class="hk-panel"><h3>Results, full dataset</h3>
+      <table>
+        <tr><th>Number</th><th class="num">Value</th></tr>
+        <tr><td>Eligible</td><td class="num">193 / 197</td></tr>
+        <tr><td>Composite</td><td class="num">mean +0.037 · sd 0.81</td></tr>
+        <tr><td>Cassette (home, n=149)</td><td class="num">−0.069</td></tr>
+        <tr><td>Telemetry (hospital, n=44)</td><td class="num">+0.395</td></tr>
+        <tr><td>Repeatability (93 pairs)</td><td class="num">ICC(2,1) 0.543 · r 0.548 · |Δ| 0.547</td></tr>
+        <tr><td>REM head F1</td><td class="num">mean 0.641 · median 0.701</td></tr>
+        <tr><td>REM share</td><td class="num">0.152 pred vs 0.206 expert</td></tr>
+      </table>
+      <p class="mini">4 nights with no predicted REM (SC4202/4271/4612/4752) → composite
+      <b>withheld with reason</b>, never faked. Cohorts differ → percentiles are per-reference.</p></div>
+  </div>
+  <p class="hk-foot">sdi/estimate_quality.py (every rule in the docstring) · reports/sdi_composite_*,
+  sdi_night_features_*, sdi_repeatability_*. Weights are ours — validate vs PROMIS/Pittsburgh before clinical use.</p>
+</section>
+
+<!-- ═════ 24 · VALUE ═════ -->
+<section class="hk-slide">
+  <div class="hk-kicker">8 · Sleep quality 3/3 — value beyond metrics</div>
+  <h2>Why depth is worth more than another half-point of F1</h2>
+  <div class="hk-two">
+    <div class="hk-panel"><h3>Do features survive model error? (GT vs E22, n=5 pilot)</h3>
+      <table class="dense">
+        <tr><th>Feature</th><th class="num">Expert</th><th class="num">Pred</th><th class="num">Δ</th></tr>
+        <tr><td>TST (min)</td><td class="num">436.8</td><td class="num">441.1</td><td class="num">+4.3</td></tr>
+        <tr><td>Sleep efficiency (%)</td><td class="num">86.3</td><td class="num">86.9</td><td class="num">+0.6</td></tr>
+        <tr><td>SOL / WASO / REM-lat</td><td class="num">10.4/58.1/83.0</td><td class="num">10.2/56.2/83.3</td><td class="num">−0.2/−1.9/+0.3</td></tr>
+        <tr><td>N1 / N2 / N3 / REM (%)</td><td class="num">8.9/51.9/20.6/18.6</td><td class="num">10.8/54.4/16.5/18.4</td><td class="num">+1.9/+2.5/−4.2/−0.2</td></tr>
+        <tr><td>Fragmentation index</td><td class="num">22.1</td><td class="num">21.0</td><td class="num">−1.1</td></tr>
+      </table>
+      <p class="mini">Macro features transfer almost perfectly — errors average out. <b>N3% is the weak
+      point</b> (−4.2): N2↔N3 confusion redistributes deep sleep. n=5 pilot, reported as a pilot.</p></div>
+    <div class="hk-panel is-good"><h3>What the paper proves depth can do (their cohorts)</h3>
+      <ul>
+        <li><b>Depth inside a stage:</b> same-labeled N2/REM epochs get different SDI by slow-wave /
+          EMG / EOG content — staging cannot express this</li>
+        <li><b>AP beats SE:</b> two nights SE 94% vs 93% but AP 0.253 vs 0.46 — depth exposes
+          shallow second halves SE hides</li>
+        <li><b>Fragmentation marker:</b> SDI-drop ↔ arousal duration r ≈ 0.99, no manual scoring</li>
+        <li><b>Prognosis:</b> subtypes → mortality HR 1.33, fatal CHD 1.38 (their data, not ours)</li>
+      </ul></div>
+  </div>
+  <div class="hk-claim">One explainable number with a percentile, five auditable components, a repeatability
+  statement (ICC 0.54), and a quality gate — exactly what a clinician or patient can act on.
+  And it is <b>decoupled</b>: RB/AP/CV/MDR/PR come straight from the depth stream with no staging
+  model in the loop, so staging errors (e.g. the −4.2 N3% shift) cannot silently corrupt the score —
+  unlike a naive SE+stage% cocktail.</div>
+  <p class="hk-foot">Pilot: sqi_features_E22 (5 nights) vs sqi_features_expert · paper cases: README “Added value” §1–6.</p>
+</section>
+
+<!-- ═════ 24b · WEARABLE 1/2 ═════ -->
+<section class="hk-slide">
+  <div class="hk-kicker">8 · Wearable branch 1/2 — staging with no EEG at all</div>
+  <h2>What survives when the head electrodes come off?</h2>
+  <div class="hk-panel">
+    <h3>Setup (sleep-stage/wearable/)</h3>
+    <ul>
+      <li>PSG channels reused as wearable <b>surrogates</b>: EMG→actigraphy/motion ·
+        EOG→eye activity · Resp→breathing belt (cassette only) · Temp→slow trend.
+        Native rates differ per source — high-rate features exist only where the channel supports them.</li>
+      <li>Per-epoch engineered features (motion RMS/PIM/bands/Hjorth · eye variance/peaks ·
+        respiration rate/CV · temperature slope) + 1-Hz/25-Hz waveforms + HypnosPy-style counts.</li>
+      <li>Frozen <b>subject-wise GroupKFold</b> (keys namespaced subset:subject) — only out-of-fold
+        predictions scored, so no leakage flatters the numbers.</li>
+      <li>Models are adapted re-implementations (not vendor code): RF on features ·
+        1D ResUNet · WatchSleepNet-style ResNet+TCN+BiLSTM+attention.</li>
+    </ul>
+  </div>
+  <p class="hk-foot">sleep-stage/wearable/ (README + extract_surrogates/train_bench/evaluate_bench + run_pipeline.sh).</p>
+</section>
+
+<!-- ═════ 24c · WEARABLE 2/2 ═════ -->
+<section class="hk-slide">
+  <div class="hk-kicker">8 · Wearable branch 2/2 — results</div>
+  <h2>The gap is the hardware story — plus the apnea path</h2>
+  <div class="hk-panel"><h3>Reference results (197 nights, OOF Macro-F1)</h3>
+    <table>
+      <tr><th>Model</th><th class="num">Macro-F1</th><th>Reading</th></tr>
+      <tr><td>RandomForest (engineered)</td><td class="num">0.556</td><td>best EEG-free; ≈ YASA-crop level</td></tr>
+      <tr><td>UNet1D (adapted)</td><td class="num">0.542</td><td>waveforms alone don’t beat features here</td></tr>
+      <tr><td>WatchSleepNet-style (3-class)</td><td class="num">κ ≈ 0.01</td><td>collapsed — honest negative</td></tr>
+      <tr class="best"><td>PSG reference (E22)</td><td class="num">0.846</td><td>the gap IS the hardware story</td></tr>
+    </table>
+    <p class="mini">EEG-free staging sits ~0.29 below PSG — that gap quantifies what the head electrodes
+    buy. Apnea side: our in-PSG apnea detector is a <b>coarse cassette-only proxy</b> (1-Hz flow
+    envelope, no SpO2, telemetry NaN, index 0.036) — a wearable SpO2+flow path is the named next
+    experiment, not a claimed result. Macro-metric bias/MAE (TST/SE/SOL) is printed alongside
+    accuracy — effect on the score, not just agreement.</p></div>
+  <p class="hk-foot">sleep-stage/wearable/ (data + reports gitignored by design; frozen splits, incremental builds).</p>
+</section>
+
+<!-- ═════ 25 · PRODUCT 1 ═════ -->
+<section class="hk-slide">
+  <div class="hk-kicker">9 · Product 1/3 — the demo judges can run</div>
+  <h2>SleepLens backend — a service, not a notebook</h2>
+  <div class="hk-three">
+    <div class="hk-panel"><h3>Stack</h3><ul>
+      <li>Django 5.2 + DRF · JWT + httpOnly-cookie auth + throttling</li>
+      <li>Apps: accounts · patients · studies · analysis · reports · assistant</li>
+      <li>SQLite dev / Postgres-ready; media store for EDFs + artifacts</li>
+    </ul></div>
+    <div class="hk-panel"><h3>API surface (<code>/api/</code>)</h3><ul>
+      <li><b>studies</b>: upload (optional patient, all-or-nothing PSQI), filters, detail, reprocess, download</li>
+      <li><b>results</b>: <code>/ssc/ /sdi/ /night/ /features/…</code> — hypnogram, depth, summaries</li>
+      <li><b>signals</b>: preview + per-epoch snippet · <b>psqi</b>: 7 components 0–3 ·
+        <b>report</b> + <b>chat</b></li>
+    </ul></div>
+    <div class="hk-panel is-good"><h3>Engineering facts</h3><ul>
+      <li><b>56-test pytest suite</b> (auth → pipeline → chat)</li>
+      <li>Parity harness: <b>96.87%</b> epoch agreement with experimental E22</li>
+      <li><b>~91–118 s/night on CPU</b>; ensemble ~40 s in-harness (no GPU needed)</li>
+      <li>Weights in-repo, load-verified: AnySleep 3.16M · SDI 23.18M · LGBM 1,500 trees</li>
+      <li>Degradation = explicit 503 codes, never fake data</li>
+    </ul></div>
+  </div>
+  <div class="hk-flow">
+    <div>Upload EDF</div><span>→</span><div>Validate &amp; store</div><span>→</span>
+    <div>Pipeline (SSC + SDI)</div><span>→</span><div>Features + score + PSQI</div><span>→</span>
+    <div>Report + chat</div>
+  </div>
+  <p class="hk-foot">SleepLens/SleepLens/backend (self-contained, vendored pipeline) · docs/LOCAL_DEVELOPMENT.md ·
+  31 KB frontend contract (FRONTEND_GUIDE.md).</p>
+</section>
+
+<!-- ═════ 26 · PRODUCT 2 ═════ -->
+<section class="hk-slide">
+  <div class="hk-kicker">9 · Product 2/3 — the expert-assistant layer</div>
+  <h2>PSQI + grounded LLM report + a chat that cites real numbers</h2>
+  <div class="hk-three">
+    <div class="hk-panel"><h3>PSQI intake (optional)</h3><ul>
+      <li>7 components, each 0–3: quality, latency, duration, efficiency, disturbances,
+        medication, daytime dysfunction</li>
+      <li>Stored <b>all-or-nothing</b>; objective↔subjective disagreement is surfaced,
+        not averaged away</li>
+    </ul></div>
+    <div class="hk-panel"><h3>LLM report (gpt-6-luna)</h3><ul>
+      <li>Prompt v2: reference ranges, stage-confidence summary, explicit
+        <b>“not assessable”</b> for absent channels</li>
+      <li>Versioned report rows — reproducible, auditable markdown:
+        architecture, fragmentation, depth/SQI, PSQI, review flags, plain-language summary</li>
+    </ul></div>
+    <div class="hk-panel"><h3>Assistant chat (opencode)</h3><ul>
+      <li>Per-study thread, suggested prompts; local server, free-tier model</li>
+      <li>Verified live: asked for sleep efficiency → answered the study’s <b>real SE</b></li>
+      <li>Server down → honest <code>503 OPENCODE_UNAVAILABLE</code>, never canned text</li>
+    </ul></div>
+  </div>
+  <div class="hk-claim">An <i>expert assistant</i>, not a black-box score: hypnogram + depth curve + 96 features +
+  PSQI + <b>the model’s own uncertainty</b> — interrogable in natural language, every claim tied to artifacts.</div>
+  <p class="hk-foot">apps/reports, apps/assistant · prompt v2 in reports/services · UI contracts in FRONTEND_GUIDE.md.</p>
+</section>
+
+<!-- ═════ 27 · PRODUCT 3 ═════ -->
+<section class="hk-slide">
+  <div class="hk-kicker">9 · Product 3/3 — value and boundaries</div>
+  <h2>Who pays, what they get, what we refuse to claim</h2>
+  <div class="hk-three">
+    <div class="hk-panel"><h3>Sleep clinics &amp; somnologists</h3><ul>
+      <li>Auto-scored hypnogram + confidence-flagged queue → scorer time collapses</li>
+      <li>96 features + report draft in clinical language; depth curve for follow-up</li>
+    </ul></div>
+    <div class="hk-panel"><h3>Home / wearable healthtech</h3><ul>
+      <li><b>Fpz + EOG keeps 99.5%</b> — 2 electrodes, no hospital montage; Fpz-only 97%</li>
+      <li>Depth + composite are ambiguity-robust and window-computable</li>
+    </ul></div>
+    <div class="hk-panel"><h3>Research</h3><ul>
+      <li>Repro harness: 25+ runs, fold-honest eval, shift/permutation controls</li>
+      <li>Feature tables ready for outcome correlation (PSQI, PROMIS)</li>
+    </ul></div>
+  </div>
+  <div class="hk-two">
+    <div class="hk-panel is-good"><h3>Revenue hypothesis (bonus ask)</h3><ul>
+      <li><b>Per-study API pricing</b> (CPU-only: ~2 min/night)</li>
+      <li><b>Dashboard subscription</b> (report + chat layer)</li>
+      <li><b>OEM licensing</b> for wearable makers needing clinical-grade staging + depth</li>
+    </ul></div>
+    <div class="hk-panel"><h3>What we do NOT claim</h3><ul>
+      <li>Not a medical device; not diagnostic</li>
+      <li>Composite = <b>research estimate</b> with our weights — needs outcome validation</li>
+      <li>No cross-cohort comparisons by design; no ECG/SpO2 features — marked not assessable</li>
+    </ul></div>
+  </div>
+  <p class="hk-foot">Boundaries are implemented (503s, not-assessable fields, per-cohort percentiles), not just written.</p>
+</section>
+
+<!-- ═════ 28 · LIMITS ═════ -->
+<section class="hk-slide">
+  <div class="hk-kicker">10 · Validation &amp; limits</div>
+  <h2>Domain shift is real, measured, and handled explicitly</h2>
+  <div class="figrow">
+    <figure class="fig"><img src="assets/wake_rem_overlap.png" alt="wake REM overlap">
+      <figcaption>Wake–REM ambiguity: Fpz-theta histograms overlap heavily; log-EOG separates better.
+      This one overlap explains much of the residual error (REM precision 0.897 vs recall 0.913).</figcaption></figure>
+    <figure class="fig"><img src="assets/eeg_compare.png" alt="SC vs ST">
+      <figcaption>ST amplitudes ~2–3× SC; EMG rates differ; SC has Resp/Temp, ST doesn’t.
+      Hence per-record normalization, per-cohort reporting, and the E22 router.</figcaption></figure>
+  </div>
+  <div class="hk-three">
+    <div class="hk-panel is-warn"><h3>Known shifts</h3><ul>
+      <li>Daytime naps in SC → window trimming is part of the contract</li>
+      <li>4 nights with zero predicted REM (named, withheld)</li>
+      <li>Telemetry REM far better (F1 0.84 vs 0.55) — substitutions bite cassette REM</li>
+    </ul></div>
+    <div class="hk-panel"><h3>Training truthfulness</h3><ul>
+      <li>Inference-only per the brief — nothing trained from scratch</li>
+      <li>AnySleep / U-Sleep saw Sleep-EDF variants → labeled <b>reference</b>;
+        clean zero-shot = RSN 0.7501</li>
+      <li>Weights fold-honest; no test-fold peeking anywhere</li>
+    </ul></div>
+    <div class="hk-panel is-good"><h3>Next with more time</h3><ul>
+      <li>External clinical PSG validation (new montage, new scorer)</li>
+      <li>Composite ↔ PROMIS/Pittsburgh correlation, target fixed in advance</li>
+      <li>Router on montage detection; event-level validation vs EDF+ annotations</li>
+    </ul></div>
+  </div>
+  <p class="hk-foot">Shift sweeps, permutation controls, per-cohort grids, bench-vs-valid columns — MODELING_LOG.md.</p>
+</section>
+
+<!-- ═════ 29 · REFERENCES ═════ -->
+<section class="hk-slide">
+  <div class="hk-kicker">11 · References</div>
+  <h2>Papers — every method we used has a citable source</h2>
+  <div class="hk-two">
+    <div class="hk-panel">
+      <h3>Models we ran</h3>
+      <ul>
+        <li><b>AnySleep</b> — <a href="https://www.alphaxiv.org/abs/2512.14461">alphaxiv 2512.14461</a> (2025)</li>
+        <li><b>U-Sleep</b> — <a href="https://doi.org/10.1038/s41746-021-00440-5">npj Digit. Med. 2021</a>
+          · lineage <a href="https://www.alphaxiv.org/abs/1910.11162">U-Time 1910.11162</a></li>
+        <li><b>RobustSleepNet</b> — <a href="https://www.alphaxiv.org/abs/2101.02452">alphaxiv 2101.02452</a> (2021)</li>
+        <li><b>YASA</b> — <a href="https://elifesciences.org/articles/70092">eLife 10:70092</a> (2021)</li>
+        <li><b>SDI (SQI engine)</b> — <a href="https://www.alphaxiv.org/abs/2407.04753">alphaxiv 2407.04753</a> ·
+          <a href="https://doi.org/10.1038/s41746-025-01607-0">npj 8:203 (2025)</a></li>
+        <li><b>SLEEPYLAND</b> — <a href="https://www.alphaxiv.org/abs/2506.08574">alphaxiv 2506.08574</a> (dropped: containers)</li>
+        <li><b>SleepFM-1</b> — <a href="https://www.alphaxiv.org/abs/2405.17766">alphaxiv 2405.17766</a> (E10 parked)</li>
+      </ul>
+    </div>
+    <div class="hk-panel">
+      <h3>Considered (paper bank)</h3>
+      <ul>
+        <li>SleepDG <a href="https://www.alphaxiv.org/abs/2401.05363">2401.05363</a> · SleepDIFFormer
+          <a href="https://www.alphaxiv.org/abs/2508.15215">2508.15215</a></li>
+        <li>SleepTransformer <a href="https://www.alphaxiv.org/abs/2105.11043">2105.11043</a> ·
+          L-SeqSleepNet <a href="https://www.alphaxiv.org/abs/2301.03441">2301.03441</a></li>
+        <li>SeqSleepNet <a href="https://www.alphaxiv.org/abs/1809.10932">1809.10932</a> · XSleepNet
+          <a href="https://www.alphaxiv.org/abs/2007.05492">2007.05492</a></li>
+        <li>BIOT <a href="https://www.alphaxiv.org/abs/2305.10351">2305.10351</a> · SleepEffFormer
+          <a href="https://www.alphaxiv.org/abs/2609.22148">2609.22148</a></li>
+        <li>MEASURE <a href="https://www.alphaxiv.org/abs/2510.12070">2510.12070</a> · LaBraM
+          <a href="https://www.alphaxiv.org/abs/2405.18765">2405.18765</a> · REVE
+          <a href="https://www.alphaxiv.org/abs/2510.21585">2510.21585</a></li>
+        <li>S4Sleep <a href="https://www.alphaxiv.org/abs/2310.06715">2310.06715</a> · ContraWR
+          <a href="https://www.alphaxiv.org/abs/2110.15278">2110.15278</a> · Wearable-SSL
+          <a href="https://www.alphaxiv.org/abs/2510.07960">2510.07960</a></li>
+        <li>LGFNet <a href="https://www.alphaxiv.org/abs/2607.25197">2607.25197</a> · SleepFM-2
+          <a href="https://www.alphaxiv.org/abs/2609.06849">2609.06849</a> · OSF
+          <a href="https://www.alphaxiv.org/abs/2603.00190">2603.00190</a></li>
+      </ul>
+      <p class="mini">Curated with implementation notes in papers-bank/sleep-stage + sleep-quality-index.
+      Dataset: Sleep-EDF Expanded 1.0.0 (PhysioNet).</p>
+    </div>
+  </div>
+  <p class="hk-foot">Our artifacts: results_table.csv · FINAL_RESULTS.md · MODELING_LOG.md · CLASS_CHAMPIONS.md ·
+  interp_*.csv · sdi/reports/ · features/reports/.</p>
+</section>
+
+<!-- ═════ 30 · CLOSING ═════ -->
+<section class="hk-slide dark center">
+  <div class="hk-kicker">Thank you · questions welcome</div>
+  <h1>SleepLens</h1>
+  <p class="subtitle">One night in — staging with confidence, a depth curve, 96 explainable features,
+  one auditable quality score, and an assistant that shows its work. Inference-first on real
+  Sleep-EDF data; honest about what worked and what didn’t.</p>
+  <div class="hk-chips">
+    <span>E22 0.8458 Macro-F1</span><span>Fpz+EOG minimal sensor</span><span>ICC 0.54</span>
+    <span>56-test suite</span><span>~40 s/night CPU</span><span>weights in-repo</span>
+  </div>
+  <div class="hk-three" style="margin-top:26px">
+    <div class="hk-panel is-dark"><h3>Staging · EDA · ensembles</h3><p>Amirhossein — 25-run ladder, E22 router,
+      interpretability suite, papers bank.</p></div>
+    <div class="hk-panel is-dark"><h3>Quality · SDI · features</h3><p>Erfan — SDI vendoring + sweeps, night
+      composite, repeatability, 96-feature extractor.</p></div>
+    <div class="hk-panel is-dark"><h3>Product · webapp · assistant</h3><p>Morteza — the webapp path behind the
+      SleepLens product layer.</p></div>
+  </div>
+  <p class="hk-foot">Repo: github.com/amirhossein-izadi/SleepLens · branch amirhossein ·
+  this deck: SleepLens/docs/slides/ · figures: docs/slides/assets/.</p>
+</section>
+
+</main>
+</body>
+</html>
