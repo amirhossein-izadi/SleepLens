@@ -63,22 +63,45 @@ tr.best td{background:#f4ffd2!important;font-weight:700}
 .fig figcaption{font-size:12px;color:#555;padding:4px 3px 1px;line-height:1.6}
 .fig.sm img{max-height:170px;object-fit:contain}
 .fig.md img{max-height:220px;object-fit:contain}
+.pipeline-slide h2{max-width:1100px;margin-bottom:8px}
+.pipeline-lead{max-width:1050px;margin:0 0 10px;font-size:16px;line-height:1.7;color:#444}
+.pipeline-figure{margin:6px 0 10px;padding:8px;background:var(--paper);border:2px solid var(--blk);border-radius:4px;box-shadow:8px 8px 0 rgba(0,0,0,.1)}
+.pipeline-figure img{width:100%;max-height:370px;object-fit:contain;display:block}
+.pipeline-figure figcaption{padding:6px 4px 0;color:#555;font-size:12px;line-height:1.5}
+.pipeline-takeaway{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:14px;padding:12px 16px;background:var(--blk);color:var(--cream);border-right:6px solid var(--lime);font-size:15px;line-height:1.7}
+.pipeline-takeaway strong{color:var(--lime)}
+.pipeline-next{flex:none;color:#d8d3c4;font-size:13px}
+.night-metrics-slide h2{max-width:1120px;margin-bottom:6px}
+.metrics-intro{max-width:1100px;margin:0 0 10px;font-size:15.5px;line-height:1.65}
+.metric-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.metric-card{min-width:0}
+.metric-card h3{border-bottom:2px solid var(--lime);padding-bottom:5px}
+.metric-card ul{margin-top:5px}
+.metric-card li{font-size:15px;line-height:1.55;margin-bottom:3px}
+.metric-card li.metric-stat{list-style:none;border-top:1px solid #d5d0c3;padding-top:4px;color:#555;font-size:13px}
+.metrics-flow{direction:ltr;justify-content:center;gap:10px;margin:14px 0 4px}
+.metrics-flow div{flex:1;min-width:175px;text-align:center}
+.metrics-flow>span{background:none;border:0;padding:0 2px;font-size:20px}
+.metrics-note{margin:5px 0 0;text-align:center}
 a{color:#0b5cc0;text-decoration:none;border-bottom:1px solid rgba(11,92,192,.4)}
 .s.dark a{color:var(--lime)}
 @media(max-width:1000px){.s{padding:28px 20px 66px}h1{font-size:36px}h2{font-size:24px}
-.two,.three,.frow{grid-template-columns:1fr}}
+.two,.three,.frow,.metric-grid{grid-template-columns:1fr}.pipeline-takeaway{align-items:flex-start;flex-direction:column;gap:4px}}
 @media print{.s{page-break-after:always;min-height:100vh;padding:24px 42px 38px}
 .pn,.cl,.fig,table{box-shadow:none}th,td{font-size:10.5px;padding:3px 4.5px}
 p,li{font-size:14px;line-height:1.55}h2{font-size:25px;margin-bottom:9px}
+.metric-card li{font-size:12.5px;line-height:1.45}.metrics-intro{font-size:13px;margin-bottom:6px}
 .pn{padding:9px 11px}h3{font-size:15.5px;margin-bottom:5px}
 li{margin-bottom:2px}
 .cl{font-size:17px;padding:10px 12px}
 .fig{padding:5px}.fig img{max-height:185px;object-fit:contain}
 .fig figcaption{font-size:11px}
 .fig.sm img{max-height:118px}.fig.md img{max-height:132px}
+.pipeline-figure{padding:5px}.pipeline-figure img{max-height:300px}.pipeline-figure figcaption{font-size:10.5px}
+.pipeline-takeaway{font-size:13px;padding:8px 12px;margin-top:8px}
 .flow div{font-size:12.5px;padding:5px 8px}.flow{gap:5px;margin:6px 0}
 .k{font-size:12px;margin-bottom:8px}.mini{font-size:12px}
-.k,h2{break-after:avoid}.pn,table,.fig,.cl{break-inside:avoid}}
+.k,h2{break-after:avoid}.pn,table,.fig,.cl,.pipeline-figure,.pipeline-takeaway{break-inside:avoid}}
 </style>
 </head>
 <body>
@@ -289,39 +312,72 @@ li{margin-bottom:2px}
   </div>
 </section>
 
-<!-- ۷ · ویژگی‌ها + روش سرتاسری -->
-<section class="s">
-  <div class="k">۷ · ویژگی‌ها و روش سرتاسری</div>
-  <h2>۹۶ سنجه شبانه + مدل عمق — <b>ما هر دو را استفاده می‌کنیم، نه فقط یکی</b></h2>
-  <p>یک فایل خواب می‌دهید؛ اول مرحله‌های خواب مشخص می‌شود، بعد عمق خواب لحظه‌به‌لحظه
-  سنجیده می‌شود؛ از این دو، جدول سنجه‌های شب ساخته می‌شود و در پایان گزارش ساده و
-  امکان پرسش‌وپاسخ درباره همان شب می‌آید.</p>
-  <div class="three">
-    <div class="pn"><h3>تداوم — چقدر خوابیدی؟</h3><p><span class="lt">TST · SE · SOL · WASO · REM-lat</span> —
-      میانگین TST ‏<span class="num">417</span> دقیقه و SE ‏<span class="num">79.7٪</span>.
-      <b>چرا SE:</b> لنگر همه گزارش‌های بالینی و عدد پیوندخورده با پیامد.</p></div>
-    <div class="pn"><h3>تکه‌تکه‌شدن — چطور خوابیدی؟</h3><p>بیدارشدگی، stage shift،
-      <span class="lt">SFI</span> ‏<span class="num">20.8</span> و نشانه غیرمستقیم بیداری ‏<span class="num">13.2</span> —
-      «شب خُردشده» را آشکار می‌کند که درصد مراحل پنهانش می‌کند.</p></div>
-    <div class="pn"><h3>معماری و ریزساختار — چه نوع خوابی؟</h3><p>درصد مراحل، نیم‌شب‌ها، چرخه‌ها، ماتریس گذار ۵×۵،
-      <span class="lt">spindle</span> ‏<span class="num">1.86</span>/دقیقه و <span class="lt">EMG atonia</span> (تأیید REM).</p></div>
-  </div>
-  <div class="two">
-    <div class="pn warn"><h3>قرارداد صداقت سنجه‌ها</h3>
-      <p><b>دقیق:</b> TST · درصد مراحل · تأخیر REM · گذرها. <b>تقریبی:</b> SE · WASO · SOL.
-      <b>ناممکن:</b> arousal index · AHI/آپنه (بدون SpO2) · HR · پوزیشن →
-      به‌جای جعل، «غیرقابل‌ارزیابی» ثبت می‌شود.</p></div>
-    <div class="pn good"><h3>چرا فقط سنجه‌ها کافی نیستند؟</h3>
-      <p>بخش بزرگی از سنجه‌ها از <span class="lt">staging</span> می‌آید و خطایش
-      (مثل <span class="num">−4.2٪</span> در سهم خواب عمیق نسبت به برچسب پزشک) به همه‌شان سرایت می‌کند.
-      مدل SQI از <b>جریان عمق</b> می‌آید: درون‌مرحله‌ای و کم‌حساس به خطای کلاس —
-      پس <b>هر دو</b> را داریم و نمره از مجموعشان می‌آید.</p></div>
+<section class="s pipeline-slide" id="pipeline">
+  <div class="k">۷ · مسیر یک شب در SleepLens</div>
+  <h2>از سیگنال خام تا گزارش قابل‌فهم — هر گام، ورودی گام بعد است</h2>
+  <p class="pipeline-lead">در اسلاید قبل دیدیم Router چگونه مدل مرحله‌بندی را انتخاب می‌کند؛ اینجا مسیر کامل را می‌بینیم:
+  خروجی staging و مدل عمق به سنجه‌های شبانه، نمره کیفیت و گزارش می‌رسد.</p>
+  <figure class="pipeline-figure">
+    <img src="assets/main_flow.png" alt="مسیر SleepLens: داده خواب، مرحله‌بندی پنج‌کلاسه، Ensemble و Router، مدل عمق، سنجه‌ها و نمره کیفیت، گزارش و دستیار شبانه">
+    <figcaption>نمای کلی محصول: از مرحله‌بندی و Router به مدل عمق، سنجه‌ها و <span class="lt">SQI-D</span>؛ در پایان، گزارش و دستیار شبانه.</figcaption>
+  </figure>
+  <div class="pipeline-takeaway">
+    <span><strong>دو نمای مکمل از یک شب:</strong> مرحله‌بندی می‌گوید «چه مرحله‌ای»؛ SDI نشان می‌دهد «چقدر عمیق».
+    ترکیب این دو، سنجه‌های شبانه و نمره کیفیت را می‌سازد.</span>
+    <span class="pipeline-next">در ادامه: ۸ · سنجه‌ها، ۹ · مدل عمق، ۱۰ · نمره کیفیت، ۱۱ · محصول</span>
   </div>
 </section>
 
-<!-- ۸ · مدل SQI ما (آموزش‌دیده) -->
+<!-- ۸ · سنجه‌های شبانه -->
+<section class="s night-metrics-slide">
+  <div class="k">۸ · سنجه‌های شبانه — از اندازه‌گیری تا کاربرد</div>
+  <h2>۹۶ ویژگی را در چهار خانواده می‌سازیم؛ هر خانواده پاسخ یک سؤال درباره خواب است</h2>
+  <p class="metrics-intro">ورودی این بخش، هیپنوگرامِ مرحله‌بندی‌شده و جریان پیوسته SDI است. سنجه‌ها هم برای توضیح شب به کار می‌روند و هم، در موارد مشخص، نمره <span class="lt">SQI-D</span> را می‌سازند.</p>
+  <div class="metric-grid">
+    <article class="pn metric-card">
+      <h3>تداوم خواب · چقدر و با چه کارایی؟</h3>
+      <ul>
+        <li><b>استخراج:</b> <span class="lt">TST</span>، کارایی خواب (<span class="lt">SE</span>)، زمان به‌خواب‌رفتن (<span class="lt">SOL</span>)، بیداری پس از شروع خواب (<span class="lt">WASO</span>) و تأخیر <span class="lt">REM</span>.</li>
+        <li><b>کاربرد:</b> توصیف مقدار و پیوستگی خواب؛ <span class="lt">SE</span> امتیاز می‌گیرد و <span class="lt">SOL/WASO</span> جریمه‌های سقف‌دار <span class="lt">SQI-D</span> را می‌سازند.</li>
+        <li class="metric-stat"><b>میانگین cohort:</b> <span class="lt">TST</span> ‏۴۱۷ دقیقه · <span class="lt">SE</span> ‏۷۹٫۷٪</li>
+      </ul>
+    </article>
+    <article class="pn metric-card">
+      <h3>گسست خواب · شب چقدر تکه‌تکه بود؟</h3>
+      <ul>
+        <li><b>استخراج:</b> شمار بیدارشدگی‌ها، جابه‌جایی بین مراحل و شاخص گسست خواب (<span class="lt">SFI</span>).</li>
+        <li><b>کاربرد:</b> آشکارکردن وقفه‌هایی که درصد مراحل نشان نمی‌دهد؛ <span class="lt">SFI</span> وارد جریمه گسست در <span class="lt">SQI-D</span> می‌شود.</li>
+        <li class="metric-stat"><b>میانگین cohort:</b> <span class="lt">SFI</span> ‏۲۰٫۸ بار در ساعت خواب</li>
+      </ul>
+    </article>
+    <article class="pn metric-card">
+      <h3>معماری خواب · چه مراحلی و با چه ترتیبی؟</h3>
+      <ul>
+        <li><b>استخراج:</b> سهم <span class="lt">N1/N2/N3/REM</span> از زمان خواب (<span class="lt">TST</span>)، چرخه‌ها و ماتریس گذار ۵×۵.</li>
+        <li><b>کاربرد:</b> توضیح ترکیب و توالی شب؛ سهم <span class="lt">N3</span> و <span class="lt">REM</span> هم در بخش معماری <span class="lt">SQI-D</span> امتیاز می‌گیرد.</li>
+        <li class="metric-stat"><b>میانگین cohort:</b> <span class="lt">N3</span> ‏۱۱٫۶٪ · <span class="lt">REM</span> ‏۲۰٫۶٪ از <span class="lt">TST</span></li>
+      </ul>
+    </article>
+    <article class="pn metric-card">
+      <h3>عمق و ریزساختار · درون هر مرحله چه می‌گذرد؟</h3>
+      <ul>
+        <li><b>استخراج:</b> منحنی <span class="lt">SDI</span> و شاخص‌های <span class="lt">AP/RB/CV/MDR/PR</span>؛ توان باندهای <span class="lt">EEG</span>، امواج آهسته، spindle و آتونی <span class="lt">EMG</span>.</li>
+        <li><b>کاربرد:</b> <span class="lt">AP</span> سهم عمق <span class="lt">SQI-D</span> را می‌سازد؛ سایر شاخص‌ها برای تفسیر و جزئیات گزارش نمایش داده می‌شوند.</li>
+        <li class="metric-stat"><b>مرز داده:</b> بدون <span class="lt">SpO₂/ECG</span>، آپنه و ضربان قلب «ارزیابی‌نشده» هستند.</li>
+      </ul>
+    </article>
+  </div>
+  <div class="flow metrics-flow" aria-label="مسیر استفاده از سنجه‌های شبانه">
+    <div dir="rtl">هیپنوگرام + جریان SDI</div><span aria-hidden="true">→</span>
+    <div dir="rtl">استخراج ۹۶ سنجه</div><span aria-hidden="true">→</span>
+    <div dir="rtl"><span class="lt">SQI-D</span> + گزارش شبانه</div>
+  </div>
+  <p class="mini metrics-note">همه ویژگی‌ها برای توصیف شب‌اند؛ فقط سنجه‌های معتبر و مشخص وارد نمره می‌شوند. خروجی‌های سنجیده‌نشده جعل یا جایگزین نمی‌شوند.</p>
+</section>
+
+<!-- ۹ · مدل SQI ما (آموزش‌دیده) -->
 <section class="s">
-  <div class="k">۸ · مدل SQI ما — آموزش‌دیده روی داده ما، نه صفرشات</div>
+  <div class="k">۹ · مدل عمق خواب — آموزش‌دیده روی داده ما، نه صفرشات</div>
   <h2>بدنه اصلی مدل دست‌نخورده ماند؛ فقط بخش کوچکی روی داده خودمان تنظیم شد</h2>
   <div class="two">
     <div class="pn"><h3>چه چیزی و چطور آموزش دید</h3>
@@ -354,9 +410,9 @@ li{margin-bottom:2px}
   کد مرجع: <span class="lt">sczzz3/SDI</span></p>
 </section>
 
-<!-- ۹ · نمره کیفیت ما (۰ تا ۱۰۰) -->
+<!-- ۱۰ · نمره کیفیت ما (۰ تا ۱۰۰) -->
 <section class="s">
-  <div class="k">۹ · نمره کیفیت ۰ تا ۱۰۰ — جدا از خروجی عمق، همخانواده با نمرههای بالینی</div>
+  <div class="k">۱۰ · نمره کیفیت ۰ تا ۱۰۰ — جدا از خروجی عمق، هم‌خانواده با نمره‌های بالینی</div>
   <h2>امتیاز برای خواب خوب، جریمهٔ سقف‌دار برای خواب تکه‌تکه — با آستانه‌های مستند</h2>
   <div class="two">
     <div class="pn"><h3>نمره چطور ساخته می‌شود؟</h3>
@@ -398,9 +454,9 @@ li{margin-bottom:2px}
   </div>
 </section>
 
-<!-- ۱۰ · محصول -->
+<!-- ۱۱ · محصول -->
 <section class="s">
-  <div class="k">۱۰ · محصول</div>
+  <div class="k">۱۱ · محصول</div>
   <h2>محصول در عمل: چه می‌سازیم و مشتری چه می‌بیند؟</h2>
   <div class="three">
     <div class="pn"><h3>یک فایل خواب می‌فرستید، نتیجه می‌گیرید</h3>
