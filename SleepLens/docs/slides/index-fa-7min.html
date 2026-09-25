@@ -83,6 +83,24 @@ tr.best td{background:#f4ffd2!important;font-weight:700}
 .metrics-flow div{flex:1;min-width:175px;text-align:center}
 .metrics-flow>span{background:none;border:0;padding:0 2px;font-size:20px}
 .metrics-note{margin:5px 0 0;text-align:center}
+.quiet-sequence:before{height:5px;background:#c0c7b2;border-bottom:0}
+.quiet-sequence .k{background:#eeeee8;color:#45483f;border:0;border-right:2px solid #a5ad91;padding:4px 10px;font-size:12px;margin-bottom:8px}
+.quiet-sequence h2{font-size:29px;line-height:1.4;margin-bottom:10px}
+.quiet-sequence .pn,.quiet-sequence .pn.good,.quiet-sequence .pn.warn,.quiet-sequence .pn.dark{background:transparent;border:0;border-top:1px solid #d4d0c7;border-radius:0;padding:11px 9px;box-shadow:none}
+.quiet-sequence h3{font-size:17px;margin-bottom:7px;color:#272823}
+.quiet-sequence .metric-card h3{border-color:#d4d0c7}
+.quiet-sequence table{background:transparent;border:0;margin:8px 0;box-shadow:none}
+.quiet-sequence th,.quiet-sequence td{border:0;border-bottom:1px solid #d8d5cd;padding:6px 8px;color:#363731}
+.quiet-sequence th{background:#eeede7;color:#363731;font-size:12px}
+.quiet-sequence tr:nth-child(even) td{background:transparent}
+.quiet-sequence tr.best td{background:#f0f1eb!important}
+.quiet-sequence .cl{background:#ecefe8;color:#35382f;border:0;border-right:3px solid #a5ad91;border-radius:0;box-shadow:none;font-size:15px;line-height:1.65;padding:10px 13px}
+.quiet-sequence .flow div{background:transparent;border:0;border-bottom:1px solid #d4d0c7;border-radius:0;box-shadow:none;color:#42443e;padding:8px 10px;font-size:13px}
+.quiet-sequence .flow>span{background:none;border:0;color:#818477;padding:0 3px}
+.sequence-track{display:flex;align-items:center;gap:10px;margin:0 0 9px;color:#85857d;font-size:12px;line-height:1.4}
+.sequence-track .stage{padding:0 0 4px;border-bottom:1px solid #d6d3ca}
+.sequence-track .current{color:#2d3028;border-color:#96a080;font-weight:800}
+.sequence-track .arrow{color:#aaa99f}
 a{color:#0b5cc0;text-decoration:none;border-bottom:1px solid rgba(11,92,192,.4)}
 .s.dark a{color:var(--lime)}
 @media(max-width:1000px){.s{padding:28px 20px 66px}h1{font-size:36px}h2{font-size:24px}
@@ -329,8 +347,12 @@ li{margin-bottom:2px}
 </section>
 
 <!-- ۸ · سنجه‌های شبانه -->
-<section class="s night-metrics-slide">
+<section class="s quiet-sequence night-metrics-slide">
   <div class="k">۸ · سنجه‌های شبانه — از اندازه‌گیری تا کاربرد</div>
+  <div class="sequence-track" aria-label="مسیر: سنجه‌های شبانه، مدل عمق، نمره کیفیت">
+    <span class="stage current">سنجه‌های شبانه</span><span class="arrow" aria-hidden="true">←</span>
+    <span class="stage">مدل عمق</span><span class="arrow" aria-hidden="true">←</span><span class="stage">نمره کیفیت</span>
+  </div>
   <h2>۹۶ ویژگی را در چهار خانواده می‌سازیم؛ هر خانواده پاسخ یک سؤال درباره خواب است</h2>
   <p class="metrics-intro">ورودی این بخش، هیپنوگرامِ مرحله‌بندی‌شده و جریان پیوسته SDI است. سنجه‌ها هم برای توضیح شب به کار می‌روند و هم، در موارد مشخص، نمره <span class="lt">SQI-D</span> را می‌سازند.</p>
   <div class="metric-grid">
@@ -376,8 +398,12 @@ li{margin-bottom:2px}
 </section>
 
 <!-- ۹ · مدل SQI ما (آموزش‌دیده) -->
-<section class="s">
+<section class="s quiet-sequence depth-model-slide">
   <div class="k">۹ · مدل عمق خواب — آموزش‌دیده روی داده ما، نه صفرشات</div>
+  <div class="sequence-track" aria-label="مسیر: سنجه‌های شبانه، مدل عمق، نمره کیفیت">
+    <span class="stage">سنجه‌های شبانه</span><span class="arrow" aria-hidden="true">←</span>
+    <span class="stage current">مدل عمق</span><span class="arrow" aria-hidden="true">←</span><span class="stage">نمره کیفیت</span>
+  </div>
   <h2>بدنه اصلی مدل دست‌نخورده ماند؛ فقط بخش کوچکی روی داده خودمان تنظیم شد</h2>
   <div class="two">
     <div class="pn"><h3>چه چیزی و چطور آموزش دید</h3>
@@ -411,8 +437,12 @@ li{margin-bottom:2px}
 </section>
 
 <!-- ۱۰ · نمره کیفیت ما (۰ تا ۱۰۰) -->
-<section class="s">
+<section class="s quiet-sequence sqi-score-slide">
   <div class="k">۱۰ · نمره کیفیت ۰ تا ۱۰۰ — جدا از خروجی عمق، هم‌خانواده با نمره‌های بالینی</div>
+  <div class="sequence-track" aria-label="مسیر: سنجه‌های شبانه، مدل عمق، نمره کیفیت">
+    <span class="stage">سنجه‌های شبانه</span><span class="arrow" aria-hidden="true">←</span>
+    <span class="stage">مدل عمق</span><span class="arrow" aria-hidden="true">←</span><span class="stage current">نمره کیفیت</span>
+  </div>
   <h2>امتیاز برای خواب خوب، جریمهٔ سقف‌دار برای خواب تکه‌تکه — با آستانه‌های مستند</h2>
   <div class="two">
     <div class="pn"><h3>نمره چطور ساخته می‌شود؟</h3>
