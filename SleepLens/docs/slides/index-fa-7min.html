@@ -79,32 +79,18 @@ tr.best td{background:#f4ffd2!important;font-weight:700}
 .metric-card ul{margin-top:5px}
 .metric-card li{font-size:15px;line-height:1.55;margin-bottom:3px}
 .metric-card li.metric-stat{list-style:none;border-top:1px solid #d5d0c3;padding-top:4px;color:#555;font-size:13px}
-.metrics-flow{direction:ltr;justify-content:center;gap:10px;margin:14px 0 4px}
+.metrics-flow{direction:ltr;justify-content:center}
 .metrics-flow div{flex:1;min-width:175px;text-align:center}
-.metrics-flow>span{background:none;border:0;padding:0 2px;font-size:20px}
 .metrics-note{margin:5px 0 0;text-align:center}
-.quiet-sequence:before{height:5px;background:#c0c7b2;border-bottom:0}
-.quiet-sequence .k{background:#eeeee8;color:#45483f;border:0;border-right:2px solid #a5ad91;padding:4px 10px;font-size:12px;margin-bottom:8px}
-.quiet-sequence h2{font-size:29px;line-height:1.4;margin-bottom:10px}
-.quiet-sequence .pn,.quiet-sequence .pn.good,.quiet-sequence .pn.warn,.quiet-sequence .pn.dark{background:transparent;border:0;border-top:1px solid #d4d0c7;border-radius:0;padding:11px 9px;box-shadow:none}
-.quiet-sequence h3{font-size:17px;margin-bottom:7px;color:#272823}
-.quiet-sequence .metric-card h3{border-color:#d4d0c7}
-.quiet-sequence table{background:transparent;border:0;margin:8px 0;box-shadow:none}
-.quiet-sequence th,.quiet-sequence td{border:0;border-bottom:1px solid #d8d5cd;padding:6px 8px;color:#363731}
-.quiet-sequence th{background:#eeede7;color:#363731;font-size:12px}
-.quiet-sequence tr:nth-child(even) td{background:transparent}
-.quiet-sequence tr.best td{background:#f0f1eb!important}
-.quiet-sequence .cl{background:#ecefe8;color:#35382f;border:0;border-right:3px solid #a5ad91;border-radius:0;box-shadow:none;font-size:15px;line-height:1.65;padding:10px 13px}
-.quiet-sequence .flow div{background:transparent;border:0;border-bottom:1px solid #d4d0c7;border-radius:0;box-shadow:none;color:#42443e;padding:8px 10px;font-size:13px}
-.quiet-sequence .flow>span{background:none;border:0;color:#818477;padding:0 3px}
-.sequence-track{display:flex;align-items:center;gap:10px;margin:0 0 9px;color:#85857d;font-size:12px;line-height:1.4}
-.sequence-track .stage{padding:0 0 4px;border-bottom:1px solid #d6d3ca}
-.sequence-track .current{color:#2d3028;border-color:#96a080;font-weight:800}
-.sequence-track .arrow{color:#aaa99f}
+.team{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px;max-width:1080px}
+.team-card{background:#1a1a1a;border:2px solid var(--lime);border-radius:4px;padding:14px 16px;box-shadow:8px 8px 0 rgba(218,255,0,.15);text-align:right}
+.team-card .t-name{font-size:20px;font-weight:900;color:var(--lime);margin-bottom:6px;line-height:1.5}
+.team-card .t-role{font-size:14.5px;color:#d8d3c4;line-height:1.75}
+.team-label{margin:18px 0 0;font-size:13px;font-weight:800;letter-spacing:.2px;color:#8a8a8a}
 a{color:#0b5cc0;text-decoration:none;border-bottom:1px solid rgba(11,92,192,.4)}
 .s.dark a{color:var(--lime)}
 @media(max-width:1000px){.s{padding:28px 20px 66px}h1{font-size:36px}h2{font-size:24px}
-.two,.three,.frow,.metric-grid{grid-template-columns:1fr}.pipeline-takeaway{align-items:flex-start;flex-direction:column;gap:4px}}
+.two,.three,.frow,.metric-grid,.team{grid-template-columns:1fr}.pipeline-takeaway{align-items:flex-start;flex-direction:column;gap:4px}}
 @media print{.s{page-break-after:always;min-height:100vh;padding:24px 42px 38px}
 .pn,.cl,.fig,table{box-shadow:none}th,td{font-size:10.5px;padding:3px 4.5px}
 p,li{font-size:14px;line-height:1.55}h2{font-size:25px;margin-bottom:9px}
@@ -119,7 +105,7 @@ li{margin-bottom:2px}
 .pipeline-takeaway{font-size:13px;padding:8px 12px;margin-top:8px}
 .flow div{font-size:12.5px;padding:5px 8px}.flow{gap:5px;margin:6px 0}
 .k{font-size:12px;margin-bottom:8px}.mini{font-size:12px}
-.k,h2{break-after:avoid}.pn,table,.fig,.cl,.pipeline-figure,.pipeline-takeaway{break-inside:avoid}}
+.k,h2{break-after:avoid}.pn,table,.fig,.cl,.pipeline-figure,.pipeline-takeaway,.team-card{break-inside:avoid}}
 </style>
 </head>
 <body>
@@ -347,12 +333,8 @@ li{margin-bottom:2px}
 </section>
 
 <!-- ۸ · سنجه‌های شبانه -->
-<section class="s quiet-sequence night-metrics-slide">
+<section class="s night-metrics-slide">
   <div class="k">۸ · سنجه‌های شبانه — از اندازه‌گیری تا کاربرد</div>
-  <div class="sequence-track" aria-label="مسیر: سنجه‌های شبانه، مدل عمق، نمره کیفیت">
-    <span class="stage current">سنجه‌های شبانه</span><span class="arrow" aria-hidden="true">←</span>
-    <span class="stage">مدل عمق</span><span class="arrow" aria-hidden="true">←</span><span class="stage">نمره کیفیت</span>
-  </div>
   <h2>۹۶ ویژگی را در چهار خانواده می‌سازیم؛ هر خانواده پاسخ یک سؤال درباره خواب است</h2>
   <p class="metrics-intro">ورودی این بخش، هیپنوگرامِ مرحله‌بندی‌شده و جریان پیوسته SDI است. سنجه‌ها هم برای توضیح شب به کار می‌روند و هم، در موارد مشخص، نمره <span class="lt">SQI-D</span> را می‌سازند.</p>
   <div class="metric-grid">
@@ -398,12 +380,8 @@ li{margin-bottom:2px}
 </section>
 
 <!-- ۹ · مدل SQI ما (آموزش‌دیده) -->
-<section class="s quiet-sequence depth-model-slide">
+<section class="s depth-model-slide">
   <div class="k">۹ · مدل عمق خواب — آموزش‌دیده روی داده ما، نه صفرشات</div>
-  <div class="sequence-track" aria-label="مسیر: سنجه‌های شبانه، مدل عمق، نمره کیفیت">
-    <span class="stage">سنجه‌های شبانه</span><span class="arrow" aria-hidden="true">←</span>
-    <span class="stage current">مدل عمق</span><span class="arrow" aria-hidden="true">←</span><span class="stage">نمره کیفیت</span>
-  </div>
   <h2>بدنه اصلی مدل دست‌نخورده ماند؛ فقط بخش کوچکی روی داده خودمان تنظیم شد</h2>
   <div class="two">
     <div class="pn"><h3>چه چیزی و چطور آموزش دید</h3>
@@ -437,12 +415,8 @@ li{margin-bottom:2px}
 </section>
 
 <!-- ۱۰ · نمره کیفیت ما (۰ تا ۱۰۰) -->
-<section class="s quiet-sequence sqi-score-slide">
+<section class="s sqi-score-slide">
   <div class="k">۱۰ · نمره کیفیت ۰ تا ۱۰۰ — جدا از خروجی عمق، هم‌خانواده با نمره‌های بالینی</div>
-  <div class="sequence-track" aria-label="مسیر: سنجه‌های شبانه، مدل عمق، نمره کیفیت">
-    <span class="stage">سنجه‌های شبانه</span><span class="arrow" aria-hidden="true">←</span>
-    <span class="stage">مدل عمق</span><span class="arrow" aria-hidden="true">←</span><span class="stage current">نمره کیفیت</span>
-  </div>
   <h2>امتیاز برای خواب خوب، جریمهٔ سقف‌دار برای خواب تکه‌تکه — با آستانه‌های مستند</h2>
   <div class="two">
     <div class="pn"><h3>نمره چطور ساخته می‌شود؟</h3>
@@ -474,7 +448,7 @@ li{margin-bottom:2px}
       <p>سهم خواب سبک، نوسان عمق، عمق رؤیا و سهم رؤیای مدل محاسبه و نمایش داده می‌شوند
       ولی فعلاً امتیاز نمی‌گیرند (برای کالیبراسیون آینده). شاخص آپنه، شاخص بیداری و آتونی
       چون در این داده سنجیده نشده‌اند وارد نمره نمی‌شوند و «ارزیابی‌نشده» ثبت می‌شوند.</p></div>
-    <div class="pn warn"><h3>منابع</h3>
+    <div class="pn"><h3>منابع</h3>
       <p>ساختار امتیاز/جریمه: <span class="lt">De Fazio et al., Sensors 2026;26(13):4091</span> ·
       آستانه‌ها: توصیه‌های کیفیت خواب بنیاد ملی خواب (<span class="lt">Ohayon 2017</span>) ·
       تکه‌تکه‌شدن: <span class="lt">Haba-Rubio 2004</span> · عمق (SDI):
@@ -512,6 +486,16 @@ li{margin-bottom:2px}
   </div>
 </section>
 
+<!-- ۱۲ · سایت -->
+<section class="s">
+  <div class="k">۱۲ · سایت SleepLens</div>
+  <h2>سایت زنده است: از آپلود شب تا گزارش قابل‌فهم</h2>
+  <div class="two">
+    <figure class="fig"><img src="assets/photo_2_2026-09-25_14-42-12.jpg" alt="صفحه اصلی سایت SleepLens"><figcaption>صفحه اصلی: آپلود فایل خواب، تحلیل ۳۰ثانیه‌ای، عمق خواب و گزارش</figcaption></figure>
+    <figure class="fig"><img src="assets/photo_1_2026-09-25_14-42-12.jpg" alt="گزارش شب در سایت SleepLens"><figcaption>گزارش شب: نمره کیفیت، هیپنوگرام با اطمینان و سنجه‌های خواب</figcaption></figure>
+  </div>
+</section>
+
 <!-- ۱۱ · پایانی -->
 <section class="s dark center">
   <div class="k">پایان — ممنون از توجه‌تان</div>
@@ -521,6 +505,12 @@ li{margin-bottom:2px}
   <div class="chips">
     <span>Router 0.8458 Macro-F1</span><span>Fpz+EOG = 99.5٪</span>
     <span>مدل عمق آموزش‌دیده + تکرارپذیری 0.54</span><span>~۲ دقیقه / شب CPU</span><span>وزن‌ها در مخزن</span>
+  </div>
+  <p class="team-label">تیم ما</p>
+  <div class="team">
+    <div class="team-card"><div class="t-name">عرفان نوروزی</div><div class="t-role">کارشناسی ارشد برق · دانشگاه تهران</div></div>
+    <div class="team-card"><div class="t-name">امیرحسین ایزدی</div><div class="t-role">مهندسی کامپیوتر · دانشگاه شهید بهشتی</div></div>
+    <div class="team-card"><div class="t-name">مرتضی شهرابی فراهانی</div><div class="t-role">کارشناسی ارشد بیوانفورماتیک · دانشگاه صنعتی شریف</div></div>
   </div>
   <p class="ft">مخزن: github.com/amirhossein-izadi/SleepLens · شاخه amirhossein ·
   اسلایدها: SleepLens/docs/slides/ · تیم: امیرحسین · عرفان · مرتضی</p>
