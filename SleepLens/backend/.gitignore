@@ -1,0 +1,40 @@
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# ── Django ────────────────────────────────────────────────────────────────────
+*.sqlite3
+db.sqlite3
+media/
+staticfiles/
+**/migrations/*.py
+!**/migrations/__init__.py
+
+# ── Secrets ───────────────────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+credentials/
+
+# ── Model weights ─────────────────────────────────────────────────────────────
+# Committed intentionally (project decision: fully self-contained backend, ~110 MB).
+# Provenance / copy commands / licenses: analysis_weights/MANIFEST.md
+
+# ── Editors / OS ──────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log

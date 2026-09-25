@@ -1,0 +1,25 @@
+z1_3ch_chunks        SC4001: macro=0.0731 Wake=1.00 N1=0.00 N2=0.00 N3=0.00 REM=0.00 (6s)
+z1_3ch_chunks        SC4041: macro=0.0557 Wake=1.00 N1=0.00 N2=0.00 N3=0.00 REM=0.00 (4s)
+z1_3ch_chunks        ST7011: macro=0.0630 Wake=1.00 N1=0.00 N2=0.00 N3=0.00 REM=0.00 (3s)
+rawuV_3ch_chunks     SC4001: macro=0.0731 Wake=1.00 N1=0.00 N2=0.00 N3=0.00 REM=0.00 (6s)
+rawuV_3ch_chunks     SC4041: macro=0.0557 Wake=1.00 N1=0.00 N2=0.00 N3=0.00 REM=0.00 (6s)
+rawuV_3ch_chunks     ST7011: macro=0.0630 Wake=1.00 N1=0.00 N2=0.00 N3=0.00 REM=0.00 (3s)
+z26_3ch_chunks       SC4001: macro=0.0731 Wake=1.00 N1=0.00 N2=0.00 N3=0.00 REM=0.00 (5s)
+z26_3ch_chunks       SC4041: macro=0.0557 Wake=1.00 N1=0.00 N2=0.00 N3=0.00 REM=0.00 (7s)
+z26_3ch_chunks       ST7011: macro=0.0630 Wake=1.00 N1=0.00 N2=0.00 N3=0.00 REM=0.00 (2s)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+z1_4ch_chunks        SC4001: macro=0.0731 Wake=1.00 N1=0.00 N2=0.00 N3=0.00 REM=0.00 (7s)
+z1_4ch_chunks        SC4041: macro=0.0557 Wake=1.00 N1=0.00 N2=0.00 N3=0.00 REM=0.00 (6s)
+z1_4ch_chunks        ST7011: macro=0.0630 Wake=1.00 N1=0.00 N2=0.00 N3=0.00 REM=0.00 (4s)
+z1_3ch_30s_ST        ST7011: macro=0.0630 Wake=1.00 N1=0.00 N2=0.00 N3=0.00 REM=0.00 (8s)
+z1_4chEMG_chunks_ST  ST7011: macro=0.0630 Wake=1.00 N1=0.00 N2=0.00 N3=0.00 REM=0.00 (3s)
+
+== summary (mean over 3 stems) ==
+                     macro_bench  Wake   N1   N2   N3  REM
+config                                                    
+rawuV_3ch_chunks           0.064   1.0  0.0  0.0  0.0  0.0
+z1_3ch_30s_ST              0.063   1.0  0.0  0.0  0.0  0.0
+z1_3ch_chunks              0.064   1.0  0.0  0.0  0.0  0.0
+z1_4chEMG_chunks_ST        0.063   1.0  0.0  0.0  0.0  0.0
+z1_4ch_chunks              0.064   1.0  0.0  0.0  0.0  0.0
+z26_3ch_chunks             0.064   1.0  0.0  0.0  0.0  0.0

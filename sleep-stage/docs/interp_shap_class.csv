@@ -1,0 +1,6 @@
+class,#1,#2,#3,#4,val_1,val_2,val_3,val_4
+Wake,eog_ptp,zcr,emg_rms,sigma,1.2996,0.8227,0.6584,0.6505
+N1,alpha,eeg_std,eog_ptp,emg_rms,0.5592,0.547,0.2131,0.2091
+N2,sigma,beta,eog_ptp,eog_std,0.5309,0.4562,0.4348,0.3687
+N3,eeg_std,beta,zcr,eog_ptp,1.8758,0.8287,0.4941,0.3914
+REM,emg_rms,theta,eeg_std,zcr,0.4796,0.3745,0.331,0.2969

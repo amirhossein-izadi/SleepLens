@@ -1,0 +1,83 @@
+[project]
+name = "sleeplens"
+version = "0.1.0"
+description = "SleepLens backend — sleep stage classification, sleep quality index, and sleep assistant"
+readme = "docs/LOCAL_DEVELOPMENT.md"
+requires-python = ">=3.10,<3.13"
+
+dependencies = [
+    # Django & DRF
+    "django>=5.2,<6.0",
+    "djangorestframework>=3.15",
+    "django-cors-headers>=4.3",
+    "djangorestframework-simplejwt>=5.3",
+    "drf-spectacular>=0.27",
+    "django-environ>=0.11",
+    "psycopg[binary]>=3.1",
+    # Celery
+    "celery[redis]>=5.3",
+    "django-celery-beat>=2.5",
+    "django-celery-results>=2.5",
+    # HTTP / logging / monitoring
+    "httpx>=0.26",
+    "structlog>=24.1",
+    "sentry-sdk>=1.40",
+]
+
+[project.optional-dependencies]
+# The analysis pipeline needs these; on the hackathon machine they are already
+# available system-wide and the .venv is created with --system-site-packages.
+analysis = [
+    "numpy",
+    "scipy",
+    "pandas",
+    "scikit-learn",
+    "lightgbm",
+    "pyedflib",
+    "mne",
+    "yasa>=0.7",
+    "torch",
+    "h5py",
+]
+dev = [
+    "pytest>=8.0",
+    "pytest-django>=4.8",
+    "pytest-cov>=4.1",
+    "ruff>=0.6",
+    "black>=24.0",
+    "isort>=5.13",
+    "pre-commit>=3.7",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["sleeplens", "apps", "common", "lib", "infrastructure"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+exclude = ["migrations", ".venv", "media", "staticfiles"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.black]
+line-length = 100
+skip-string-normalization = true
+
+[tool.isort]
+profile = "black"
+line_length = 100
+known_django = ["django", "rest_framework"]
+sections = ["FUTURE", "STDLIB", "DJANGO", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "sleeplens.settings"
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+filterwarnings = ["ignore::DeprecationWarning"]

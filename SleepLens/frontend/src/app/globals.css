@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 222 65% 20%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 214 60% 94%;
+    --secondary-foreground: 222 65% 20%;
+    --muted: 214 32% 93%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 214 90% 95%;
+    --accent-foreground: 222 65% 20%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 152 60% 36%;
+    --warning: 38 92% 44%;
+    --border: 214 28% 89%;
+    --input: 214 28% 85%;
+    --ring: 217 91% 60%;
+    --radius: 0.75rem;
+
+    --brand: 220 72% 21%;
+    --brand-light: 217 94% 94%;
+    --brand-bright: 217 91% 57%;
+    --brand-dark: 222 65% 14%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+}
+
+@layer utilities {
+  .brand-gradient-text {
+    background: linear-gradient(120deg, hsl(var(--brand)) 20%, hsl(var(--brand-bright)) 90%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+/* Markdown rendering for the AI report */
+.prose-sleeplens h1,
+.prose-sleeplens h2,
+.prose-sleeplens h3 {
+  @apply font-semibold text-foreground;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+.prose-sleeplens h1 { font-size: 1.25rem; }
+.prose-sleeplens h2 { font-size: 1.125rem; }
+.prose-sleeplens h3 { font-size: 1rem; }
+.prose-sleeplens p { margin-bottom: 0.75rem; }
+.prose-sleeplens ul { @apply list-disc pl-5; margin-bottom: 0.75rem; }
+.prose-sleeplens ol { @apply list-decimal pl-5; margin-bottom: 0.75rem; }
+.prose-sleeplens li { margin-bottom: 0.25rem; }
+.prose-sleeplens strong { @apply font-semibold; }
+.prose-sleeplens table { @apply w-full border-collapse text-xs; margin-bottom: 0.75rem; }
+.prose-sleeplens th,
+.prose-sleeplens td { @apply border px-2 py-1 text-left; }
+.prose-sleeplens th { @apply bg-muted font-medium; }
+.prose-sleeplens code { @apply rounded bg-muted px-1 py-0.5 text-[0.8em]; }
+.prose-sleeplens blockquote { @apply border-l-2 border-brand-bright pl-3 text-muted-foreground; }

@@ -1,0 +1,6 @@
+stage,n,#1,#2,#3,#4,#5,#6
+Wake,3581,eog_abspow (+1.503),eog_std (+0.689),time_norm (+0.060),eeg_petrosian (+0.304),time_hour (+0.142),eeg_iqr (-0.268)
+N1,1298,eog_abspow (+0.832),eog_std (+0.475),time_norm (+0.014),eeg_std (-0.010),eeg_iqr (-0.170),eeg_petrosian (+0.111)
+N2,4774,eog_abspow (+0.232),eeg_abspow (-0.292),eog_std (+0.260),eeg_std (+0.011),eeg_petrosian (+0.133),eog_abspow_p2min_norm (+0.096)
+N3,1548,eeg_std (+0.977),eog_nzc_c7min_norm (+1.090),eeg_sigma_p2min_norm (+0.984),eeg_dt_c7min_norm (+0.991),eog_nzc_p2min_norm (+0.759),eog_abspow (+0.346)
+REM,2097,eog_abspow (+0.370),eog_std (+0.008),eog_fdelta_c7min_norm (+0.330),eog_beta_c7min_norm (+0.162),eog_hcomp_c7min_norm (+0.278),eeg_abspow_c7min_norm (+0.249)

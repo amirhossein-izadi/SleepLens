@@ -25,8 +25,11 @@ NAMES = {
     "E06": "SOMNUS (ensemble)", "E07": "SLEEPYLAND U-Sleep",
     "E08": "SLEEPYLAND DeepResNet", "E09": "SLEEPYLAND SleepTransformer",
     "E10": "SleepFMStager", "E11": "AnySleep 3ch", "E11a": "AnySleep Fpz only",
-    "E11b": "AnySleep Pz only", "E11c": "AnySleep 2EEG",
-    "E20": "RobustSleepNet Fpz",
+    "E11b": "AnySleep Pz only", "E11c": "AnySleep 2EEG", "E11d": "AnySleep Fpz+EOG",
+    "E16": "Ensemble 0.7 AnySleep+0.3 RSN +bias", "E17": "Ensemble AnySleepx3+LGBM",
+    "E18": "Ensemble AnySleepx3+LGBM +bias", "E20": "RobustSleepNet Fpz",
+    "E21": "U-Sleep CSDP (open weights)",
+    "E19": "Ens v2 ANYx2+USleepCSDP+LGBM", "E19b": "Ens v2 +bias",
 }
 
 def load(run):
@@ -42,7 +45,8 @@ def ev(df, window):
     if window != "valid":
         g = g[g[window]]
     g["label"] = g.label5.map(lab)
-    m = df.merge(g, on=["stem", "epoch_index"], how="inner")
+    keep = ["stem", "epoch_index"] + [f"p_{c}" for c in CL]
+    m = df[keep].merge(g, on=["stem", "epoch_index"], how="inner")
     if len(m) == 0:
         return None
     y = m.label.values

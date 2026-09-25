@@ -1,0 +1,7 @@
+C:\Users\Aizad\AppData\Local\Programs\Python\Python310\lib\site-packages\torch\nn\modules\conv.py:380: UserWarning: Using padding='same' with even kernel lengths and odd dilation may require a zero-padded copy of the input be created (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\aten\src\ATen\native\Convolution.cpp:1102.)
+  return F.conv1d(
+E11d 100/197
+E11d 125/197
+E11d 150/197
+E11d 175/197
+E11d done

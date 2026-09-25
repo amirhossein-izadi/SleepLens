@@ -15,6 +15,7 @@ CFG = {
     "E11a": ("EEG Fpz-Cz",),
     "E11b": ("EEG Pz-Oz",),
     "E11c": ("EEG Fpz-Cz", "EEG Pz-Oz"),
+    "E11d": ("EEG Fpz-Cz", "EOG horizontal"),
 }
 which = sys.argv[1] if len(sys.argv) > 1 else "E11a"
 channels = CFG[which]

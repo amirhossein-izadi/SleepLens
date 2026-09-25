@@ -1,0 +1,31 @@
+window,subset,class,run,model,recall
+bench,ALL,N1,E19b,Ens v2 +bias,0.6912
+bench,ALL,N2,E19,Ens v2 ANYx2+USleepCSDP+LGBM,0.904
+bench,ALL,N3,E00,LightGBM (ours),0.8731
+bench,ALL,REM,E19b,Ens v2 +bias,0.9179
+bench,ALL,Wake,E02c,YASA crop,0.9934
+bench,SC,N1,E19b,Ens v2 +bias,0.6906
+bench,SC,N2,E21,U-Sleep CSDP (open),0.912
+bench,SC,N3,E00,LightGBM (ours),0.8648
+bench,SC,REM,E21,U-Sleep CSDP (open),0.9185
+bench,SC,Wake,E02c,YASA crop,0.9937
+bench,ST,N1,E16,Ens 0.7ANY+0.3RSN+bias,0.7416
+bench,ST,N2,E11,AnySleep 3ch,0.924
+bench,ST,N3,E19,Ens v2 ANYx2+USleepCSDP+LGBM,0.904
+bench,ST,REM,E11,AnySleep 3ch,0.9538
+bench,ST,Wake,E03,YASA Pz+EOG,0.9931
+valid,ALL,N1,E19b,Ens v2 +bias,0.6912
+valid,ALL,N2,E19,Ens v2 ANYx2+USleepCSDP+LGBM,0.904
+valid,ALL,N3,E00,LightGBM (ours),0.8731
+valid,ALL,REM,E19b,Ens v2 +bias,0.9179
+valid,ALL,Wake,E02c,YASA crop,0.9934
+valid,SC,N1,E19b,Ens v2 +bias,0.6906
+valid,SC,N2,E21,U-Sleep CSDP (open),0.912
+valid,SC,N3,E00,LightGBM (ours),0.8648
+valid,SC,REM,E21,U-Sleep CSDP (open),0.9185
+valid,SC,Wake,E02c,YASA crop,0.9937
+valid,ST,N1,E16,Ens 0.7ANY+0.3RSN+bias,0.7416
+valid,ST,N2,E11,AnySleep 3ch,0.924
+valid,ST,N3,E19,Ens v2 ANYx2+USleepCSDP+LGBM,0.904
+valid,ST,REM,E11,AnySleep 3ch,0.9538
+valid,ST,Wake,E03,YASA Pz+EOG,0.9934

@@ -1,0 +1,1 @@
+"""Patients API package."""

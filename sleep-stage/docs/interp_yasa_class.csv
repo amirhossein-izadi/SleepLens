@@ -1,0 +1,6 @@
+class,#1,#2,#3,#4,#5,val_1,val_2,val_3,val_4,val_5
+N1,eog_abspow,eog_iqr,eeg_abspow,eog_higuchi_c7min_norm,eog_nzc,0.4054,0.3018,0.2678,0.2161,0.1441
+N2,eeg_abspow,eog_abspow,eeg_petrosian,eeg_db,eeg_std,0.2923,0.1883,0.1876,0.1621,0.1573
+N3,eeg_iqr_c7min_norm,eeg_abspow,eog_nzc_c7min_norm,eeg_std,time_hour,8.575,4.8572,4.1743,4.079,3.9713
+REM,eog_beta_c7min_norm,eog_fdelta_c7min_norm,time_norm,time_hour,eeg_perm,1.177,0.6392,0.5444,0.5288,0.4212
+Wake,eog_abspow,eog_std,time_norm,eeg_petrosian,eeg_iqr,1.3955,0.8073,0.2947,0.2635,0.2186

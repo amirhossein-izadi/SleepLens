@@ -1,0 +1,1 @@
+"""Studies API v1."""

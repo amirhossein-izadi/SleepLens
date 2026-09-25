@@ -1,0 +1,37 @@
+recordings: 16
+attention layers: 13
+[1/16] SC4011 T=2802 windows=553 (50s)
+[2/16] SC4031 T=2820 windows=557 (104s)
+[3/16] SC4052 T=2806 windows=554 (158s)
+[4/16] SC4202 T=2670 windows=527 (215s)
+[5/16] SC4232 T=2640 windows=521 (293s)
+[6/16] SC4382 T=2770 windows=547 (376s)
+[7/16] SC4482 T=2880 windows=569 (465s)
+[8/16] SC4642 T=2790 windows=551 (643s)
+[9/16] ST7072 T=915 windows=176 (682s)
+[10/16] ST7122 T=1011 windows=195 (723s)
+[11/16] ST7131 T=922 windows=177 (764s)
+[12/16] ST7141 T=920 windows=177 (802s)
+[13/16] ST7151 T=1283 windows=249 (860s)
+[14/16] ST7162 T=1001 windows=193 (924s)
+[15/16] ST7192 T=1096 windows=212 (963s)
+[16/16] ST7211 T=1079 windows=208 (1002s)
+saved 208 rec rows, 5966 window rows
+
+== mean attention over all 13 layers, by TRUE stage ==
+       a_Fpz   a_Pz  a_EOG
+stage                     
+Wake   0.283  0.462  0.255
+N1     0.337  0.422  0.241
+N2     0.382  0.373  0.245
+N3     0.376  0.323  0.302
+REM    0.332  0.436  0.232
+
+== deepest layer (L12 = connector) ==
+       a_Fpz   a_Pz  a_EOG
+stage                     
+Wake   0.172  0.672  0.156
+N1     0.239  0.462  0.299
+N2     0.375  0.436  0.188
+N3     0.413  0.517  0.071
+REM    0.259  0.221  0.520
