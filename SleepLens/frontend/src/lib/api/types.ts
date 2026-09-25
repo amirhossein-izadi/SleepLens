@@ -31,6 +31,15 @@ export interface SdiMetrics {
   pr?: number | null;
 }
 
+/** SQI model composite (from the SDI pipeline; percentile vs Sleep-EDF reference). */
+export interface SdiComposite {
+  components: Record<string, number>;
+  composite: number;
+  percentile: number;
+  reference?: string;
+  note?: string;
+}
+
 export interface SignalQuality {
   channels?: Record<string, string>;
   sample_rates?: Record<string, number>;
@@ -71,6 +80,7 @@ export interface NightSummaryShape {
   needs_review_count?: number;
   needs_review_pct?: number;
   sdi_metrics?: SdiMetrics;
+  sdi_composite?: SdiComposite | null;
   staging_system?: string;
   staging_members?: string[];
   analysis_window?: AnalysisWindow;
@@ -104,6 +114,7 @@ export interface NightPayload {
   needs_review_count: number | null;
   needs_review_pct: number | null;
   sdi_metrics: SdiMetrics | null;
+  sdi_composite: SdiComposite | null;
   signal_quality: SignalQuality | null;
 }
 

@@ -53,7 +53,9 @@ export function Hypnogram({ epochs, epochSeconds, onEpochClick, className }: Hyp
     const rowIndex = new Map(ROWS.map((stage, index) => [stage, index]));
     const rowY = (stage: Stage) =>
       HEADER_HEIGHT + (rowIndex.get(stage) ?? 0) * ROW_HEIGHT;
-    const x = (index: number) => PAD_LEFT + (index / Math.max(1, n)) * plotWidth;
+    // x is position-based (epochs are a contiguous window, but their absolute
+    // indices may start at e.g. 961 after the benchmark trim).
+    const x = (position: number) => PAD_LEFT + (position / Math.max(1, n)) * plotWidth;
     const indexFromRatio = (ratio: number) => {
       const pct = ratio * 100;
       return Math.min(n - 1, Math.max(0, Math.floor(((pct - PAD_LEFT) / plotWidth) * n)));
@@ -64,11 +66,11 @@ export function Hypnogram({ epochs, epochSeconds, onEpochClick, className }: Hyp
   /** Step path: horizontal to the boundary, then vertical to the next row. */
   const stepPath = useMemo(() => {
     if (!n) return "";
-    let d = `M ${geometry.x(epochs[0].index).toFixed(2)},${rowCenterY(epochs[0], geometry)}`;
+    let d = `M ${geometry.x(0).toFixed(2)},${rowCenterY(epochs[0], geometry)}`;
     for (let i = 1; i < n; i += 1) {
       const prevY = rowCenterY(epochs[i - 1], geometry);
       const currY = rowCenterY(epochs[i], geometry);
-      const x = geometry.x(epochs[i].index).toFixed(2);
+      const x = geometry.x(i).toFixed(2);
       d += ` L ${x},${prevY.toFixed(2)} L ${x},${currY.toFixed(2)}`;
     }
     // Hold the last stage to the right edge
@@ -100,9 +102,9 @@ export function Hypnogram({ epochs, epochSeconds, onEpochClick, className }: Hyp
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
     const ratio = (event.clientX - rect.left) / rect.width;
-    const index = geometry.indexFromRatio(ratio);
-    const epoch = epochs.find((candidate) => candidate.index === index);
-    if (epoch) setHover({ epoch, xPct: geometry.x(index) });
+    const position = geometry.indexFromRatio(ratio);
+    const epoch = epochs[position];
+    if (epoch) setHover({ epoch, xPct: geometry.x(position) });
   }
 
   return (
@@ -138,7 +140,7 @@ export function Hypnogram({ epochs, epochSeconds, onEpochClick, className }: Hyp
           {detailed && (
             <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <span className="h-1.5 w-3 rounded-sm bg-red-300" />
-              needs review
+              low confidence (needs review)
             </span>
           )}
         </div>
@@ -183,14 +185,14 @@ export function Hypnogram({ epochs, epochSeconds, onEpochClick, className }: Hyp
             ))}
 
             {/* Per-epoch stage blocks */}
-            {epochs.map((epoch) => {
+            {epochs.map((epoch, position) => {
               const stage = epoch.stageCode >= 0 ? STAGES[epoch.stageCode] : null;
               if (!stage) return null;
               const row = geometry.rowIndex.get(stage) ?? ROWS.length - 1;
               return (
                 <rect
                   key={epoch.index}
-                  x={geometry.x(epoch.index)}
+                  x={geometry.x(position)}
                   y={HEADER_HEIGHT + row * ROW_HEIGHT + 5}
                   width={plotWidth / n + 0.05}
                   height={ROW_HEIGHT - 10}
@@ -269,12 +271,12 @@ export function Hypnogram({ epochs, epochSeconds, onEpochClick, className }: Hyp
           {/* Review markers */}
           {detailed && (
             <div className="relative h-2" title="Epochs flagged needs_review">
-              {epochs.map((epoch) =>
+              {epochs.map((epoch, position) =>
                 epoch.needsReview ? (
                   <span
                     key={epoch.index}
                     className="absolute h-1.5 w-[2px] rounded bg-red-400"
-                    style={{ left: `${geometry.x(epoch.index)}%` }}
+                    style={{ left: `${geometry.x(position)}%` }}
                   />
                 ) : null
               )}

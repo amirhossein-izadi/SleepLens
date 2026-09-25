@@ -23,6 +23,7 @@ urlpatterns = [
     path("api/v1/accounts/", include("apps.accounts.api.urls")),
     path("api/v1/patients/", include("apps.patients.api.urls")),
     path("api/v1/studies/", include("apps.studies.api.urls")),
+    path("api/v1/studies/<uuid:study_id>/chat/", include("apps.assistant.api.urls")),
 ]
 
 if settings.DEBUG:

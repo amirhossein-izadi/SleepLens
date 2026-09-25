@@ -24,7 +24,8 @@ export function StageDistribution({ ssc, className }: { ssc: SscPayload | null; 
       <CardHeader>
         <CardTitle>Sleep architecture</CardTitle>
         <p className="text-xs text-muted-foreground">
-          Distribution of the {ssc.n_epochs} scored epochs and time spent per stage.
+          Distribution over the sleep window (first→last sleep ±30 min wake trim, as in the
+          benchmark) — the hypnogram above covers the full recording.
         </p>
       </CardHeader>
       <CardContent className="grid gap-6 md:grid-cols-2">

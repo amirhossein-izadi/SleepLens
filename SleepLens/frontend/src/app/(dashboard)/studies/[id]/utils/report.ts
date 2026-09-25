@@ -125,9 +125,9 @@ export function buildKpis(
         : "—",
       unit: "%",
       status: night.needs_review_pct !== null && night.needs_review_pct !== undefined
-        ? night.needs_review_pct <= 10 ? "good" : night.needs_review_pct <= 30 ? "info" : "watch"
+        ? night.needs_review_pct <= 5 ? "good" : night.needs_review_pct <= 20 ? "info" : "watch"
         : undefined,
-      hint: "Epochs below the high-confidence threshold (review recommended).",
+      hint: "Low-confidence epochs (<0.60 probability) requiring expert review.",
     },
   ];
 
@@ -179,6 +179,37 @@ export function buildKpis(
     });
   }
   return kpis;
+}
+
+/** Build the headline score: prefer the SQI model's SDI composite percentile
+ * (the published pipeline output, percentile vs the Sleep-EDF reference
+ * population); fall back to the transparent heuristic blend when the
+ * composite is unavailable. */
+export function buildScore(
+  night: NightPayload | null,
+  sdi: SdiPayload | null,
+  features: FeaturesPayload | null
+): ScoreResult | null {
+  const composite = night?.sdi_composite;
+  if (composite && typeof composite.percentile === "number") {
+    const score = Math.round(composite.percentile);
+    return {
+      score,
+      label: score >= 80 ? "Excellent" : score >= 60 ? "Good" : score >= 40 ? "Fair" : "Poor",
+      breakdown: [
+        { label: "Low shallow burden", value: Math.round(clamp01((composite.components.rb + 2) / 4) * 20), max: 20 },
+        { label: "Mean depth", value: Math.round(clamp01((composite.components.ap + 2) / 4) * 20), max: 20 },
+        { label: "Stable depth", value: Math.round(clamp01((composite.components.cv + 2) / 4) * 20), max: 20 },
+        { label: "REM depth", value: Math.round(clamp01((composite.components.mdr + 2) / 4) * 20), max: 20 },
+        { label: "REM prevalence", value: Math.round(clamp01((composite.components.pr + 2) / 4) * 20), max: 20 },
+      ],
+    };
+  }
+  return computeScore(night, sdi, features);
+}
+
+function clamp01(value: number): number {
+  return Math.min(1, Math.max(0, value));
 }
 
 export function computeScore(

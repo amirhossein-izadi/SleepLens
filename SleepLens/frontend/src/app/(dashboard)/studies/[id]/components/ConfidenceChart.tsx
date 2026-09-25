@@ -14,13 +14,12 @@ import {
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle, Badge } from "@/components/ui";
 import { STAGE_COLORS, STAGES, formatClock } from "@/lib/format";
+import { ema } from "@/lib/charts";
 import type { EpochDatum } from "../types";
 import type { SscPayload } from "@/lib/api";
 
-/**
- * Per-frame model confidence: line = confidence, shaded = low-confidence
- * regions, dashed lines = band thresholds. Stage ribbon underneath for context.
- */
+/** Per-frame model confidence: line = confidence, shaded = low-confidence
+ * regions, dashed lines = band thresholds, optional EMA smoothing. */
 export function ConfidenceChart({
   epochs,
   ssc,
@@ -30,21 +29,30 @@ export function ConfidenceChart({
   ssc: SscPayload | null;
   className?: string;
 }) {
-  const [showStageRibbon, setShowStageRibbon] = useState(true);
+  const [smoothed, setSmoothed] = useState(false);
   const bands = ssc?.confidence_bands ?? { high: 0.8, medium: 0.6 };
 
-  const data = useMemo(
-    () =>
-      epochs.map((epoch) => ({
-        index: epoch.index,
-        time: formatClock(epoch.startSec),
-        confidence: Math.round(epoch.confidence * 1000) / 10,
-        band: epoch.band,
-        stageCode: epoch.stageCode,
-        needsReview: epoch.needsReview,
-      })),
-    [epochs]
-  );
+  const data = useMemo(() => {
+    const raw = epochs.map((epoch) => ({
+      index: epoch.index,
+      time: formatClock(epoch.startSec),
+      rawConfidence: epoch.confidence,
+      confidence: epoch.confidence,
+      band: epoch.band,
+      stageCode: epoch.stageCode,
+      needsReview: epoch.needsReview,
+    }));
+    if (smoothed) {
+      const averaged = ema(raw.map((row) => row.rawConfidence), 30);
+      raw.forEach((row, position) => {
+        row.confidence = averaged[position] ?? row.rawConfidence;
+      });
+    }
+    return raw.map((row) => ({
+      ...row,
+      confidence: Math.round(row.confidence * 1000) / 10,
+    }));
+  }, [epochs, smoothed]);
 
   if (!data.length) return null;
 
@@ -52,7 +60,7 @@ export function ConfidenceChart({
 
   return (
     <Card className={className}>
-      <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
+      <CardHeader className="flex-row flex-wrap items-center justify-between gap-3 space-y-0 pb-2">
         <div>
           <CardTitle>Prediction confidence per epoch</CardTitle>
           <p className="mt-1 text-xs text-muted-foreground">
@@ -60,13 +68,22 @@ export function ConfidenceChart({
             {Math.round(bands.medium * 100)}%.
           </p>
         </div>
-        <Badge variant={data.some((point) => point.needsReview) ? "warning" : "success"}>
-          {data.filter((point) => point.needsReview).length} flagged
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Badge variant={data.some((point) => point.needsReview) ? "warning" : "success"}>
+            {data.filter((point) => point.needsReview).length} flagged
+          </Badge>
+          <button
+            onClick={() => setSmoothed((value) => !value)}
+            className="rounded-lg border px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-accent"
+            title="Exponential moving average (span ≈ 30 epochs / 15 min)"
+          >
+            {smoothed ? "Smoothed (EMA 15 min)" : "Raw"}
+          </button>
+        </div>
       </CardHeader>
       <CardContent>
-        {showStageRibbon && (
-          <div className="mb-2 flex h-3 w-full overflow-hidden rounded-full">
+        {/* Stage ribbon for context */}
+        <div className="mb-2 flex h-3 w-full overflow-hidden rounded-full">
             {data.map((point, position) => (
               <div
                 key={point.index}
@@ -81,7 +98,6 @@ export function ConfidenceChart({
               />
             ))}
           </div>
-        )}
         <div className="h-56">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>

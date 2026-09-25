@@ -115,13 +115,25 @@ Creates one patient per subject and one study per recording, stores the expert
 hypnogram as ground truth, and keeps the EDFs where they are (`source_path`).
 Analysis runs on demand via the `reprocess` endpoint (one night ≈ 2-3 min CPU).
 
+## Analysis window (benchmark trim)
+
+Night summaries follow the sleep-eda benchmark: everything is computed over
+the **analysis window = first→last predicted sleep ±30 min of Wake**
+(`_analysis_window`). Untrimmed 20-hour cassette days would report
+meaningless efficiency and dilute every ratio. Per-frame charts still cover
+the full recording; `stage_summary`, `review_summary`, `sleep_pct`,
+`stage_pct`, `mean_confidence`, `sdi_metrics` and all features are
+window-scoped.
+
 ## Confidence semantics (per-epoch report)
 
 `confidence` is the max class probability. Bands come from settings:
 
 - `high` (>= `CONFIDENCE_HIGH`, default 0.80) — label accepted as-is
-- `medium` (>= `CONFIDENCE_MEDIUM`, default 0.60) — review recommended
+- `medium` (>= `CONFIDENCE_MEDIUM`, default 0.60) — accepted, no review needed
 - `low` (< 0.60) — suspicious, flagged `needs_review: true`
+
+Only **low**-band epochs require expert review (`needs_review = band == "low"`).
 
 Calibration evidence from development: epochs with confidence > 0.9 were
 99.5% correct; below 0.4 only ~43%. The timeline payload exposes the full

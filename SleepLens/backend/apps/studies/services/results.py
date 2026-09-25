@@ -24,8 +24,15 @@ STAGE_CODES: dict[str, int] = {stage.value: index for index, stage in enumerate(
 
 
 def build_ssc_payload(study: Study) -> dict[str, Any]:
-    """Sleep stage classification per frame (chart-ready)."""
+    """Sleep stage classification per frame (chart-ready).
+
+    The per-frame chart data covers the full recording; ``stage_summary`` and
+    ``review_summary`` are computed over the benchmark analysis window
+    (first→last sleep ±30 min) so distributions are not diluted by the
+    untrimmed day.
+    """
     rows = list(study.epochs.all().order_by("epoch_index"))
+    summary_rows = _analysis_window_rows(study, rows)
     return {
         "study_id": str(study.id),
         "n_epochs": len(rows),
@@ -48,9 +55,19 @@ def build_ssc_payload(study: Study) -> dict[str, Any]:
             "confidence_band": [row.confidence_band for row in rows],
             "needs_review": [row.needs_review for row in rows],
         },
-        "stage_summary": _stage_summary(rows),
-        "review_summary": _review_summary(rows),
+        "stage_summary": _stage_summary(summary_rows),
+        "review_summary": _review_summary(summary_rows),
     }
+
+
+def _analysis_window_rows(study: Study, rows: list[StudyEpoch]) -> list[StudyEpoch]:
+    """Rows inside the stored analysis window (falls back to all rows)."""
+    window = (study.summary or {}).get("analysis_window") or {}
+    start = window.get("start_epoch")
+    end = window.get("end_epoch")
+    if start is None or end is None:
+        return rows
+    return [row for row in rows if start <= row.epoch_index < end]
 
 
 def build_sdi_payload(study: Study) -> dict[str, Any]:

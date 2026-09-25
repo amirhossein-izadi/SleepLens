@@ -12,7 +12,7 @@ import { extractErrorMessage } from "@/lib/errorUtils";
 import { formatDuration, formatDateTime } from "@/lib/format";
 import { useReprocessMutation } from "@/lib/api/queries";
 import { useStudyReport } from "./hooks";
-import { buildFindings, buildKpis, computeScore, statusTone, type Finding } from "./utils";
+import { buildFindings, buildKpis, buildScore, statusTone, type Finding } from "./utils";
 import {
   Hypnogram,
   ScoreCard,
@@ -44,7 +44,7 @@ export default function StudyReportPage({ params }: ReportPageProps) {
   }
 
   const { study, night, ssc, sdi, features, psqi, report } = data;
-  const score = computeScore(night, sdi, features);
+  const score = buildScore(night, sdi, features);
   const kpis = buildKpis(night, ssc, sdi, features);
   const findings = buildFindings(night, sdi, features);
 

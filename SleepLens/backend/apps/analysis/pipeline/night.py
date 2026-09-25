@@ -5,12 +5,16 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from dataclasses import replace
+
 import numpy as np
 from django.conf import settings
 
+from apps.analysis.pipeline.canonical import Recording
 from apps.analysis.pipeline.constants import (
     DEFAULT_CONFIDENCE_HIGH,
     DEFAULT_CONFIDENCE_MEDIUM,
+    EPOCH_SECONDS,
     SDI_SHALLOW_THRESHOLD,
     STAGES,
 )
@@ -93,13 +97,32 @@ def _analysis_window(labels: np.ndarray, pad_epochs: int = 60) -> tuple[int, int
 
 
 def run_night_pipeline(path: str | Path) -> NightResult:
-    """Run staging + SDI + night features for one EDF recording."""
+    """Run staging + SDI + night features for one EDF recording.
+
+    Two-pass benchmark flow (sleep-eda §E/§M): a pilot staging pass locates
+    the sleep window on the full recording (first→last sleep ±30 min of
+    Wake), then the recording is TRIMMED and both models run only on that
+    slice. All stored epochs, the summary and every feature therefore
+    describe the trimmed night — never the surrounding daytime.
+    """
     from apps.analysis.pipeline.canonical import read_recording
 
     recording = read_recording(path)
 
-    staging, staging_system = _run_staging(recording)
-    sdi_result = predict_sdi(recording)
+    # ── Pass 1: locate the sleep window (pilot staging on the full file) ────
+    pilot_staging, _ = _run_staging(recording)
+    pilot_labels = pilot_staging.probabilities.argmax(axis=1)
+    window_start, window_end = _analysis_window(pilot_labels)
+
+    # ── Trim: the models only ever see this slice ────────────────────────────
+    trimmed = _trim_recording(
+        recording,
+        start_sec=window_start * EPOCH_SECONDS,
+        end_sec=window_end * EPOCH_SECONDS,
+    )
+
+    staging, staging_system = _run_staging(trimmed)
+    sdi_result = predict_sdi(trimmed)
 
     n_epochs = min(staging.probabilities.shape[0], len(sdi_result.sdi))
     if n_epochs == 0:
@@ -109,53 +132,75 @@ def run_night_pipeline(path: str | Path) -> NightResult:
     sdi_values = sdi_result.sdi[:n_epochs]
     rem_values = sdi_result.rem[:n_epochs]
 
-    window_start, window_end = _analysis_window(labels)
+    # Epoch indices stay absolute (aligned with the raw file) so the signal
+    # viewer keeps mapping epochs to the original recording.
     features, not_assessable, signal_quality = extract_night_features(
-        recording,
-        stages=labels[window_start:window_end],
+        trimmed,
+        stages=labels,
         sdi=sdi_result,
-        epoch_offset=window_start,
-        window=(window_start, window_end),
-        sdi_values=sdi_values[window_start:window_end],
-        rem_values=rem_values[window_start:window_end],
+        epoch_offset=0,
+        window=(0, n_epochs),
+        sdi_values=sdi_values,
+        rem_values=rem_values,
     )
 
     epochs: list[EpochRecord] = []
-    for index in range(n_epochs):
-        confidence = float(probabilities[index].max())
+    for position in range(n_epochs):
+        index = window_start + position
+        confidence = float(probabilities[position].max())
         band = _confidence_band(confidence)
         epochs.append(
             EpochRecord(
                 epoch_index=index,
                 start_sec=index * 30,
-                stage=STAGES[int(labels[index])],
+                stage=STAGES[int(labels[position])],
                 probabilities={
-                    STAGES[class_index]: float(probabilities[index, class_index])
+                    STAGES[class_index]: float(probabilities[position, class_index])
                     for class_index in range(5)
                 },
                 confidence=confidence,
                 confidence_band=band,
-                needs_review=band != "high",
-                sdi=float(sdi_values[index]),
-                rem_pred=bool(rem_values[index]),
+                # Only low-confidence epochs (<0.60) need expert review;
+                # medium (0.60-0.80) is accepted without a human pass.
+                needs_review=band == "low",
+                sdi=float(sdi_values[position]),
+                rem_pred=bool(rem_values[position]),
             )
         )
 
+    # Everything below is computed over the trimmed slice itself — the trim
+    # already happened at the model-input level, so "all epochs" == the window.
     summary = _build_summary(epochs, labels, sdi_values, rem_values)
-    # SDI metrics must match the windowed SQI features exactly (one source of truth).
-    summary["sdi_metrics"] = _sdi_metrics(
-        sdi_values[window_start:window_end],
-        labels[window_start:window_end],
-        rem_values[window_start:window_end],
-    )
+    # SDI metrics must match the SQI features exactly (one source of truth).
+    summary["sdi_metrics"] = _sdi_metrics(sdi_values, labels, rem_values)
+    # SQI model composite: the published SDI pipeline's RB/AP/CV/MDR/PR
+    # composite, percentile-scored against the Sleep-EDF reference population.
+    try:
+        from apps.analysis.pipeline.sqi_composite import compute_composite
+
+        composite = compute_composite(summary["sdi_metrics"])
+        if composite is not None:
+            summary["sdi_composite"] = {
+                "components": composite.z,
+                "composite": composite.composite,
+                "percentile": composite.percentile,
+                "reference": "sleep-edf-197-nights",
+                "note": "Research composite from the SDI model; percentile vs Sleep-EDF reference.",
+            }
+    except Exception:  # noqa: BLE001 - the composite is additive, never blocking
+        pass
     summary["staging_system"] = staging_system
     summary["staging_members"] = list(staging.channel_set)
+    # The trimmed range expressed in the ORIGINAL recording timeline.
     summary["analysis_window"] = {
         "start_epoch": window_start,
         "end_epoch": window_end,
-        "start_sec": window_start * 30,
-        "end_sec": window_end * 30,
+        "start_sec": window_start * EPOCH_SECONDS,
+        "end_sec": window_end * EPOCH_SECONDS,
     }
+    summary["trim_note"] = (
+        "Models ran on the benchmark window: first→last predicted sleep ±30 min wake trim."
+    )
     return NightResult(
         epochs=epochs,
         features=features,
@@ -167,6 +212,17 @@ def run_night_pipeline(path: str | Path) -> NightResult:
         channel_labels=staging.channel_labels,
         warnings=["sdi_ecg_zero_filled"] if sdi_result.ecg_zero_filled else [],
     )
+
+
+def _trim_recording(recording: Recording, start_sec: float, end_sec: float) -> Recording:
+    """Slice every channel to [start_sec, end_sec); per-channel sample counts differ."""
+    signals: dict[str, np.ndarray] = {}
+    for label, values in recording.signals.items():
+        rate = recording.sample_rates[label] or 1.0
+        start_sample = max(0, int(start_sec * rate))
+        end_sample = min(len(values), max(start_sample + 1, int(end_sec * rate)))
+        signals[label] = values[start_sample:end_sample]
+    return replace(recording, signals=signals, duration_sec=max(0.0, end_sec - start_sec))
 
 
 def _sdi_metrics(
@@ -199,7 +255,10 @@ def _build_summary(
     sdi_values: np.ndarray,
     rem_values: np.ndarray,
 ) -> dict:
-    """Stage distribution and review load (SDI metrics added separately)."""
+    """Stage distribution + review load over the trimmed analysis window.
+
+    Mirrors the benchmark trim: first→last predicted sleep ±30 min of Wake.
+    """
     total = len(epochs) or 1
     sleep_mask = np.isin(labels, [1, 2, 3, 4])
     stage_counts = {
