@@ -1,0 +1,12 @@
+# sdi/ pipeline
+# Torch is not pinned here: install the build that matches your hardware, e.g.
+#   pip install torch --index-url https://download.pytorch.org/whl/cu130   # CUDA 13
+#   pip install torch                                                      # CPU
+# Verified environment: Python 3.11, torch 2.14.0+cu130, CUDA 6 GB GPU.
+mne==1.13.2
+numpy==2.4.6
+pandas==3.0.6
+scipy==1.17.1
+scikit-learn==1.9.1
+einops==0.8.2
+torch>=2.0
