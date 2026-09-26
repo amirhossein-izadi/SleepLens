@@ -16,3 +16,112 @@ wearable/reports/
 .vscode/
 .idea/
 .DS_Store
+# ==============================================================================
+# SleepLens Project Git Ignore Rules
+# ==============================================================================
+
+# --- Raw & Processed Datasets (Large Binary Files) ---
+sleep-edf-database-expanded-1.0.0/
+data/processed/
+data/processed_telemetry/
+data/processed_cassette/
+data/raw/
+*.edf
+*.npz
+*.csv.gz
+*.parquet
+media/
+webapp/media/
+
+# Keep directory structure if empty placeholder (.gitkeep) is added
+!data/.gitkeep
+!data/processed/.gitkeep
+!data/processed_telemetry/.gitkeep
+!data/processed_cassette/.gitkeep
+
+# --- Machine Learning Models & Checkpoints ---
+models/
+checkpoints/
+weights/
+*.pt
+*.pth
+*.ckpt
+*.joblib
+*.pkl
+*.pickle
+*.onnx
+*.bin
+
+# --- Experiment Tracking, Logs & Outputs ---
+wandb/
+runs/
+lightning_logs/
+logs/
+*.log
+mlruns/
+
+# --- Python Bytecode & Cache ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+*.sqlite3
+.env
+# --- Virtual Environments ---
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# --- Jupyter Notebooks & Caches ---
+.ipynb_checkpoints
+*-checkpoint.ipynb
+
+# --- Testing & Coverage ---
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# --- IDEs & Code Editors ---
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+
+# --- Operating System Files ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# --- Frontend Build Artifacts ---
+node_modules/
+dist/
+.vite/

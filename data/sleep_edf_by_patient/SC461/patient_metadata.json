@@ -1,0 +1,19 @@
+{
+  "mrn": "SC461",
+  "age": 101,
+  "sex": "female",
+  "nights": {
+    "night_1": {
+      "psg_file": "SC4611E0-PSG.edf",
+      "hypnogram_file": "SC4611EG-Hypnogram.edf",
+      "lights_off": "00:20:00",
+      "condition": "Standard Ambulatory"
+    },
+    "night_2": {
+      "psg_file": "SC4612E0-PSG.edf",
+      "hypnogram_file": "SC4612EA-Hypnogram.edf",
+      "lights_off": "01:00:00",
+      "condition": "Standard Ambulatory"
+    }
+  }
+}

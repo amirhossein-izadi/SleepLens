@@ -1,0 +1,19 @@
+{
+  "mrn": "SC403",
+  "age": 26,
+  "sex": "female",
+  "nights": {
+    "night_1": {
+      "psg_file": "SC4031E0-PSG.edf",
+      "hypnogram_file": "SC4031EC-Hypnogram.edf",
+      "lights_off": "00:02:00",
+      "condition": "Standard Ambulatory"
+    },
+    "night_2": {
+      "psg_file": "SC4032E0-PSG.edf",
+      "hypnogram_file": "SC4032EP-Hypnogram.edf",
+      "lights_off": "00:24:00",
+      "condition": "Standard Ambulatory"
+    }
+  }
+}

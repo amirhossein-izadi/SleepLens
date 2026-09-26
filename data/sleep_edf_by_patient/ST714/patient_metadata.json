@@ -1,0 +1,19 @@
+{
+  "mrn": "ST714",
+  "age": 20,
+  "sex": "male",
+  "nights": {
+    "night_1": {
+      "psg_file": "ST7141J0-PSG.edf",
+      "hypnogram_file": "ST7141JE-Hypnogram.edf",
+      "lights_off": "00:40:00",
+      "condition": "Placebo"
+    },
+    "night_2": {
+      "psg_file": "ST7142J0-PSG.edf",
+      "hypnogram_file": "ST7142JE-Hypnogram.edf",
+      "lights_off": "00:53:00",
+      "condition": "Temazepam"
+    }
+  }
+}

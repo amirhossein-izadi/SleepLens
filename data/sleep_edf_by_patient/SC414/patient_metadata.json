@@ -1,0 +1,19 @@
+{
+  "mrn": "SC414",
+  "age": 27,
+  "sex": "male",
+  "nights": {
+    "night_1": {
+      "psg_file": "SC4141E0-PSG.edf",
+      "hypnogram_file": "SC4141EU-Hypnogram.edf",
+      "lights_off": "22:55:00",
+      "condition": "Standard Ambulatory"
+    },
+    "night_2": {
+      "psg_file": "SC4142E0-PSG.edf",
+      "hypnogram_file": "SC4142EU-Hypnogram.edf",
+      "lights_off": "23:22:00",
+      "condition": "Standard Ambulatory"
+    }
+  }
+}

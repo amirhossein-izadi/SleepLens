@@ -1,0 +1,13 @@
+{
+  "mrn": "SC452",
+  "age": 69,
+  "sex": "male",
+  "nights": {
+    "night_2": {
+      "psg_file": "SC4522E0-PSG.edf",
+      "hypnogram_file": "SC4522EM-Hypnogram.edf",
+      "lights_off": "23:53:00",
+      "condition": "Standard Ambulatory"
+    }
+  }
+}

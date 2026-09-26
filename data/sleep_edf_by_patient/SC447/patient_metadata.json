@@ -1,0 +1,19 @@
+{
+  "mrn": "SC447",
+  "age": 73,
+  "sex": "female",
+  "nights": {
+    "night_1": {
+      "psg_file": "SC4471F0-PSG.edf",
+      "hypnogram_file": "SC4471FA-Hypnogram.edf",
+      "lights_off": "22:36:00",
+      "condition": "Standard Ambulatory"
+    },
+    "night_2": {
+      "psg_file": "SC4472F0-PSG.edf",
+      "hypnogram_file": "SC4472FA-Hypnogram.edf",
+      "lights_off": "22:25:00",
+      "condition": "Standard Ambulatory"
+    }
+  }
+}

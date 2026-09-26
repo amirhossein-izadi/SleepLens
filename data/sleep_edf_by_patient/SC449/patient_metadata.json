@@ -1,0 +1,19 @@
+{
+  "mrn": "SC449",
+  "age": 67,
+  "sex": "female",
+  "nights": {
+    "night_1": {
+      "psg_file": "SC4491G0-PSG.edf",
+      "hypnogram_file": "SC4491GJ-Hypnogram.edf",
+      "lights_off": "23:26:00",
+      "condition": "Standard Ambulatory"
+    },
+    "night_2": {
+      "psg_file": "SC4492G0-PSG.edf",
+      "hypnogram_file": "SC4492GJ-Hypnogram.edf",
+      "lights_off": "00:13:00",
+      "condition": "Standard Ambulatory"
+    }
+  }
+}

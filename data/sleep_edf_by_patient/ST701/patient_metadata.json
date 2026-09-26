@@ -1,0 +1,19 @@
+{
+  "mrn": "ST701",
+  "age": 60,
+  "sex": "male",
+  "nights": {
+    "night_1": {
+      "psg_file": "ST7011J0-PSG.edf",
+      "hypnogram_file": "ST7011JP-Hypnogram.edf",
+      "lights_off": "23:01:00",
+      "condition": "Placebo"
+    },
+    "night_2": {
+      "psg_file": "ST7012J0-PSG.edf",
+      "hypnogram_file": "ST7012JP-Hypnogram.edf",
+      "lights_off": "23:48:00",
+      "condition": "Temazepam"
+    }
+  }
+}

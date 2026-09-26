@@ -1,0 +1,19 @@
+{
+  "mrn": "ST709",
+  "age": 47,
+  "sex": "male",
+  "nights": {
+    "night_1": {
+      "psg_file": "ST7091J0-PSG.edf",
+      "hypnogram_file": "ST7091JE-Hypnogram.edf",
+      "lights_off": "23:42:00",
+      "condition": "Temazepam"
+    },
+    "night_2": {
+      "psg_file": "ST7092J0-PSG.edf",
+      "hypnogram_file": "ST7092JE-Hypnogram.edf",
+      "lights_off": "00:30:00",
+      "condition": "Placebo"
+    }
+  }
+}

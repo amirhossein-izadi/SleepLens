@@ -1,0 +1,19 @@
+{
+  "mrn": "SC456",
+  "age": 72,
+  "sex": "male",
+  "nights": {
+    "night_1": {
+      "psg_file": "SC4561F0-PSG.edf",
+      "hypnogram_file": "SC4561FJ-Hypnogram.edf",
+      "lights_off": "23:14:00",
+      "condition": "Standard Ambulatory"
+    },
+    "night_2": {
+      "psg_file": "SC4562F0-PSG.edf",
+      "hypnogram_file": "SC4562FJ-Hypnogram.edf",
+      "lights_off": "23:22:00",
+      "condition": "Standard Ambulatory"
+    }
+  }
+}

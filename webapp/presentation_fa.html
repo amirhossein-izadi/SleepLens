@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ارائه اسلیپ‌لنز (SleepLens) — ارائه ۷ دقیقه‌ای بالینی</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+    body {
+      font-family: 'Vazirmatn', sans-serif;
+      background-color: #0b0f17;
+      color: #f8fafc;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      width: 100vw;
+    }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    .slide {
+      display: none;
+      height: 100vh;
+      width: 100vw;
+      box-sizing: border-box;
+      padding: 2.2rem 3.5rem;
+      flex-direction: column;
+      justify-content: space-between;
+      opacity: 0;
+      transition: opacity 0.25s ease-in-out;
+    }
+    .slide.active {
+      display: flex;
+      opacity: 1;
+    }
+    .card {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(51, 65, 85, 0.7);
+      border-radius: 0.75rem;
+    }
+    .glow-teal {
+      box-shadow: 0 0 25px -5px rgba(20, 184, 166, 0.25);
+    }
+  </style>
+</head>
+<body class="select-none">
+
+  <!-- Top Navigation & Timer Bar -->
+  <div class="fixed top-0 left-0 right-0 h-14 bg-slate-900/80 backdrop-blur border-b border-slate-800 flex items-center justify-between px-8 z-50">
+    <div class="flex items-center gap-3">
+      <div class="h-8 w-8 rounded-lg bg-teal-500/20 border border-teal-500/50 flex items-center justify-center text-teal-400 font-bold text-sm">SL</div>
+      <span class="font-bold text-slate-100 tracking-wide text-base">اسلیپ‌<span class="text-teal-400">لنز</span> (SleepLens)</span>
+      <span class="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700 mr-2">ارائه بالینی ۷ دقیقه‌ای</span>
+    </div>
+
+    <!-- Slide Indicators -->
+    <div class="flex items-center gap-1.5" id="slide-dots"></div>
+
+    <!-- Timer & Controls -->
+    <div class="flex items-center gap-4 text-sm font-mono">
+      <div class="flex items-center gap-2 bg-slate-800/80 px-3 py-1 rounded-md border border-slate-700 text-slate-300">
+        <span class="text-xs text-slate-500 font-sans">زمان‌سنج</span>
+        <span id="timer-display" class="text-teal-400 font-semibold font-mono">00:00</span>
+        <span class="text-xs text-slate-500">/ 07:00</span>
+        <button id="timer-btn" onclick="toggleTimer()" class="mr-1 text-xs hover:text-white text-slate-400" title="شروع / توقف">▶</button>
+      </div>
+
+      <button onclick="toggleNotes()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700 text-xs flex items-center gap-1 font-sans">
+        <span>📝</span> یادداشت ارائه <span class="text-slate-500 font-mono">(S)</span>
+      </button>
+
+      <button onclick="toggleFullscreen()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700 text-xs font-mono">
+        ⛶ <span>(F)</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Slides Container -->
+  <main class="w-full h-full pt-14 pb-12">
+
+    <!-- SLIDE 1 -->
+    <section class="slide active" data-slide="1" data-time="۰:۰۰ – ۰:۴۵ | ۴۵s">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-teal-400 font-semibold text-xs tracking-widest uppercase">خلاصه اجرایی • ارائه نهایی پروژه هکاتون</span>
+          <h1 class="text-3xl font-extrabold text-white mt-1">اسلیپ‌لنز: هوش مصنوعی دو‌مرحله‌ای برای دسته‌بندی استیج‌های خواب و ارزیابی کیفیت خواب</h1>
+          <p class="text-cyan-400 text-sm mt-1">پیوند میان استیجینگ گسسته ۳۰ ثانیه‌ای با عمق پیوسته خواب و نشانگرهای ریزساختاری مغز</p>
+        </div>
+        <div class="text-left">
+          <span class="text-xs font-mono text-cyan-400 bg-cyan-950/40 border border-cyan-800/60 px-3 py-1 rounded-full">اسلاید ۱ از ۹ • ۰:۰۰ تا ۰:۴۵</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-6 my-auto">
+        <div class="card p-6 border-r-4 border-amber-500">
+          <div class="flex items-center gap-2 text-amber-400 font-semibold text-base mb-3">
+            <span>⚠️</span> گلوگاه بالینی در تست خواب (PSG)
+          </div>
+          <ul class="text-xs text-slate-300 space-y-2.5 leading-relaxed">
+            <li>• تحلیل دستی و چشمی سیگنال‌های پلی‌سومنوگرافی نیازمند <strong class="text-white">۱.۵ تا ۲ ساعت زمان</strong> برای هر شب آزمایش است.</li>
+            <li>• عدم توافق بالای پزشکان در تشخیص مراحل گذار (دقت در مرحله <strong class="text-amber-400">N1 کمتر از ۶۰٪</strong> است).</li>
+            <li>• سیستم سنتی ۵ مرحله‌ای (AASM) پیوستگی دینامیک عمق خواب و همگام‌سازی مغز را کاملاً نادیده می‌گیرد.</li>
+          </ul>
+        </div>
+
+        <div class="card p-6 border-r-4 border-cyan-500 glow-teal">
+          <div class="flex items-center gap-2 text-cyan-400 font-semibold text-base mb-3">
+            <span>🧠</span> موتور هوش مصنوعی دو‌مرحله‌ای
+          </div>
+          <ul class="text-xs text-slate-300 space-y-2.5 leading-relaxed">
+            <li>• <strong class="text-white">مرحله اول (استیجینگ):</strong> انسمبل ۴ مدله با امتیاز F1 ماکرو <strong class="text-teal-300 font-mono">0.8425</strong> (کاپای 0.831) روی ۲۳۷ هزار ایپاک.</li>
+            <li>• <strong class="text-white">مرحله دوم (عمق و کیفیت):</strong> ترنسفورمر SDI (منتشر شده در <em class="text-slate-400">npj Digital Med</em>) برای عمق پیوسته + ۹۶ پارامتر بالینی.</li>
+            <li>• <strong class="text-white">حداقل‌سازی سنسورها:</strong> چیدمان ۲ سنسوره (Fpz+EOG) توانسته <strong class="text-cyan-300">۹۹.۵٪</strong> دقت سیستم کامل را حفظ کند!</li>
+          </ul>
+        </div>
+
+        <div class="card p-6 border-r-4 border-emerald-500">
+          <div class="flex items-center gap-2 text-emerald-400 font-semibold text-base mb-3">
+            <span>💻</span> پلتفرم عملیاتی و بالینی
+          </div>
+          <ul class="text-xs text-slate-300 space-y-2.5 leading-relaxed">
+            <li>• وب‌اپلیکیشن فول‌استک بالینی با فریم‌ورک‌های مدرن <strong class="text-white">Next.js 14 + Django REST</strong>.</li>
+            <li>• هیپنوگرام تعاملی، منحنی عمق پیوسته خواب (SDI)، و کاوشگر لحظه‌ای سیگنال‌های خام مغزی.</li>
+            <li>• <strong class="text-white">تولید خودکار گزارش متنی پزشکی با LLM</strong> + چت‌بات دستیار تشخیصی مجهز به OpenCode.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="text-xs text-slate-500 flex justify-between border-t border-slate-800/80 pt-3">
+        <span>پلتفرم اسلیپ‌لنز • نمونه اولیه سامانه هوش مصنوعی بالینی و تحقیقاتی خواب</span>
+        <span>برای جابجایی بین اسلایدها از کلیدهای جهت‌نما (← →) یا Space استفاده کنید</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 2 -->
+    <section class="slide" data-slide="2" data-time="۰:۴۵ – ۱:۳۰ | ۴۵s">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-teal-400 font-semibold text-xs tracking-widest uppercase">اعتبار بنچ‌مارک و اصول تجربی</span>
+          <h1 class="text-2xl font-extrabold text-white mt-1">مجموعه داده، پیش‌پردازش و استانداردسازی</h1>
+          <p class="text-slate-400 text-xs mt-0.5">پایگاه Sleep-EDF Expanded: ۱۹۷ شب کامل با اعتبارسنجی متقاطع بدون نشت اطلاعات (Subject-Atomic)</p>
+        </div>
+        <div class="text-left">
+          <span class="text-xs font-mono text-cyan-400 bg-cyan-950/40 border border-cyan-800/60 px-3 py-1 rounded-full">اسلاید ۲ از ۹ • ۰:۴۵–۱:۳۰</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-8 my-auto">
+        <div class="card p-5">
+          <h2 class="text-teal-400 font-bold text-base mb-3 flex items-center gap-2">
+            <span>📊</span> بنچ‌مارک رسمی Sleep-EDF Expanded (PhysioNet)
+          </h2>
+          <div class="space-y-3 text-xs text-slate-300">
+            <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
+              <span class="text-white font-semibold block mb-1">مقیاس و حجم داده‌ها:</span>
+              <span>۱۹۷ ثبت شبانه کامل • <strong class="text-teal-300 font-mono">۲۳۷,۹۳۶ ایپاک معتبر</strong> (~۲,۰۰۰ ساعت سیگنال پلی‌سومنوگرافی).</span>
+            </div>
+            <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
+              <span class="text-white font-semibold block mb-1">تفکیک دقیق دو کوهورت بدون تداخل:</span>
+              <ul class="space-y-1 text-slate-400">
+                <li>• <strong class="text-slate-200">کوهورت کاست (SC):</strong> ۱۵۳ ثبت مربوط به افراد سالم در محیط خانه (سیگنال‌های هولتر روزمره).</li>
+                <li>• <strong class="text-slate-200">کوهورت تله‌متری (ST):</strong> ۴۴ ثبت بالینی داخل بیمارستان و کلینیک خواب.</li>
+              </ul>
+            </div>
+            <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
+              <span class="text-white font-semibold block mb-1">پروتکل اعتبارسنجی بدون نشت (Subject-Atomic 5-Fold CV):</span>
+              <span class="text-slate-400">تفکیک کاملا سوژه‌محور (<code class="text-cyan-400">folds5_v3</code>)؛ هیچ بیماری به طور مشترک در بخش آموزش و تست قرار ندارد تا از بیش‌برازش کاذب جلوگیری شود.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-cyan-400 font-bold text-base mb-3 flex items-center gap-2">
+            <span>⚙️</span> خط لوله پیش‌پردازش و یکپارچه‌سازی سیگنال‌ها
+          </h2>
+          <div class="space-y-3 text-xs text-slate-300">
+            <div class="flex items-start gap-3">
+              <div class="h-6 w-6 rounded bg-cyan-950 text-cyan-400 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">۱</div>
+              <div>
+                <strong class="text-white">بازنمونه‌برداری استاندارد ۱۰۰ هرتز (Canonical 100 Hz):</strong>
+                <p class="text-slate-400 mt-0.5">اعمال فیلتر چندفازی ضد‌دایره‌ای (Anti-aliasing) روی کلیه کانال‌های خام جهت حذف ناهمگونی‌های سخت‌افزاری.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="h-6 w-6 rounded bg-cyan-950 text-cyan-400 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">۲</div>
+              <div>
+                <strong class="text-white">استانداردسازی و نگاشت الکترودها:</strong>
+                <p class="text-slate-400 mt-0.5">الکترود مغز پیشانی (<code class="text-slate-300">Fpz-Cz</code>)، مغز پس‌سری (<code class="text-slate-300">Pz-Oz</code>)، حرکت چشم (<code class="text-slate-300">EOG horiz</code>)، و عضله چانه (<code class="text-slate-300">EMG submental</code>).</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="h-6 w-6 rounded bg-cyan-950 text-cyan-400 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">۳</div>
+              <div>
+                <strong class="text-white">پنجره‌بندی خاموشی چراغ‌ها (BENCHMARK_30):</strong>
+                <p class="text-slate-400 mt-0.5">برش خودکار دوره‌های بیداری طولانی قبل و بعد از خواب ضمن حفظ دقیق گذارهای فیزیولوژیک شروع و پایان خواب.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-xs text-slate-500 flex justify-between border-t border-slate-800/80 pt-3">
+        <span>پروتکل ارزیابی: ۵ فولد تفکیک‌شده بر اساس سوژه با پنجره استاندارد BENCHMARK_30</span>
+        <span>تعداد کل ایپاک‌ها: ۲۳۷,۹۳۶ ایپاک استاندارد</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 3 -->
+    <section class="slide" data-slide="3" data-time="۱:۳۰ – ۲:۲۵ | ۵۵s">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-teal-400 font-semibold text-xs tracking-widest uppercase">مدل مرحله اول هوش مصنوعی</span>
+          <h1 class="text-2xl font-extrabold text-white mt-1">دسته‌بندی ۳۰ ثانیه‌ای مراحل خواب (SSC)</h1>
+          <p class="text-slate-400 text-xs mt-0.5">ارزیابی ساختاریافته بیش از ۲۵ پیکربندی روی تمامی ۱۹۷ شب داده</p>
+        </div>
+        <div class="text-left">
+          <span class="text-xs font-mono text-cyan-400 bg-cyan-950/40 border border-cyan-800/60 px-3 py-1 rounded-full">اسلاید ۳ از ۹ • ۱:۳۰–۲:۲۵</span>
+        </div>
+      </div>
+
+      <div class="my-auto space-y-4">
+        <div class="overflow-hidden rounded-lg border border-slate-700 bg-slate-900/80">
+          <table class="w-full text-right text-xs">
+            <thead class="bg-slate-800/90 text-cyan-400 font-mono border-b border-slate-700">
+              <tr>
+                <th class="p-2.5">کد اجرا</th>
+                <th class="p-2.5">معماری مدل و چیدمان سنسورها</th>
+                <th class="p-2.5 text-center">F1 کل</th>
+                <th class="p-2.5 text-center">SC F1</th>
+                <th class="p-2.5 text-center">ST F1</th>
+                <th class="p-2.5 text-center">N1 (سخت‌ترین)</th>
+                <th class="p-2.5 text-center">N2</th>
+                <th class="p-2.5 text-center">N3 (عمیق)</th>
+                <th class="p-2.5 text-center">REM</th>
+                <th class="p-2.5 text-center">کاپا κ</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800 text-slate-300 font-mono">
+              <tr class="bg-teal-950/30 text-white font-bold border-r-4 border-teal-400">
+                <td class="p-2.5 text-teal-300 font-bold">E19 (برتر)</td>
+                <td class="p-2.5 text-white font-sans">انسمبل ۴ مدله متنوع (ANY3ch + ANY2ch + USleep + LGBM)</td>
+                <td class="p-2.5 text-center text-teal-300 text-sm font-extrabold">0.8425</td>
+                <td class="p-2.5 text-center">0.836</td>
+                <td class="p-2.5 text-center">0.865</td>
+                <td class="p-2.5 text-center text-teal-300">0.635</td>
+                <td class="p-2.5 text-center">0.892</td>
+                <td class="p-2.5 text-center">0.833</td>
+                <td class="p-2.5 text-center text-teal-300">0.915</td>
+                <td class="p-2.5 text-center text-teal-300">0.831</td>
+              </tr>
+              <tr>
+                <td class="p-2 text-slate-400">E11</td>
+                <td class="p-2 font-sans">مدل AnySleep ۳ کاناله (Fpz+Pz+EOG) — بهترین تک‌مدل</td>
+                <td class="p-2 text-center text-white font-semibold">0.8267</td>
+                <td class="p-2 text-center">0.809</td>
+                <td class="p-2 text-center">0.878</td>
+                <td class="p-2.5 text-center">0.622</td>
+                <td class="p-2.5 text-center">0.880</td>
+                <td class="p-2.5 text-center">0.788</td>
+                <td class="p-2.5 text-center">0.904</td>
+                <td class="p-2.5 text-center">0.812</td>
+              </tr>
+              <tr>
+                <td class="p-2 text-slate-400">E11d</td>
+                <td class="p-2 font-sans">مدل AnySleep ۲ سنسوره (Fpz+EOG) — بهترین ۲ سنسوره</td>
+                <td class="p-2 text-center text-white font-semibold">0.8227</td>
+                <td class="p-2 text-center">0.811</td>
+                <td class="p-2 text-center">0.865</td>
+                <td class="p-2.5 text-center">0.592</td>
+                <td class="p-2.5 text-center">0.880</td>
+                <td class="p-2.5 text-center">0.812</td>
+                <td class="p-2.5 text-center">0.905</td>
+                <td class="p-2.5 text-center">0.808</td>
+              </tr>
+              <tr>
+                <td class="p-2 text-slate-400">E20</td>
+                <td class="p-2 font-sans">مدل RobustSleepNet فرونتال (پاک — بدون پیش‌آموزش روی دیتا)</td>
+                <td class="p-2 text-center">0.7501</td>
+                <td class="p-2 text-center">0.736</td>
+                <td class="p-2 text-center">0.788</td>
+                <td class="p-2.5 text-center">0.442</td>
+                <td class="p-2.5 text-center">0.828</td>
+                <td class="p-2.5 text-center">0.717</td>
+                <td class="p-2.5 text-center">0.855</td>
+                <td class="p-2.5 text-center">0.724</td>
+              </tr>
+              <tr>
+                <td class="p-2 text-slate-400">E00</td>
+                <td class="p-2 font-sans">مدل آماری LightGBM (۱۱ ویژگی طیفی و توان فرکانسی)</td>
+                <td class="p-2 text-center">0.6672</td>
+                <td class="p-2 text-center">—</td>
+                <td class="p-2 text-center">—</td>
+                <td class="p-2.5 text-center">0.339</td>
+                <td class="p-2.5 text-center">0.752</td>
+                <td class="p-2.5 text-center">0.687</td>
+                <td class="p-2.5 text-center">0.585</td>
+                <td class="p-2.5 text-center">0.612</td>
+              </tr>
+              <tr>
+                <td class="p-2 text-slate-400">E01</td>
+                <td class="p-2 font-sans">مدل سنتی بالینی YASA (جنگل تصادفی بر پایه Fpz)</td>
+                <td class="p-2 text-center text-rose-400">0.5225</td>
+                <td class="p-2 text-center">0.486</td>
+                <td class="p-2 text-center">0.611</td>
+                <td class="p-2.5 text-center text-rose-400">0.100</td>
+                <td class="p-2.5 text-center">0.737</td>
+                <td class="p-2.5 text-center">0.538</td>
+                <td class="p-2.5 text-center">0.557</td>
+                <td class="p-2.5 text-center">0.473</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card p-4 grid grid-cols-3 gap-4 text-xs">
+          <div>
+            <strong class="text-teal-400 block mb-1">۱. برتری تنوع بر مقیاس</strong>
+            <span class="text-slate-300">افزودن مدل سبک LightGBM (0.667) به شبکه‌های عمیق باعث جهش <strong class="text-white">+0.016</strong> در F1 شد زیرا ویژگی‌های طیفی مستقل از شکل موج خام ایجاد می‌کند.</span>
+          </div>
+          <div>
+            <strong class="text-cyan-400 block mb-1">۲. رکوردشکنی در تفکیک استیج‌ها</strong>
+            <span class="text-slate-300">انسمبل برنده رکورد بنچ‌مارک را در ۴ استیج ارتقا داد: <strong class="text-white">N1 (0.635)</strong>، <strong class="text-white">N2 (0.892)</strong>، <strong class="text-white">N3 (0.833)</strong> و <strong class="text-white">REM (0.915)</strong>.</span>
+          </div>
+          <div>
+            <strong class="text-amber-400 block mb-1">۳. رد الگوریتم ویتربی</strong>
+            <span class="text-slate-300">دیکودینگ احتمالات گذار با ویتربی باعث افت دقت شد (0.8267 به 0.8259) چرا که معماری AnySleep ذاتاً میدان دید زمانی <strong class="text-white">۱۴ دقیقه‌ای</strong> دارد.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-xs text-slate-500 flex justify-between border-t border-slate-800/80 pt-3">
+        <span>انسمبل برنده ۴ مدله: توافق مستقل در تمام ۵ فولد ارزیابی OOF</span>
+        <span>ضریب کاپای کوهن: 0.831 (معادل توافق پزشکان فوق تخصص)</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 4 -->
+    <section class="slide" data-slide="4" data-time="۲:۲۵ – ۳:۱۵ | ۵۰s">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-teal-400 font-semibold text-xs tracking-widest uppercase">تحلیل‌های فنی استیجینگ</span>
+          <h1 class="text-2xl font-extrabold text-white mt-1">کاهش سنسورها و هوش مصنوعی تفسیرپذیر (XAI)</h1>
+          <p class="text-slate-400 text-xs mt-0.5">کشف حداقل چیدمان سخت‌افزاری پوشیدنی و بازرسی توجه فیزیولوژیک شبکه عمیق</p>
+        </div>
+        <div class="text-left">
+          <span class="text-xs font-mono text-cyan-400 bg-cyan-950/40 border border-cyan-800/60 px-3 py-1 rounded-full">اسلاید ۴ از ۹ • ۲:۲۵–۳:۱۵</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-8 my-auto">
+        <div class="card p-6">
+          <h2 class="text-teal-400 font-bold text-base mb-3 flex items-center gap-2">
+            <span>🔌</span> ارزیابی کاهش کانال‌ها برای گجت‌های پوشیدنی
+          </h2>
+          <div class="space-y-3 text-xs">
+            <div class="flex items-center justify-between p-2 rounded bg-slate-900/80 border border-slate-800">
+              <span class="text-slate-200 font-medium">سیستم ۳ کاناله کامل (Fpz-Cz + Pz-Oz + EOG)</span>
+              <span class="font-mono text-teal-400 font-bold">0.8267 F1 (مرجع)</span>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded bg-teal-950/40 border border-teal-700/60 text-white font-semibold">
+              <span class="flex items-center gap-1.5"><span class="text-teal-400">★</span> چیدمان ۲ سنسوره (Fpz-Cz + EOG)</span>
+              <span class="font-mono text-cyan-300 font-bold">0.8227 F1 (-0.004 Δ)</span>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded bg-slate-900/80 border border-slate-800 text-slate-300">
+              <span>دو الکترود مغزی بدون چشم (Fpz-Cz + Pz-Oz)</span>
+              <span class="font-mono text-slate-400">0.8134 F1 (-0.013 Δ)</span>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded bg-slate-900/80 border border-slate-800 text-slate-300">
+              <span>تک الکترود پیشانی (Fpz-Cz)</span>
+              <span class="font-mono text-slate-400">0.8015 F1 (-0.025 Δ)</span>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded bg-slate-900/80 border border-slate-800 text-slate-300">
+              <span>تک الکترود پس‌سری (Pz-Oz)</span>
+              <span class="font-mono text-slate-400">0.7736 F1 (-0.053 Δ)</span>
+            </div>
+            <p class="text-slate-400 text-xs mt-2 leading-relaxed">
+              <strong class="text-white">نتیجه بالینی:</strong> کانال Pz-Oz قابل حذف است. افزودن EOG به الکترود پیشانی، حرکات چشم را مستقیماً ثبت کرده و ریکال استیج REM را به <strong class="text-teal-300">0.913</strong> ارتقا می‌دهد (در مقابل 0.897 در سیستم ۳ کاناله).
+            </p>
+          </div>
+        </div>
+
+        <div class="card p-6">
+          <h2 class="text-cyan-400 font-bold text-base mb-3 flex items-center gap-2">
+            <span>🔍</span> فیزیولوژی توجه لایه‌ای و کالیبراسیون اطمینان
+          </h2>
+          <div class="space-y-3.5 text-xs text-slate-300">
+            <div>
+              <span class="text-white font-semibold block mb-1">توزیع توجه لایه ۱۲ شبکه (Skip Connections) منطبق بر قواعد بالینی:</span>
+              <div class="grid grid-cols-3 gap-2 text-center font-mono">
+                <div class="bg-slate-900/80 p-2 rounded border border-slate-800">
+                  <span class="text-slate-400 block text-[10px] font-sans">بیداری</span>
+                  <span class="text-cyan-400 font-bold">67.2% Pz</span>
+                  <span class="text-slate-500 block text-[9px] font-sans">ریتم آلفا</span>
+                </div>
+                <div class="bg-slate-900/80 p-2 rounded border border-slate-800">
+                  <span class="text-slate-400 block text-[10px] font-sans">خواب عمیق N3</span>
+                  <span class="text-teal-400 font-bold">93.0% EEG</span>
+                  <span class="text-slate-500 block text-[9px] font-sans">امواج آهسته</span>
+                </div>
+                <div class="bg-slate-900/80 p-2 rounded border border-slate-800">
+                  <span class="text-slate-400 block text-[10px] font-sans">خواب REM</span>
+                  <span class="text-amber-400 font-bold">52.0% EOG</span>
+                  <span class="text-slate-500 block text-[9px] font-sans">پرش چشم</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="border-t border-slate-800 pt-3">
+              <span class="text-white font-semibold block mb-1">کالیبراسیون یکنوای اطمینان مدل (ECE = 0.029):</span>
+              <ul class="space-y-1 text-slate-400">
+                <li>• اطمینان بالای ۹۰٪ (<strong class="text-slate-200">۳۰.۳٪ کل شب</strong>): <strong class="text-emerald-400 font-mono">۹۹.۵٪ دقت تجربی</strong>!</li>
+                <li>• اطمینان زیر ۶۰٪ (<strong class="text-slate-200">~۱۵٪ کل شب</strong>): برچسب‌گذاری خودکار با <code class="text-amber-400">needs_review: true</code>.</li>
+                <li>• <strong class="text-slate-200">پزشک در چرخه:</strong> متخصص تنها ایپاک‌های مرزی را بازبینی می‌کند.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-xs text-slate-500 flex justify-between border-t border-slate-800/80 pt-3">
+        <span>هدف سخت‌افزاری: هدبند خانگی با ۲ سنسور پیشانی (Fpz-Cz + EOG)</span>
+        <span>خطای کالیبراسیون مورد انتظار: ECE = 0.029</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 5 -->
+    <section class="slide" data-slide="5" data-time="۳:۱۵ – ۴:۰۵ | ۵۰s">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-teal-400 font-semibold text-xs tracking-widest uppercase">مدل مرحله دوم هوش مصنوعی</span>
+          <h1 class="text-2xl font-extrabold text-white mt-1">عمق پیوسته خواب (SDI) و موتور ۹۶ ویژگی بالینی</h1>
+          <p class="text-slate-400 text-xs mt-0.5">گذار از ۵ پله گسسته به عمق پیوسته همگام‌سازی بیولوژیکی مغز</p>
+        </div>
+        <div class="text-left">
+          <span class="text-xs font-mono text-cyan-400 bg-cyan-950/40 border border-cyan-800/60 px-3 py-1 rounded-full">اسلاید ۵ از ۹ • ۳:۱۵–۴:۰۵</span>
+        </div>
+      </div>
+
+      <div class="my-auto space-y-4">
+        <div class="card p-5 border-r-4 border-cyan-500">
+          <div class="flex items-center justify-between mb-2">
+            <h2 class="text-cyan-400 font-bold text-base">شبکه ترنسفورمر SDI (منتشر شده در مجله معتبر npj Digital Medicine 2025)</h2>
+            <span class="text-xs font-mono bg-cyan-950 text-cyan-300 px-2 py-0.5 rounded border border-cyan-800">Zero-Shot Transformer</span>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            محاسبه شاخص پیوسته <strong class="text-white">عمق خواب (۰.۰ تا ۱.۰)</strong> برای هر ایپاک ۳۰ ثانیه‌ای. بر خلاف هیپنوگرام سنتی، شاخص SDI میکرو-بیداری‌ها، تخلیه بار خستگی روزانه و الگوهای متناوب حلقوی (CAP) را آشکار می‌سازد.
+          </p>
+          <div class="grid grid-cols-5 gap-3 mt-3 text-center text-xs font-mono">
+            <div class="bg-slate-900/80 p-2 rounded border border-slate-800">
+              <span class="text-slate-400 block text-[10px] font-sans">RB</span>
+              <span class="text-amber-400 font-bold">SDI &lt; 0.20</span>
+              <span class="text-slate-500 block text-[9px] font-sans">بار خواب سطحی</span>
+            </div>
+            <div class="bg-slate-900/80 p-2 rounded border border-slate-800">
+              <span class="text-slate-400 block text-[10px] font-sans">AP</span>
+              <span class="text-teal-400 font-bold">Mean SDI</span>
+              <span class="text-slate-500 block text-[9px] font-sans">میانگین عمق</span>
+            </div>
+            <div class="bg-slate-900/80 p-2 rounded border border-slate-800">
+              <span class="text-slate-400 block text-[10px] font-sans">CV</span>
+              <span class="text-slate-300 font-bold">SD / Mean</span>
+              <span class="text-slate-500 block text-[9px] font-sans">ناپایداری عمق</span>
+            </div>
+            <div class="bg-slate-900/80 p-2 rounded border border-slate-800">
+              <span class="text-slate-400 block text-[10px] font-sans">MDR</span>
+              <span class="text-cyan-400 font-bold">REM Depth</span>
+              <span class="text-slate-500 block text-[9px] font-sans">عمق در REM</span>
+            </div>
+            <div class="bg-slate-900/80 p-2 rounded border border-slate-800">
+              <span class="text-slate-400 block text-[10px] font-sans">PR</span>
+              <span class="text-purple-400 font-bold">REM Share</span>
+              <span class="text-slate-500 block text-[9px] font-sans">سهم خواب REM</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-teal-400 font-bold text-base mb-3 flex items-center gap-2">
+            <span>📈</span> موتور استخراج پارامترهای جامع فیزیولوژیک (~۹۶ شاخص بالینی)
+          </h2>
+          <div class="grid grid-cols-4 gap-4 text-xs">
+            <div class="bg-slate-900/60 p-3 rounded border border-slate-800">
+              <strong class="text-white block mb-1.5 font-bold">پیوستگی و پراکندگی خواب</strong>
+              <p class="text-slate-400 leading-relaxed">• زمان کل خواب، TIB، بهره‌وری SE%<br>• تاخیر خواب، WASO، تاخیر REM<br>• شاخص بیداری‌های مکرر<br>• شاخص پراکندگی خواب (SFI)</p>
+            </div>
+            <div class="bg-slate-900/60 p-3 rounded border border-slate-800">
+              <strong class="text-white block mb-1.5 font-bold">ساختار ماکرو و دینامیک</strong>
+              <p class="text-slate-400 leading-relaxed">• سهم درصدی استیج‌های N1,N2,N3,REM<br>• جابجایی استیج در نیمه اول و دوم شب<br>• طول دوره‌های مداوم خواب<br>• ماتریس گذار مارکوف ۵×۵</p>
+            </div>
+            <div class="bg-slate-900/60 p-3 rounded border border-slate-800">
+              <strong class="text-white block mb-1.5 font-bold">دینامیک طیفی مغز (EEG)</strong>
+              <p class="text-slate-400 leading-relaxed">• توان باندهای ولچ (δ, θ, α, σ, β)<br>• فعالیت امواج آهسته (SWA)<br>• آنتروپی طیفی سیگنال<br>• آنتروپی جایگشتی در فازها</p>
+            </div>
+            <div class="bg-slate-900/60 p-3 rounded border border-slate-800">
+              <strong class="text-white block mb-1.5 font-bold">ریزساختار و سیگنال عضله</strong>
+              <p class="text-slate-400 leading-relaxed">• چگالی دوک‌های خواب YASA (N2)<br>• دامنه و مدت امواج آهسته مغز<br>• توان RMS عضله زیر چانه<br>• نسبت آتونی عضلانی در REM</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-xs text-slate-500 flex justify-between border-t border-slate-800/80 pt-3">
+        <span>دیدگاه دوگانه: هیپنوگرام گسسته کلان + عمق پیوسته و ریزساختارهای خواب</span>
+        <span>خروجی: ۹۶ ویژگی بالینی برای هر شب آزمایش</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 6 -->
+    <section class="slide" data-slide="6" data-time="۴:۰۵ – ۴:۵۵ | ۵۰s">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-teal-400 font-semibold text-xs tracking-widest uppercase">هوش تشخیصی بالینی</span>
+          <h1 class="text-2xl font-extrabold text-white mt-1">شاخص کیفیت خواب و امتیازدهی چندوجهی</h1>
+          <p class="text-slate-400 text-xs mt-0.5">سنتز ۹۶ پارامتر فیزیولوژیک عینی، عمق پیوسته و ادراک ذهنی بیمار</p>
+        </div>
+        <div class="text-left">
+          <span class="text-xs font-mono text-cyan-400 bg-cyan-950/40 border border-cyan-800/60 px-3 py-1 rounded-full">اسلاید ۶ از ۹ • ۴:۰۵–۴:۵۵</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-8 my-auto">
+        <div class="card p-6">
+          <h2 class="text-teal-400 font-bold text-base mb-3 flex items-center justify-between">
+            <span>امتیاز یکپارچه و شفاف کیفیت خواب (۰ تا ۱۰۰)</span>
+            <span class="text-xs font-mono bg-teal-950 text-teal-300 px-2 py-0.5 rounded border border-teal-800 font-sans">فرمول شفاف</span>
+          </h2>
+          <div class="space-y-2 text-xs">
+            <div class="flex items-center justify-between p-2 rounded bg-slate-900/80">
+              <span class="text-slate-300">بهره‌وری خواب (نسبت خواب مفید به کل زمان در بستر)</span>
+              <span class="font-mono text-teal-400 font-bold">حداکثر ۲۵ امتیاز</span>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded bg-slate-900/80">
+              <span class="text-slate-300">عمق پیوسته خواب (اشباع امواج آهسته مغز)</span>
+              <span class="font-mono text-teal-400 font-bold">حداکثر ۲۵ امتیاز</span>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded bg-slate-900/80">
+              <span class="text-slate-300">پیوستگی خواب (جریمه تغییرات مکرر استیج و بیداری)</span>
+              <span class="font-mono text-teal-400 font-bold">حداکثر ۲۰ امتیاز</span>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded bg-slate-900/80">
+              <span class="text-slate-300">سهم خواب عمیق (سهم N3 از کل خواب - ترمیم جسمی)</span>
+              <span class="font-mono text-cyan-400 font-bold">حداکثر ۱۰ امتیاز</span>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded bg-slate-900/80">
+              <span class="text-slate-300">سهم خواب رویابینی (سهم REM - بازیابی شناختی)</span>
+              <span class="font-mono text-cyan-400 font-bold">حداکثر ۱۰ امتیاز</span>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded bg-slate-900/80">
+              <span class="text-slate-300">تاخیر به خواب رفتن (معیار ورود روان زیر ۳۰ دقیقه)</span>
+              <span class="font-mono text-slate-400">حداکثر ۵ امتیاز</span>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded bg-slate-900/80">
+              <span class="text-slate-300">مقاومت در برابر پراکندگی (کنترل خواب سطحی SDI)</span>
+              <span class="font-mono text-slate-400">حداکثر ۵ امتیاز</span>
+            </div>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between text-xs">
+            <span class="text-emerald-400 font-semibold">≥۸۵: عالی</span>
+            <span class="text-teal-400">۷۰–۸۴: خوب</span>
+            <span class="text-amber-400">۵۵–۶۹: متوسط</span>
+            <span class="text-rose-400">&lt;۵۵: ضعیف</span>
+          </div>
+        </div>
+
+        <div class="card p-6 flex flex-col justify-between">
+          <div>
+            <h2 class="text-cyan-400 font-bold text-base mb-3 flex items-center gap-2">
+              <span>🩺</span> تلفیق داده‌های عینی و ادراک ذهنی بیمار (PSQI)
+            </h2>
+            <div class="space-y-3 text-xs text-slate-300">
+              <div class="bg-slate-900/60 p-3 rounded border border-slate-800">
+                <strong class="text-white block mb-1">یکپارچگی استاندارد با پرسشنامه پیتزبورگ (PSQI):</strong>
+                <p class="text-slate-400 leading-relaxed">شامل هر ۷ مولفه بالینی (امتیاز کل ۰ تا ۲۱). ادراک ذهنی بیمار را مستقیماً در کنار سیگنال‌های عینی پلی‌سومنوگرافی قرار می‌دهد.</p>
+              </div>
+              <div class="bg-slate-900/60 p-3 rounded border border-slate-800">
+                <strong class="text-amber-400 block mb-1">تشخیص بی‌خوابی متناقض (Sleep State Misperception):</strong>
+                <p class="text-slate-400 leading-relaxed">سیستم با مقایسه PSQI و PSG، بیمارانی که حس نارضایتی شدید دارند (PSQI &gt; 12) ولی در آزمایش مغزی ساختار خواب کاملاً طبیعی دارند را فوراً شناسایی می‌کند.</p>
+              </div>
+              <div class="bg-slate-900/60 p-3 rounded border border-slate-800">
+                <strong class="text-teal-400 block mb-1">سنتز خودکار گزارش پزشکی با هوش مصنوعی:</strong>
+                <p class="text-slate-400 leading-relaxed">مدل زبانی هوشمند (<code class="text-slate-200 font-mono">gpt-6-luna</code>) بر اساس ۹۶ پارامتر و عمق پیوسته گزارش متنی ساختاریافته پزشکی تولید می‌کند که آماده تایید پزشک است.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-xs text-slate-500 flex justify-between border-t border-slate-800/80 pt-3">
+        <span>کاربرد بالینی: تبدیل ۹۶ پارامتر پیچیده مهندسی به یک شاخص قابل‌فهم برای بیمار و پزشک</span>
+        <span>فرمولاسیون شفاف و کاملاً قابل تفسیر</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 7 -->
+    <section class="slide" data-slide="7" data-time="۴:۵۵ – ۵:۴۵ | ۵۰s">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-teal-400 font-semibold text-xs tracking-widest uppercase">طراحی نرم‌افزار و معماری سامانه</span>
+          <h1 class="text-2xl font-extrabold text-white mt-1">معماری جامع سیستم و جریان پردازش داده‌ها</h1>
+          <p class="text-slate-400 text-xs mt-0.5">خط لوله پردازش ناهمگام و مقیاس‌پذیر از آپلود فایل EDF تا گزارش تشخیصی نهایی</p>
+        </div>
+        <div class="text-left">
+          <span class="text-xs font-mono text-cyan-400 bg-cyan-950/40 border border-cyan-800/60 px-3 py-1 rounded-full">اسلاید ۷ از ۹ • ۴:۵۵–۵:۴۵</span>
+        </div>
+      </div>
+
+      <div class="my-auto space-y-5">
+        <div class="grid grid-cols-4 gap-4">
+          <div class="card p-4 border-t-2 border-teal-500">
+            <span class="text-teal-400 font-mono text-xs font-bold block mb-1">۰۱ • آپلود و امنیت</span>
+            <p class="text-xs text-slate-300 leading-relaxed">• آپلود درگ‌اند‌دراپ EDF (تا ۵۰۰ مگابایت)<br>• فرم اختیاری ۷‌بخشی PSQI<br>• اتصال به پرونده بالینی بیمار<br>• احراز هویت امن JWT با کوکی</p>
+          </div>
+          <div class="card p-4 border-t-2 border-cyan-500">
+            <span class="text-cyan-400 font-mono text-xs font-bold block mb-1">۰۲ • آماده‌سازی سیگنال</span>
+            <p class="text-xs text-slate-300 leading-relaxed">• بازنمونه‌برداری به ۱۰۰ هرتز<br>• پنجره‌بندی خاموشی چراغ‌ها<br>• کنترل کیفیت و نگاشت کانال‌ها<br>• صف کارگران ناهمگام Celery</p>
+          </div>
+          <div class="card p-4 border-t-2 border-blue-500">
+            <span class="text-blue-400 font-mono text-xs font-bold block mb-1">۰۳ • موتورهای دوگانه AI</span>
+            <p class="text-xs text-slate-300 leading-relaxed">• <strong class="text-white">مدل اول:</strong> انسمبل ۴ مدله استیجینگ<br>• <strong class="text-white">مدل دوم:</strong> ترنسفورمر SDI عمق خواب<br>• استخراج همزمان احتمالات و اطمینان</p>
+          </div>
+          <div class="card p-4 border-t-2 border-emerald-500">
+            <span class="text-emerald-400 font-mono text-xs font-bold block mb-1">۰۴ • پلتفرم و گزارش بالینی</span>
+            <p class="text-xs text-slate-300 leading-relaxed">• امتیاز ۰ تا ۱۰۰ اسلیپ‌لنز<br>• موتور ۹۶ ویژگی بالینی<br>• گزارش خودکار متنی با LLM<br>• چت‌بات تشخیصی OpenCode</p>
+          </div>
+        </div>
+
+        <div class="card p-4 bg-slate-900/90 border border-slate-800">
+          <h2 class="text-white font-bold text-sm mb-3 flex items-center justify-between">
+            <span>استک فناوری و ارتباطات سیستم در بستر نرم‌افزاری کاملاً کانتینریزه (Docker & Compose)</span>
+            <span class="text-xs text-slate-400 font-normal">معماری مقیاس‌پذیر و مستقل</span>
+          </h2>
+          <div class="grid grid-cols-4 gap-4 text-xs font-mono">
+            <div class="p-2.5 rounded bg-slate-800/80 border border-slate-700">
+              <span class="text-teal-400 font-bold block font-sans">فرانت‌اند بالینی</span>
+              <span class="text-slate-300 text-[11px]">Next.js 14, TypeScript, Tailwind CSS, Zustand, React Query</span>
+            </div>
+            <div class="p-2.5 rounded bg-slate-800/80 border border-slate-700">
+              <span class="text-cyan-400 font-bold block font-sans">هسته بک‌اند</span>
+              <span class="text-slate-300 text-[11px]">Django REST Framework, PostgreSQL, Celery, Redis Broker</span>
+            </div>
+            <div class="p-2.5 rounded bg-slate-800/80 border border-slate-700">
+              <span class="text-blue-400 font-bold block font-sans">یادگیری ماشین</span>
+              <span class="text-slate-300 text-[11px]">PyTorch, MNE-Python, LightGBM, YASA, SciPy Signals</span>
+            </div>
+            <div class="p-2.5 rounded bg-slate-800/80 border border-slate-700">
+              <span class="text-emerald-400 font-bold block font-sans">هوش استدلالی</span>
+              <span class="text-slate-300 text-[11px]">gpt-6-luna (گزارش متنی), OpenCode local agent (مشاوره بالینی)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-xs text-slate-500 flex justify-between border-t border-slate-800/80 pt-3">
+        <span>معماری مستقل و نامتقارن: پردازش سنگین مدل‌ها هرگز درخواست‌های وب را مسدود نمی‌کند</span>
+        <span>میانگین زمان پردازش کامل هر شب: کمتر از ۳۵ ثانیه روی CPU معمولی</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 8 -->
+    <section class="slide" data-slide="8" data-time="۵:۴۵ – ۶:۳۰ | ۴۵s">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-teal-400 font-semibold text-xs tracking-widest uppercase">محصول نهایی و پنل پزشک</span>
+          <h1 class="text-2xl font-extrabold text-white mt-1">نمای وب‌اپلیکیشن بالینی (SleepLens UI/UX)</h1>
+          <p class="text-slate-400 text-xs mt-0.5">کابین خلبان تشخیصی جامع طراحی‌شده اختصاصی برای پزشکان و متخصصان تکنولوژی خواب</p>
+        </div>
+        <div class="text-left">
+          <span class="text-xs font-mono text-cyan-400 bg-cyan-950/40 border border-cyan-800/60 px-3 py-1 rounded-full">اسلاید ۸ از ۹ • ۵:۴۵–۶:۳۰</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-6 my-auto">
+        <div class="card p-5 border-r-2 border-teal-500">
+          <h2 class="text-teal-400 font-bold text-sm mb-2 flex items-center gap-1.5">
+            <span>🎯</span> کارت امتیاز اسلیپ‌لنز و شاخص‌های کلیدی (KPIs)
+          </h2>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            • <strong class="text-white">گیج دایره‌ای امتیاز ۰ تا ۱۰۰</strong> با تفکیک نموداری ۷ مولفه فیزیولوژیک.<br>
+            • <strong class="text-white">شاخص‌های اصلی:</strong> زمان خواب (۴۱۲.۵ دقیقه)، بهره‌وری (۸۸.۴٪)، تاخیر خواب (۱۴.۰ دقیقه)، بیداری پس از خواب (۳۸.۵ دقیقه)، تاخیر REM (۷۸.۰ دقیقه)، و میانگین اطمینان مدل (۹۱.۲٪).
+          </p>
+        </div>
+
+        <div class="card p-5 border-r-2 border-cyan-500">
+          <h2 class="text-cyan-400 font-bold text-sm mb-2 flex items-center gap-1.5">
+            <span>📊</span> هیپنوگرام تعاملی با لایه اطمینان مدل
+          </h2>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            • تایم‌لاین همگام‌شده مراحل خواب (Wake, REM, N1, N2, N3).<br>
+            • لایه بصری اطمینان مدل: بالا (≥۸۰٪)، متوسط (≥۶۰٪)، پایین (&lt;۶۰٪).<br>
+            • <strong class="text-amber-400">نشانگرهای پرچم بازبینی</strong> با یک کلیک برای ایپاک‌های مرزی با اطمینان پایین.
+          </p>
+        </div>
+
+        <div class="card p-5 border-r-2 border-blue-500">
+          <h2 class="text-blue-400 font-bold text-sm mb-2 flex items-center gap-1.5">
+            <span>📈</span> منحنی عمق پیوسته SDI و کاوشگر سیگنال خام
+          </h2>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            • <strong class="text-white">شکل‌موج پیوسته ۰ تا ۱ عمق خواب:</strong> نمایش چرخه‌های عمیق امواج آهسته مغز.<br>
+            • <strong class="text-white">کاوشگر بدون تاخیر سیگنال:</strong> بررسی آنی سیگنال‌های میکروولتی خام برای هر ایپاک ۳۰ ثانیه‌ای دلخواه (Fpz-Cz, Pz-Oz, EOG, EMG).
+          </p>
+        </div>
+
+        <div class="card p-5 border-r-2 border-emerald-500">
+          <h2 class="text-emerald-400 font-bold text-sm mb-2 flex items-center gap-1.5">
+            <span>💬</span> گزارش متنی خودکار و چت‌بات مشاور بالینی
+          </h2>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            • <strong class="text-white">گزارش تشخیصی با LLM:</strong> گزارش ساختاریافته مارک‌داون با امکان ویرایش و تایید پزشک.<br>
+            • <strong class="text-white">دستیار گفتگوی OpenCode:</strong> چت‌بات درون‌جلسه‌ای برای پاسخ به سوالات بالینی پزشک با اتکا به دیتای دقیق بیمار.
+          </p>
+        </div>
+      </div>
+
+      <div class="text-xs text-slate-500 flex justify-between border-t border-slate-800/80 pt-3">
+        <span>فرانت‌اند واکنش‌گرای Next.js • رابط کاربری پیشرفته بالینی با تم مدرن Slate & Teal</span>
+        <span>کاهش بیش از ۸۵ درصدی زمان بررسی پرونده توسط پزشک</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 9 -->
+    <section class="slide" data-slide="9" data-time="۶:۳۰ – ۷:۰۰ | ۳۰s">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-teal-400 font-semibold text-xs tracking-widest uppercase">جمع‌بندی و افق توسعه</span>
+          <h1 class="text-2xl font-extrabold text-white mt-1">عملکرد اجرایی، تاثیر بالینی و نقشه راه آینده</h1>
+          <p class="text-slate-400 text-xs mt-0.5">بنچ‌مارک‌های سرعت در دنیای واقعی، ارتقای بهره‌وری درمان و ترجمه به گجت‌های پوشیدنی</p>
+        </div>
+        <div class="text-left">
+          <span class="text-xs font-mono text-cyan-400 bg-cyan-950/40 border border-cyan-800/60 px-3 py-1 rounded-full">اسلاید ۹ از ۹ • ۶:۳۰–۷:۰۰</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-8 my-auto">
+        <div class="card p-6">
+          <h2 class="text-teal-400 font-bold text-base mb-3 flex items-center gap-2">
+            <span>⚡</span> بنچ‌مارک سرعت روی پردازنده معمولی (CPU بدون نیاز به GPU)
+          </h2>
+          <div class="space-y-2.5 text-xs">
+            <div class="flex justify-between p-2 rounded bg-slate-900/80 border border-slate-800">
+              <span class="text-slate-300">استنتاج هر ایپاک ۳۰ ثانیه‌ای</span>
+              <span class="font-mono text-teal-400 font-bold">۳.۷ تا ۴.۷ میلی‌ثانیه (×۶,۴۰۰ برابر بلادرنگ)</span>
+            </div>
+            <div class="flex justify-between p-2 rounded bg-slate-900/80 border border-slate-800">
+              <span class="text-slate-300">استنتاج یک شب کامل ۲۲ ساعته (۲,۶۵۰ ایپاک)</span>
+              <span class="font-mono text-cyan-400 font-bold">۱۲.۵ ثانیه (انسمبل استیجینگ)</span>
+            </div>
+            <div class="flex justify-between p-2 rounded bg-slate-900/80 border border-slate-800">
+              <span class="text-slate-300">استنتاج عمق پیوسته ترنسفورمر SDI</span>
+              <span class="font-mono text-slate-300 font-bold">۸.۲ ثانیه</span>
+            </div>
+            <div class="flex justify-between p-2 rounded bg-slate-900/80 border border-slate-800">
+              <span class="text-slate-300">استخراج ۹۶ پارامتر فیزیولوژیک</span>
+              <span class="font-mono text-slate-300 font-bold">۹.۸ ثانیه</span>
+            </div>
+            <div class="flex justify-between p-2 rounded bg-teal-950/40 border border-teal-700/60 font-semibold text-white">
+              <span>زمان کل پردازش شبانه</span>
+              <span class="font-mono text-teal-300 font-extrabold">کمتر از ۳۵ ثانیه برای کل شب!</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card p-6 flex flex-col justify-between">
+          <div>
+            <h2 class="text-cyan-400 font-bold text-base mb-3 flex items-center gap-2">
+              <span>🚀</span> نقشه راه ترجمه بالینی و توسعه آینده
+            </h2>
+            <div class="space-y-3 text-xs text-slate-300">
+              <div class="bg-slate-900/60 p-2.5 rounded border border-slate-800">
+                <strong class="text-white block mb-0.5">۱. به‌کارگیری گجت‌های پوشیدنی روزمره:</strong>
+                <p class="text-slate-400 text-[11px]">پیاده‌سازی مدل‌های جانشین آموزش‌دیده (ResUNet و WatchSleepNet) برای مچ‌بندهای هوشمند مبتنی بر اکتی‌گرافی و PPG بدون نیاز به اتصالات مغزی.</p>
+              </div>
+              <div class="bg-slate-900/60 p-2.5 rounded border border-slate-800">
+                <strong class="text-white block mb-0.5">۲. اسکورینگ تخصصی آپنه و ناهنجاری حرکتی:</strong>
+                <p class="text-slate-400 text-[11px]">ارتقای آشکارسازها به استانداردهای رسمی پزشکی برای سنجش شاخص آپنه-هایپوپنه (AHI) و سندروم پای بی‌قرار (PLMD).</p>
+              </div>
+              <div class="bg-slate-900/60 p-2.5 rounded border border-slate-800">
+                <strong class="text-white block mb-0.5">۳. کارآزمایی بالینی در مراکز متعدد:</strong>
+                <p class="text-slate-400 text-[11px]">اعتبارسنجی روی دیتابیس‌های چندمرکزی بین‌المللی (SHHS) و گروه‌های مبتلا به اختلالات عصبی (نظیر اختلال رفتاری خواب REM در پارکینسون).</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-xs text-slate-500 flex justify-between border-t border-slate-800/80 pt-3">
+        <span>اسلیپ‌لنز: ارائه دقت در سطح استاندارد طلایی با سرعت پردازش بلادرنگ</span>
+        <span>از توجه و همراهی شما سپاسگزاریم • پرسش و پاسخ</span>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Bottom Bar: Navigation Controls -->
+  <footer class="fixed bottom-0 left-0 right-0 h-11 bg-slate-900/90 backdrop-blur border-t border-slate-800 flex items-center justify-between px-8 text-xs font-mono text-slate-400 z-50">
+    <div class="flex items-center gap-2">
+      <button onclick="prevSlide()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded border border-slate-700 font-sans">◀ قبلی</button>
+      <button onclick="nextSlide()" class="px-2.5 py-1 bg-teal-600 hover:bg-teal-500 text-white font-semibold rounded font-sans">بعدی ▶</button>
+      <span class="mr-2 text-slate-500 font-sans">اسلاید <span id="current-slide-num" class="text-slate-200 font-bold font-mono">1</span> از ۹</span>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="w-1/3 bg-slate-800 h-1.5 rounded-full overflow-hidden">
+      <div id="progress-bar" class="bg-teal-500 h-full w-[11.1%] transition-all duration-300"></div>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <span id="slide-timing" class="text-cyan-400 font-semibold font-sans">۰:۰۰ – ۰:۴۵ | ۴۵s</span>
+    </div>
+  </footer>
+
+  <!-- Speaker Notes Drawer (Toggled with 'S' key or button) -->
+  <aside id="notes-drawer" class="fixed left-0 top-14 bottom-11 w-96 bg-slate-900/95 backdrop-blur border-r border-slate-800 p-6 z-40 transform -translate-x-full transition-transform duration-300 flex flex-col justify-between shadow-2xl">
+    <div>
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+        <h3 class="font-bold text-white text-sm flex items-center gap-1.5">
+          <span>📝</span> یادداشت‌های ارائه (متن برای ارائه‌دهنده)
+        </h3>
+        <button onclick="toggleNotes()" class="text-slate-500 hover:text-white text-xs">✕</button>
+      </div>
+      <div id="notes-target-time" class="text-xs font-mono text-teal-400 bg-teal-950/40 p-2 rounded border border-teal-800 mb-4">
+        زمان هدف: ۰:۰۰ تا ۰:۴۵ (۴۵ ثانیه)
+      </div>
+      <div id="notes-content" class="text-xs text-slate-300 leading-relaxed space-y-2 font-sans">
+        <!-- Injected dynamically -->
+      </div>
+    </div>
+    <div class="text-[10px] text-slate-500 border-t border-slate-800 pt-3 font-sans">
+      راهنما: با زدن کلید <kbd class="px-1 py-0.5 bg-slate-800 rounded text-slate-300 border border-slate-700 font-mono">Space</kbd> یا <kbd class="px-1 py-0.5 bg-slate-800 rounded text-slate-300 border border-slate-700 font-mono">→</kbd> اسلاید بعدی می‌رود.
+    </div>
+  </aside>
+
+  <script>
+    const speakerNotesFA = {
+      1: "زمان هدف: ۰:۰۰ تا ۰:۴۵ (۴۵ ثانیه)\n\nسلام و درود. امروز پروژه اسلیپ‌لنز (SleepLens) را خدمت شما معرفی می‌کنیم؛ یک پلتفرم جامع هوش مصنوعی برای ارزیابی بالینی خواب. در پزشکی خواب، ثبت پلی‌سومنوگرافی استاندارد طلایی است، اما تحلیل آن ساعت‌ها زمان می‌برد و پیچیدگی مغز را به ۵ استیج گسسته تقلیل می‌دهد. ما با معماری دومرحله‌ای این چالش را حل کردیم: مرحله اول یک انسمبل دقیق برای استیجینگ ۳۰ ثانیه‌ای با تخمین اطمینان است، و مرحله دوم یک شبکه ترنسفورمر عمق پیوسته خواب همراه با استخراج ۹۶ پارامتر بالینی است که در قالب یک وب‌سایت در اختیار پزشک قرار می‌گیرد.",
+      2: "زمان هدف: ۰:۴۵ تا ۱:۳۰ (۴۵ ثانیه)\n\nبرای اطمینان از اعتبار علمی، ما بنچ‌مارک کامل Sleep-EDF Expanded را با ۱۹۷ شب و ۲۳۸ هزار ایپاک به کار بردیم. برخلاف بسیاری از مقالات که دچار نشت سوژه بین فولدها هستند، ما فولدبندی کاملا سوژه‌محور انجام دادیم. هر دو کوهورت خانگی و کلینیکی به طور جداگانه تست شدند. تمامی سیگنال‌ها به ۱۰۰ هرتز استاندارد رسانده شدند و با پنجره‌بندی هوشمند، داده‌های غیرواقعی بیداری قبل از خواب حذف شدند.",
+      3: "زمان هدف: ۱:۳۰ تا ۲:۲۵ (۵۵ ثانیه)\n\nبرای دسته‌بندی استیج‌های خواب، ما ۲۵ پیکربندی مختلف را بنچ‌مارک کردیم. مدل‌های سنتی مثل YASA در استیج دشوار N1 تنها به دقت ۱۰ درصد می‌رسند. مدل‌های یادگیری عمیق مانند AnySleep عملکرد فوق‌العاده 0.8267 را ثبت کردند. اما سیستم نهایی ما، انسمبل E19 با ترکیب AnySleep و U-Sleep و مدل آماری LightGBM به رکورد F1 ماکرو 0.8425 و ضریب کاپای 0.831 رسید. جالب اینجاست که مدل آماری LightGBM به دلیل تفاوت در فضای ویژگی توانست خطاهای مدل‌های عمیق را به خوبی جبران کند.",
+      4: "زمان هدف: ۲:۲۵ تا ۳:۱۵ (۵۰ ثانیه)\n\nدو سوال عملی مهم: آیا می‌توان این سیستم را با یک گجت پوشیدنی ساده اجرا کرد و آیا هوش مصنوعی ما قابل تفسیر است؟ نتایج تحلیل حذف سنسورها نشان داد با فقط ۲ سنسور—یک الکترود پیشانی و یک سنسور چشم—می‌توان به دقت 0.8227 رسید که فقط 0.004 با سیستم کامل فاصله دارد. همچنین لایه‌های توجه شبکه دقیقا رفتار پزشک را تقلید می‌کنند: در بیداری به ریتم آلفا در پشت سر نگاه می‌کنند و در خواب REM پنجاه و دو درصد توجه به سنسور چشم می‌رود. خروجی اطمینان مدل نیز به قدری دقیق کالیبره شده که ایپاک‌های با اطمینان بالای ۹۰ درصد، دقت ۹۹.۵ درصدی دارند.",
+      5: "زمان هدف: ۳:۱۵ تا ۴:۰۵ (۵۰ ثانیه)\n\nدر مدل مرحله دوم، ما از محدودیت هیپنوگرام ۵ مرحله‌ای عبور کردیم. ما شبکه ترنسفورمر SDI منتشر شده در ژورنال معتبر npj Digital Medicine 2025 را پیاده‌سازی کردیم. این مدل یک عدد پیوسته بین صفر و یک برای عمق خواب در هر ایپاک تولید می‌کند. همگام با این مدل، موتور استخراج فیزیولوژیک ما ۹۶ پارامتر بالینی را اندازه می‌گیرد: پیوستگی خواب، ماتریس گذار مارکوف بین مراحل، توان باندهای فرکانسی مغز، و نشانگرهای ریزساختاری مثل چگالی دوک‌های خواب و آتونی عضلانی در REM.",
+      6: "زمان هدف: ۴:۰۵ تا ۴:۵۵ (۵۰ ثانیه)\n\nبرای تبدیل این حجم از متغیرها به یک گزارش قابل فهم، ما امتیاز جامع اسلیپ‌لنز را طراحی کردیم. این امتیاز یک جعبه سیاه مبهم نیست؛ بلکه یک شاخص ۱۰۰ امتیازی کاملا شفاف است: ۲۵٪ بهره‌وری خواب، ۲۵٪ عمق پیوسته، ۲۰٪ پیوستگی و پایداری، و مابقی مربوط به خواب عمیق N3، خواب REM، تاخیر خواب و عدم پراکندگی است. علاوه بر این، ما پرسشنامه استاندارد پیتزبورگ (PSQI) را در سامانه تعبیه کردیم تا با تطبیق حس ذهنی بیمار و سیگنال‌های عینی، اختلالاتی مثل بی‌خوابی متناقض یا حس بیداری کاذب به سرعت کشف شوند.",
+      7: "زمان هدف: ۴:۵۵ تا ۵:۴۵ (۵۰ ثانیه)\n\nدر این اسلاید معماری مهندسی سامانه اسلیپ‌لنز را مشاهده می‌کنید. پزشک یا اپراتور فایل خام EDF را از طریق پنل مدرن Next.js آپلود می‌کند. بک‌اند جانگو درخواست را اعتبارسنجی کرده و پردازش سنگین را به کارگران Celery با صف ردیس می‌سپارد. سیگنال‌ها همگن‌سازی شده و همزمان به دو مدل هدایت می‌شوند: انسمبل استیجینگ و ترنسفورمر عمق خواب. داده‌ها همراه با ۹۶ ویژگی در پایگاه داده ذخیره شده و مدل زبانی هوشمند گزارش تشخیصی را تدوین می‌کند، در حالی که ایجنت محلی OpenCode به سوالات پزشک پاسخ می‌دهد.",
+      8: "زمان هدف: ۵:۴۵ تا ۶:۳۰ (۴۵ ثانیه)\n\nدر این اسلاید رابط کاربری اسلیپ‌لنز را می‌بینید. در داشبورد، پزشک امتیاز کیفی خواب و شاخص‌های کلیدی را در یک نگاه بررسی می‌کند. هیپنوگرام تعاملی به همراه میزان اطمینان مدل نمایش داده می‌شود و ایپاک‌های مبهم با پرچم زرد مشخص شده‌اند تا پزشک بتواند با یک کلیک آن‌ها را بازبینی کند. همچنین منحنی پیوسته عمق خواب، کاوشگر سیگنال‌های خام میکروولتی مغز برای هر ۳۰ ثانیه، پیش‌نویس گزارش متنی، و چت‌بات دستیار تشخیصی، زمان اسکورینگ را از ۹۰ دقیقه به چند دقیقه کاهش می‌دهند.",
+      9: "زمان هدف: ۶:۳۰ تا ۷:۰۰ (۳۰ ثانیه)\n\nدر جمع‌بندی، اسلیپ‌لنز با کسب نمره F1 معادل 0.8425 و کاپای 0.831 در استیجینگ، و پردازش کامل یک شب ظرف کمتر از ۳۵ ثانیه روی پردازنده‌های معمولی، پلی میان هوش مصنوعی پیشرفته و نیازهای روزمره کلینیک‌های خواب ایجاد کرده است. همچنین اثبات کارایی چیدمان ۲ سنسوره راه را برای هدبندهای خانگی هموار می‌کند. اسلیپ‌لنز زمان پزشک را ۸۵ درصد کاهش داده و کیفیت مراقبت از بیمار را ارتقا می‌بخشد. از توجه شما بسیار متشکرم."
+    };
+
+    let currentSlide = 1;
+    const totalSlides = 9;
+    const slides = document.querySelectorAll('.slide');
+    const dotsContainer = document.getElementById('slide-dots');
+
+    for (let i = 1; i <= totalSlides; i++) {
+      const dot = document.createElement('button');
+      dot.className = `h-2 rounded-full transition-all duration-300 ${i === 1 ? 'w-6 bg-teal-400' : 'w-2 bg-slate-700 hover:bg-slate-500'}`;
+      dot.title = `اسلاید ${i}`;
+      dot.onclick = () => goToSlide(i);
+      dotsContainer.appendChild(dot);
+    }
+
+    function updateSlide() {
+      slides.forEach((s, idx) => {
+        if (idx + 1 === currentSlide) {
+          s.classList.add('active');
+        } else {
+          s.classList.remove('active');
+        }
+      });
+
+      const dots = dotsContainer.children;
+      for (let i = 0; i < dots.length; i++) {
+        if (i + 1 === currentSlide) {
+          dots[i].className = 'h-2 w-6 bg-teal-400 rounded-full transition-all duration-300';
+        } else {
+          dots[i].className = 'h-2 w-2 bg-slate-700 hover:bg-slate-500 rounded-full transition-all duration-300';
+        }
+      }
+
+      document.getElementById('current-slide-num').innerText = currentSlide;
+      document.getElementById('progress-bar').style.width = `${(currentSlide / totalSlides) * 100}%`;
+      const activeSlideElem = document.querySelector(`.slide[data-slide="${currentSlide}"]`);
+      document.getElementById('slide-timing').innerText = activeSlideElem.getAttribute('data-time') || '';
+
+      const notes = speakerNotesFA[currentSlide] || "یادداشتی برای این اسلاید وجود ندارد.";
+      const lines = notes.split('\n\n');
+      document.getElementById('notes-target-time').innerText = lines[0] || '';
+      document.getElementById('notes-content').innerText = lines.slice(1).join('\n\n');
+    }
+
+    function goToSlide(n) {
+      if (n >= 1 && n <= totalSlides) {
+        currentSlide = n;
+        updateSlide();
+      }
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides) {
+        currentSlide++;
+        updateSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 1) {
+        currentSlide--;
+        updateSlide();
+      }
+    }
+
+    // Keyboard navigation (RTL-aware: Left Arrow / Space / PageDown advances)
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft' || e.key === ' ' || e.key === 'PageDown') {
+        nextSlide();
+      } else if (e.key === 'ArrowRight' || e.key === 'PageUp') {
+        prevSlide();
+      } else if (e.key === 'f' || e.key === 'F') {
+        toggleFullscreen();
+      } else if (e.key === 's' || e.key === 'S') {
+        toggleNotes();
+      } else if (e.key === 't' || e.key === 'T') {
+        toggleTimer();
+      }
+    });
+
+    let notesOpen = false;
+    function toggleNotes() {
+      notesOpen = !notesOpen;
+      const drawer = document.getElementById('notes-drawer');
+      if (notesOpen) {
+        drawer.classList.remove('-translate-x-full');
+      } else {
+        drawer.classList.add('-translate-x-full');
+      }
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+
+    let timerRunning = false;
+    let timerSeconds = 0;
+    let timerInterval = null;
+
+    function toggleTimer() {
+      timerRunning = !timerRunning;
+      const btn = document.getElementById('timer-btn');
+      if (timerRunning) {
+        btn.innerText = '⏸';
+        timerInterval = setInterval(() => {
+          timerSeconds++;
+          const mins = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
+          const secs = String(timerSeconds % 60).padStart(2, '0');
+          const display = document.getElementById('timer-display');
+          display.innerText = `${mins}:${secs}`;
+          if (timerSeconds > 420) {
+            display.classList.remove('text-teal-400');
+            display.classList.add('text-rose-400');
+          }
+        }, 1000);
+      } else {
+        btn.innerText = '▶';
+        clearInterval(timerInterval);
+      }
+    }
+
+    updateSlide();
+  </script>
+</body>
+</html>

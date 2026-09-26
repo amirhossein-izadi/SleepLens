@@ -1,0 +1,19 @@
+{
+  "mrn": "ST716",
+  "age": 79,
+  "sex": "female",
+  "nights": {
+    "night_1": {
+      "psg_file": "ST7161J0-PSG.edf",
+      "hypnogram_file": "ST7161JM-Hypnogram.edf",
+      "lights_off": "23:18:00",
+      "condition": "Temazepam"
+    },
+    "night_2": {
+      "psg_file": "ST7162J0-PSG.edf",
+      "hypnogram_file": "ST7162JM-Hypnogram.edf",
+      "lights_off": "23:21:00",
+      "condition": "Placebo"
+    }
+  }
+}
