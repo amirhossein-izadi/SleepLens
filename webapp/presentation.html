@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SleepLens Presentation — 7-Minute Slide Deck</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0b0f17;
+      color: #f8fafc;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      width: 100vw;
+    }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    .slide {
+      display: none;
+      height: 100vh;
+      width: 100vw;
+      box-sizing: border-box;
+      padding: 2.5rem 3.5rem;
+      flex-direction: column;
+      justify-content: space-between;
+      opacity: 0;
+      transition: opacity 0.25s ease-in-out;
+    }
+    .slide.active {
+      display: flex;
+      opacity: 1;
+    }
+    .card {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(51, 65, 85, 0.7);
+      border-radius: 0.75rem;
+    }
+    .glow-teal {
+      box-shadow: 0 0 25px -5px rgba(20, 184, 166, 0.25);
+    }
+  </style>
+</head>
+<body class="select-none">
+
+  <!-- Top Navigation & Timer Bar -->
+  <div class="fixed top-0 left-0 right-0 h-14 bg-slate-900/80 backdrop-blur border-b border-slate-800 flex items-center justify-between px-8 z-50">
+    <div class="flex items-center gap-3">
+      <div class="h-8 w-8 rounded-lg bg-teal-500/20 border border-teal-500/50 flex items-center justify-center text-teal-400 font-bold text-sm">SL</div>
+      <span class="font-bold text-slate-100 tracking-wide">Sleep<span class="text-teal-400">Lens</span></span>
+      <span class="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700 ml-2">7-Min Clinical Deck</span>
+    </div>
+
+    <!-- Slide Indicators -->
+    <div class="flex items-center gap-1.5" id="slide-dots"></div>
+
+    <!-- Timer & Controls -->
+    <div class="flex items-center gap-4 text-sm font-mono">
+      <div class="flex items-center gap-2 bg-slate-800/80 px-3 py-1 rounded-md border border-slate-700 text-slate-300">
+        <span class="text-xs text-slate-500">TIMER</span>
+        <span id="timer-display" class="text-teal-400 font-semibold">00:00</span>
+        <span class="text-xs text-slate-500">/ 07:00</span>
+        <button id="timer-btn" onclick="toggleTimer()" class="ml-1 text-xs hover:text-white text-slate-400" title="Start/Pause Timer">▶</button>
+      </div>
+
+      <button onclick="toggleNotes()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700 text-xs flex items-center gap-1">
+        <span>📝</span> Notes <span class="text-slate-500">(S)</span>
+      </button>
+
+      <button onclick="toggleFullscreen()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700 text-xs">
+        ⛶ <span class="text-slate-500">(F)</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Slides Container -->
+  <main class="w-full h-full pt-14 pb-12">
+
+    <!-- SLIDE 1 -->
+    <section class="slide active" data-slide="1" data-time="0:00 – 0:45 | 45s">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-teal-400 font-semibold text-xs tracking-widest uppercase">Executive Summary • Hackathon Final</span>
+          <h1 class="text-4xl font-extrabold text-white mt-1">SleepLens: Dual-Tier AI for Sleep Stage Classification & Sleep Quality Assessment</h1>
+          <p class="text-cyan-400 text-base mt-1">Bridging 30-Second Discrete Staging with Continuous Depth Dynamics & Microstructural Phenotyping</p>
+        </div>
+        <div class="text-right">
+          <span class="text-xs font-mono text-cyan-400 bg-cyan-950/40 border border-cyan-800/60 px-3 py-1 rounded-full">Slide 1 of 9 • 0:00–0:45</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-6 my-auto">
+        <div class="card p-6 border-l-4 border-amber-500">
+          <div class="flex items-center gap-2 text-amber-400 font-semibold text-sm mb-3">
+            <span>⚠️</span> The Clinical Bottleneck
+          </div>
+          <ul class="text-sm text-slate-300 space-y-2.5 leading-relaxed">
+            <li>• Standard overnight PSG requires <strong class="text-white">1.5–2 hours</strong> of manual human visual scoring.</li>
+            <li>• Inter-scorer agreement is low on transitions (<strong class="text-amber-400">N1 &lt; 60%</strong>).</li>
+            <li>• Coarse 5-stage AASM scoring discards continuous sleep depth and cortical synchronization dynamics.</li>
+          </ul>
+        </div>
+
+        <div class="card p-6 border-l-4 border-cyan-500 glow-teal">
+          <div class="flex items-center gap-2 text-cyan-400 font-semibold text-sm mb-3">
+            <span>🧠</span> Dual-Tier AI Engine
+          </div>
+          <ul class="text-sm text-slate-300 space-y-2.5 leading-relaxed">
+            <li>• <strong class="text-white">Tier 1 (Staging):</strong> 4-Model Ensemble Macro-F1 <strong class="text-teal-300 font-mono">0.8425</strong> (Cohen's κ 0.831) across 237,936 epochs.</li>
+            <li>• <strong class="text-white">Tier 2 (Depth):</strong> SDI Transformer (<em class="text-slate-400">npj Digital Med 2025</em>) continuous 0–1 depth trajectory + 96 clinical parameters.</li>
+            <li>• <strong class="text-white">Minimal Sensors:</strong> 2-sensor montage (Fpz+EOG) retains <strong class="text-cyan-300">99.5%</strong> F1!</li>
+          </ul>
+        </div>
+
+        <div class="card p-6 border-l-4 border-emerald-500">
+          <div class="flex items-center gap-2 text-emerald-400 font-semibold text-sm mb-3">
+            <span>💻</span> Production Platform
+          </div>
+          <ul class="text-sm text-slate-300 space-y-2.5 leading-relaxed">
+            <li>• Full-stack clinical webapp: <strong class="text-white">Next.js 14 + Django REST</strong>.</li>
+            <li>• Interactive hypnograms, continuous depth curves, and raw microvolt signals explorer.</li>
+            <li>• <strong class="text-white">Automated LLM clinical report</strong> + OpenCode interactive diagnostic assistant.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="text-xs text-slate-500 flex justify-between border-t border-slate-800/80 pt-3">
+        <span>SleepLens Platform • Confidential & Clinical Research Prototype</span>
+        <span>Use arrow keys (← →) or space to navigate</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 2 -->
+    <section class="slide" data-slide="2" data-time="0:45 – 1:30 | 45s">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-teal-400 font-semibold text-xs tracking-widest uppercase">Benchmark & Experimental Integrity</span>
+          <h1 class="text-3xl font-extrabold text-white mt-1">Dataset, Preprocessing & Standardization</h1>
+          <p class="text-slate-400 text-sm mt-0.5">Sleep-EDF Expanded: Full 197 nights with leakage-free subject-atomic cross-validation</p>
+        </div>
+        <div class="text-right">
+          <span class="text-xs font-mono text-cyan-400 bg-cyan-950/40 border border-cyan-800/60 px-3 py-1 rounded-full">Slide 2 of 9 • 0:45–1:30</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-8 my-auto">
+        <div class="card p-6">
+          <h2 class="text-teal-400 font-bold text-lg mb-4 flex items-center gap-2">
+            <span>📊</span> Full Benchmark: Sleep-EDF Expanded (PhysioNet)
+          </h2>
+          <div class="space-y-3 text-sm text-slate-300">
+            <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
+              <span class="text-white font-semibold block mb-1">Scale & Volume</span>
+              <span>197 all-night recordings • <strong class="text-teal-300 font-mono">237,936 epochs</strong> (~2,000 hours of PSG).</span>
+            </div>
+            <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
+              <span class="text-white font-semibold block mb-1">Dual-Cohort Validation (Never Confounded)</span>
+              <ul class="text-xs space-y-1 text-slate-400">
+                <li>• <strong class="text-slate-200">Sleep Cassette (SC):</strong> 153 recordings (ambulatory healthy subjects in home environments).</li>
+                <li>• <strong class="text-slate-200">Sleep Telemetry (ST):</strong> 44 recordings (in-patient hospital sleep clinic).</li>
+              </ul>
+            </div>
+            <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
+              <span class="text-white font-semibold block mb-1">Leakage-Free Protocol: Subject-Atomic 5-Fold CV</span>
+              <span class="text-xs text-slate-400">Zero subject overlap across training, parameter selection, and evaluation folds (<code class="text-cyan-400">folds5_v3</code>).</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card p-6">
+          <h2 class="text-cyan-400 font-bold text-lg mb-4 flex items-center gap-2">
+            <span>⚙️</span> Signal Harmonization & Preprocessing
+          </h2>
+          <div class="space-y-3.5 text-sm text-slate-300">
+            <div class="flex items-start gap-3">
+              <div class="h-6 w-6 rounded bg-cyan-950 text-cyan-400 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">1</div>
+              <div>
+                <strong class="text-white">Canonical 100 Hz Resampling:</strong>
+                <p class="text-xs text-slate-400 mt-0.5">Anti-aliasing polyphase filtering across all raw microvolt input channels.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="h-6 w-6 rounded bg-cyan-950 text-cyan-400 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">2</div>
+              <div>
+                <strong class="text-white">Electrode Standardization:</strong>
+                <p class="text-xs text-slate-400 mt-0.5">Frontal EEG (<code class="text-slate-300">Fpz-Cz</code>), Occipital EEG (<code class="text-slate-300">Pz-Oz</code>), Eye (<code class="text-slate-300">EOG horiz</code>), Chin (<code class="text-slate-300">EMG submental</code>).</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="h-6 w-6 rounded bg-cyan-950 text-cyan-400 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">3</div>
+              <div>
+                <strong class="text-white">Lights-Off Windowing (BENCHMARK_30):</strong>
+                <p class="text-xs text-slate-400 mt-0.5">Cuts artificial daytime waking padding while preserving sleep onset and offset transition physiology.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-xs text-slate-500 flex justify-between border-t border-slate-800/80 pt-3">
+        <span>Evaluation Protocol: Subject-disjoint 5-fold cross validation with unified benchmark windowing</span>
+        <span>BENCHMARK_30 Window: 237,936 valid epochs</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 3 -->
+    <section class="slide" data-slide="3" data-time="1:30 – 2:25 | 55s">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-teal-400 font-semibold text-xs tracking-widest uppercase">Tier 1 AI Model</span>
+          <h1 class="text-3xl font-extrabold text-white mt-1">30-Second Sleep Stage Classification (SSC)</h1>
+          <p class="text-slate-400 text-sm mt-0.5">Systematic benchmark of 25+ configurations across all 197 nights</p>
+        </div>
+        <div class="text-right">
+          <span class="text-xs font-mono text-cyan-400 bg-cyan-950/40 border border-cyan-800/60 px-3 py-1 rounded-full">Slide 3 of 9 • 1:30–2:25</span>
+        </div>
+      </div>
+
+      <div class="my-auto space-y-4">
+        <div class="overflow-hidden rounded-lg border border-slate-700 bg-slate-900/80">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-800/90 text-cyan-400 font-mono uppercase border-b border-slate-700">
+              <tr>
+                <th class="p-2.5">Run</th>
+                <th class="p-2.5">Architecture / Montage</th>
+                <th class="p-2.5 text-center">Macro-F1</th>
+                <th class="p-2.5 text-center">SC F1</th>
+                <th class="p-2.5 text-center">ST F1</th>
+                <th class="p-2.5 text-center">N1 (Hardest)</th>
+                <th class="p-2.5 text-center">N2</th>
+                <th class="p-2.5 text-center">N3 (Deep)</th>
+                <th class="p-2.5 text-center">REM</th>
+                <th class="p-2.5 text-center">Cohen's κ</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800 text-slate-300 font-mono">
+              <tr class="bg-teal-950/30 text-white font-bold border-l-4 border-teal-400">
+                <td class="p-2.5 text-teal-300 font-bold">E19 (Best)</td>
+                <td class="p-2.5 text-white">4-Model Diverse Ensemble (ANY3ch + ANY2ch + USleep + LGBM)</td>
+                <td class="p-2.5 text-center text-teal-300 text-sm font-extrabold">0.8425</td>
+                <td class="p-2.5 text-center">0.836</td>
+                <td class="p-2.5 text-center">0.865</td>
+                <td class="p-2.5 text-center text-teal-300">0.635</td>
+                <td class="p-2.5 text-center">0.892</td>
+                <td class="p-2.5 text-center">0.833</td>
+                <td class="p-2.5 text-center text-teal-300">0.915</td>
+                <td class="p-2.5 text-center text-teal-300">0.831</td>
+              </tr>
+              <tr>
+                <td class="p-2 text-slate-400">E11</td>
+                <td class="p-2">AnySleep 3ch (Fpz+Pz+EOG) — Best Single Model</td>
+                <td class="p-2 text-center text-white font-semibold">0.8267</td>
+                <td class="p-2 text-center">0.809</td>
+                <td class="p-2 text-center">0.878</td>
+                <td class="p-2 text-center">0.622</td>
+                <td class="p-2 text-center">0.880</td>
+                <td class="p-2 text-center">0.788</td>
+                <td class="p-2 text-center">0.904</td>
+                <td class="p-2 text-center">0.812</td>
+              </tr>
+              <tr>
+                <td class="p-2 text-slate-400">E11d</td>
+                <td class="p-2">AnySleep 2-Sensor (Fpz+EOG) — Best 2-Sensor</td>
+                <td class="p-2 text-center text-white font-semibold">0.8227</td>
+                <td class="p-2 text-center">0.811</td>
+                <td class="p-2 text-center">0.865</td>
+                <td class="p-2 text-center">0.592</td>
+                <td class="p-2 text-center">0.880</td>
+                <td class="p-2 text-center">0.812</td>
+                <td class="p-2 text-center">0.905</td>
+                <td class="p-2 text-center">0.808</td>
+              </tr>
+              <tr>
+                <td class="p-2 text-slate-400">E20</td>
+                <td class="p-2">RobustSleepNet Fpz (Clean Baseline — No Sleep-EDF)</td>
+                <td class="p-2 text-center">0.7501</td>
+                <td class="p-2 text-center">0.736</td>
+                <td class="p-2 text-center">0.788</td>
+                <td class="p-2 text-center">0.442</td>
+                <td class="p-2 text-center">0.828</td>
+                <td class="p-2 text-center">0.717</td>
+                <td class="p-2 text-center">0.855</td>
+                <td class="p-2 text-center">0.724</td>
+              </tr>
+              <tr>
+                <td class="p-2 text-slate-400">E00</td>
+                <td class="p-2">LightGBM (11 Spectral/Bandpower Features)</td>
+                <td class="p-2 text-center">0.6672</td>
+                <td class="p-2 text-center">—</td>
+                <td class="p-2 text-center">—</td>
+                <td class="p-2 text-center">0.339</td>
+                <td class="p-2 text-center">0.752</td>
+                <td class="p-2 text-center">0.687</td>
+                <td class="p-2 text-center">0.585</td>
+                <td class="p-2 text-center">0.612</td>
+              </tr>
+              <tr>
+                <td class="p-2 text-slate-400">E01</td>
+                <td class="p-2">YASA Clinical Baseline (Fpz-Cz Random Forest)</td>
+                <td class="p-2 text-center text-rose-400">0.5225</td>
+                <td class="p-2 text-center">0.486</td>
+                <td class="p-2 text-center">0.611</td>
+                <td class="p-2 text-center text-rose-400">0.100</td>
+                <td class="p-2 text-center">0.737</td>
+                <td class="p-2 text-center">0.538</td>
+                <td class="p-2 text-center">0.557</td>
+                <td class="p-2 text-center">0.473</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card p-4 grid grid-cols-3 gap-4 text-xs">
+          <div>
+            <strong class="text-teal-400 block mb-1">1. Diversity Beats Scale</strong>
+            <span class="text-slate-300">Adding weak LightGBM (0.667) boosted deep models by <strong class="text-white">+0.016</strong> F1 because it operates on orthogonal spectral features rather than raw waveforms.</span>
+          </div>
+          <div>
+            <strong class="text-cyan-400 block mb-1">2. Record Class Breakdown</strong>
+            <span class="text-slate-300">Winning ensemble sets records on all 4 sleep stages: <strong class="text-white">N1 (0.635)</strong>, <strong class="text-white">N2 (0.892)</strong>, <strong class="text-white">N3 (0.833)</strong>, and <strong class="text-white">REM (0.915)</strong>.</span>
+          </div>
+          <div>
+            <strong class="text-amber-400 block mb-1">3. Viterbi Rejected</strong>
+            <span class="text-slate-300">Viterbi transition prior degraded performance (0.8267 → 0.8259) because AnySleep already has an intrinsic <strong class="text-white">14-minute receptive field</strong>.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-xs text-slate-500 flex justify-between border-t border-slate-800/80 pt-3">
+        <span>Winning 4-member ensemble: Fold-honest OOF evaluation agreement across all 5 folds</span>
+        <span>Cohen's κ = 0.831 (Matches expert human consensus)</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 4 -->
+    <section class="slide" data-slide="4" data-time="2:25 – 3:15 | 50s">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-teal-400 font-semibold text-xs tracking-widest uppercase">SSC Engineering Insights</span>
+          <h1 class="text-3xl font-extrabold text-white mt-1">Sensor Ablation & Explainable AI (XAI)</h1>
+          <p class="text-slate-400 text-sm mt-0.5">Finding the minimal wearable configuration and auditing deep network attention</p>
+        </div>
+        <div class="text-right">
+          <span class="text-xs font-mono text-cyan-400 bg-cyan-950/40 border border-cyan-800/60 px-3 py-1 rounded-full">Slide 4 of 9 • 2:25–3:15</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-8 my-auto">
+        <div class="card p-6">
+          <h2 class="text-teal-400 font-bold text-base mb-3 flex items-center gap-2">
+            <span>🔌</span> Channel Ablation: Minimal Hardware Montage
+          </h2>
+          <div class="space-y-3 text-xs">
+            <div class="flex items-center justify-between p-2 rounded bg-slate-900/80 border border-slate-800">
+              <span class="text-slate-200 font-medium">Full 3-Channel (Fpz-Cz + Pz-Oz + EOG)</span>
+              <span class="font-mono text-teal-400 font-bold">0.8267 F1 (Ref)</span>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded bg-teal-950/40 border border-teal-700/60 text-white font-semibold">
+              <span class="flex items-center gap-1.5"><span class="text-teal-400">★</span> 2-Sensor Setup (Fpz-Cz + EOG)</span>
+              <span class="font-mono text-cyan-300 font-bold">0.8227 F1 (-0.004 Δ)</span>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded bg-slate-900/80 border border-slate-800 text-slate-300">
+              <span>Dual EEG (Fpz-Cz + Pz-Oz, no EOG)</span>
+              <span class="font-mono text-slate-400">0.8134 F1 (-0.013 Δ)</span>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded bg-slate-900/80 border border-slate-800 text-slate-300">
+              <span>Single Frontal EEG (Fpz-Cz Only)</span>
+              <span class="font-mono text-slate-400">0.8015 F1 (-0.025 Δ)</span>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded bg-slate-900/80 border border-slate-800 text-slate-300">
+              <span>Single Occipital EEG (Pz-Oz Only)</span>
+              <span class="font-mono text-slate-400">0.7736 F1 (-0.053 Δ)</span>
+            </div>
+            <p class="text-slate-400 text-xs mt-2 leading-relaxed">
+              <strong class="text-white">Clinical Finding:</strong> Pz-Oz is droppable. Adding EOG to frontal EEG captures ocular dipole saccades directly, boosting <strong class="text-teal-300">REM recall to 0.913</strong> (vs 0.897 on 3-channel).
+            </p>
+          </div>
+        </div>
+
+        <div class="card p-6">
+          <h2 class="text-cyan-400 font-bold text-base mb-3 flex items-center gap-2">
+            <span>🔍</span> Attention Routing & Uncertainty Calibration
+          </h2>
+          <div class="space-y-3.5 text-xs text-slate-300">
+            <div>
+              <span class="text-white font-semibold block mb-1">Layer 12 Skip-Connection Channel Attention:</span>
+              <div class="grid grid-cols-3 gap-2 text-center font-mono">
+                <div class="bg-slate-900/80 p-2 rounded border border-slate-800">
+                  <span class="text-slate-400 block text-[10px]">WAKE</span>
+                  <span class="text-cyan-400 font-bold">67.2% Pz</span>
+                  <span class="text-slate-500 block text-[9px]">Alpha rhythm</span>
+                </div>
+                <div class="bg-slate-900/80 p-2 rounded border border-slate-800">
+                  <span class="text-slate-400 block text-[10px]">N3 DEEP</span>
+                  <span class="text-teal-400 font-bold">93.0% EEG</span>
+                  <span class="text-slate-500 block text-[9px]">Slow waves</span>
+                </div>
+                <div class="bg-slate-900/80 p-2 rounded border border-slate-800">
+                  <span class="text-slate-400 block text-[10px]">REM</span>
+                  <span class="text-amber-400 font-bold">52.0% EOG</span>
+                  <span class="text-slate-500 block text-[9px]">Saccades</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="border-t border-slate-800 pt-3">
+              <span class="text-white font-semibold block mb-1">Monotonic Confidence Calibration:</span>
+              <ul class="space-y-1 text-slate-400">
+                <li>• Conf ≥ 0.90 (<strong class="text-slate-200">30.3% of night</strong>): <strong class="text-emerald-400 font-mono">99.5% accuracy</strong>.</li>
+                <li>• Conf &lt; 0.60 (<strong class="text-slate-200">~15% of night</strong>): Flagged as <code class="text-amber-400">needs_review: true</code>.</li>
+                <li>• <strong class="text-slate-200">Doctor-in-the-Loop:</strong> Clinicians review only borderline epochs.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-xs text-slate-500 flex justify-between border-t border-slate-800/80 pt-3">
+        <span>Hardware Target: 2-Sensor Wearable Headband (Fpz-Cz + EOG)</span>
+        <span>Expected Calibration Error (ECE) = 0.029</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 5 -->
+    <section class="slide" data-slide="5" data-time="3:15 – 4:05 | 50s">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-teal-400 font-semibold text-xs tracking-widest uppercase">Tier 2 AI Model</span>
+          <h1 class="text-3xl font-extrabold text-white mt-1">Continuous Sleep Depth (SDI) & 96-Feature Engine</h1>
+          <p class="text-slate-400 text-sm mt-0.5">Transcending 5 discrete steps into continuous neurobiological synchronization</p>
+        </div>
+        <div class="text-right">
+          <span class="text-xs font-mono text-cyan-400 bg-cyan-950/40 border border-cyan-800/60 px-3 py-1 rounded-full">Slide 5 of 9 • 3:15–4:05</span>
+        </div>
+      </div>
+
+      <div class="my-auto space-y-5">
+        <div class="card p-5 border-l-4 border-cyan-500">
+          <div class="flex items-center justify-between mb-2">
+            <h2 class="text-cyan-400 font-bold text-base">SDI Transformer Network (Zhou et al., npj Digital Medicine 2025)</h2>
+            <span class="text-xs font-mono bg-cyan-950 text-cyan-300 px-2 py-0.5 rounded border border-cyan-800">Zero-Shot Transformer</span>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Computes a continuous <strong class="text-white">Sleep Depth Index ($0.0 \to 1.0$)</strong> per 30-s epoch. Unlike discrete AASM staging, SDI quantifies gradual micro-arousals, sleep debt dissipation, and cyclic alternating patterns (CAP).
+          </p>
+          <div class="grid grid-cols-5 gap-3 mt-3 text-center text-xs font-mono">
+            <div class="bg-slate-900/80 p-2 rounded border border-slate-800">
+              <span class="text-slate-400 block text-[10px]">RB</span>
+              <span class="text-amber-400 font-bold">SDI &lt; 0.20</span>
+              <span class="text-slate-500 block text-[9px]">Shallow burden</span>
+            </div>
+            <div class="bg-slate-900/80 p-2 rounded border border-slate-800">
+              <span class="text-slate-400 block text-[10px]">AP</span>
+              <span class="text-teal-400 font-bold">Mean SDI</span>
+              <span class="text-slate-500 block text-[9px]">Average depth</span>
+            </div>
+            <div class="bg-slate-900/80 p-2 rounded border border-slate-800">
+              <span class="text-slate-400 block text-[10px]">CV</span>
+              <span class="text-slate-300 font-bold">SD / Mean</span>
+              <span class="text-slate-500 block text-[9px]">Instability</span>
+            </div>
+            <div class="bg-slate-900/80 p-2 rounded border border-slate-800">
+              <span class="text-slate-400 block text-[10px]">MDR</span>
+              <span class="text-cyan-400 font-bold">REM Depth</span>
+              <span class="text-slate-500 block text-[9px]">Mean in REM</span>
+            </div>
+            <div class="bg-slate-900/80 p-2 rounded border border-slate-800">
+              <span class="text-slate-400 block text-[10px]">PR</span>
+              <span class="text-purple-400 font-bold">REM Share</span>
+              <span class="text-slate-500 block text-[9px]">Model REM %</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-teal-400 font-bold text-base mb-3 flex items-center gap-2">
+            <span>📈</span> 96-Parameter Physiological Extraction Engine
+          </h2>
+          <div class="grid grid-cols-4 gap-4 text-xs">
+            <div class="bg-slate-900/60 p-3 rounded border border-slate-800">
+              <strong class="text-white block mb-1.5">Continuity & Fragmentation</strong>
+              <p class="text-slate-400 leading-relaxed">• TST, TIB, SE%<br>• SOL, WASO, REM Latency<br>• Awakening Index<br>• Sleep Fragmentation Index</p>
+            </div>
+            <div class="bg-slate-900/60 p-3 rounded border border-slate-800">
+              <strong class="text-white block mb-1.5">Architecture & Dynamics</strong>
+              <p class="text-slate-400 leading-relaxed">• Stage % (N1, N2, N3, REM)<br>• 1st vs 2nd half shifts<br>• Bout duration statistics<br>• 5x5 Markov Transition Matrix</p>
+            </div>
+            <div class="bg-slate-900/60 p-3 rounded border border-slate-800">
+              <strong class="text-white block mb-1.5">Spectral Dynamics</strong>
+              <p class="text-slate-400 leading-relaxed">• Welch Powers (δ, θ, α, σ, β)<br>• Slow Wave Activity (SWA)<br>• Spectral Entropy<br>• Permutation Entropy</p>
+            </div>
+            <div class="bg-slate-900/60 p-3 rounded border border-slate-800">
+              <strong class="text-white block mb-1.5">Microstructure & Muscle</strong>
+              <p class="text-slate-400 leading-relaxed">• YASA Spindle Density (N2)<br>• Slow Wave Amplitude & Dur<br>• EMG Submental RMS<br>• REM Muscle Atonia Ratio</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-xs text-slate-500 flex justify-between border-t border-slate-800/80 pt-3">
+        <span>Dual Perspective: Discrete 30s macro hypnogram + Continuous microstructural depth</span>
+        <span>Output: 96 clinical parameters per night</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 6 -->
+    <section class="slide" data-slide="6" data-time="4:05 – 4:55 | 50s">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-teal-400 font-semibold text-xs tracking-widest uppercase">Clinical Intelligence</span>
+          <h1 class="text-3xl font-extrabold text-white mt-1">Sleep Quality Index & Multi-Modal Scoring</h1>
+          <p class="text-slate-400 text-sm mt-0.5">Synthesizing 96 physiological parameters, continuous depth, and patient perception</p>
+        </div>
+        <div class="text-right">
+          <span class="text-xs font-mono text-cyan-400 bg-cyan-950/40 border border-cyan-800/60 px-3 py-1 rounded-full">Slide 6 of 9 • 4:05–4:55</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-8 my-auto">
+        <div class="card p-6">
+          <h2 class="text-teal-400 font-bold text-base mb-3 flex items-center justify-between">
+            <span>SleepLens Unified Sleep Score (0–100)</span>
+            <span class="text-xs font-mono bg-teal-950 text-teal-300 px-2 py-0.5 rounded border border-teal-800">Transparent Formula</span>
+          </h2>
+          <div class="space-y-2.5 text-xs">
+            <div class="flex items-center justify-between p-2 rounded bg-slate-900/80">
+              <span class="text-slate-300">Sleep Efficiency (SE%)</span>
+              <span class="font-mono text-teal-400 font-bold">Max 25 pts</span>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded bg-slate-900/80">
+              <span class="text-slate-300">Continuous Sleep Depth (Mean SDI)</span>
+              <span class="font-mono text-teal-400 font-bold">Max 25 pts</span>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded bg-slate-900/80">
+              <span class="text-slate-300">Sleep Continuity (Shift & Awakening Index)</span>
+              <span class="font-mono text-teal-400 font-bold">Max 20 pts</span>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded bg-slate-900/80">
+              <span class="text-slate-300">Deep Sleep Share (N3 % of TST)</span>
+              <span class="font-mono text-cyan-400 font-bold">Max 10 pts</span>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded bg-slate-900/80">
+              <span class="text-slate-300">REM Sleep Share (REM % of TST)</span>
+              <span class="font-mono text-cyan-400 font-bold">Max 10 pts</span>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded bg-slate-900/80">
+              <span class="text-slate-300">Sleep Onset Latency (SOL &lt; 30 min)</span>
+              <span class="font-mono text-slate-400">Max 5 pts</span>
+            </div>
+            <div class="flex items-center justify-between p-2 rounded bg-slate-900/80">
+              <span class="text-slate-300">Fragmentation Resistance (Shallow SDI &lt; 0.20)</span>
+              <span class="font-mono text-slate-400">Max 5 pts</span>
+            </div>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between text-xs font-mono">
+            <span class="text-emerald-400 font-semibold">≥80: Excellent</span>
+            <span class="text-teal-400">65–79: Good</span>
+            <span class="text-amber-400">45–64: Fair</span>
+            <span class="text-rose-400">&lt;45: Poor</span>
+          </div>
+        </div>
+
+        <div class="card p-6 flex flex-col justify-between">
+          <div>
+            <h2 class="text-cyan-400 font-bold text-base mb-3 flex items-center gap-2">
+              <span>🩺</span> Subjective-Objective Synthesis (PSQI)
+            </h2>
+            <div class="space-y-3 text-xs text-slate-300">
+              <div class="bg-slate-900/60 p-3 rounded border border-slate-800">
+                <strong class="text-white block mb-1">Standardized PSQI Integration:</strong>
+                <p class="text-slate-400 leading-relaxed">Includes all 7 clinical components (0–21 global score). Compares patient perception directly against objective EEG data.</p>
+              </div>
+              <div class="bg-slate-900/60 p-3 rounded border border-slate-800">
+                <strong class="text-amber-400 block mb-1">Sleep State Misperception Detection:</strong>
+                <p class="text-slate-400 leading-relaxed">Identifies paradoxical insomnia: high subjective distress (PSQI &gt; 12) despite objective normal sleep architecture (SE &gt; 85%, deep N3 intact).</p>
+              </div>
+              <div class="bg-slate-900/60 p-3 rounded border border-slate-800">
+                <strong class="text-teal-400 block mb-1">Automated Clinical Narrative:</strong>
+                <p class="text-slate-400 leading-relaxed">LLM-powered report generator (<code class="text-slate-200">gpt-6-luna</code>) synthesizes all 96 metrics into formatted clinical findings ready for physician sign-off.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-xs text-slate-500 flex justify-between border-t border-slate-800/80 pt-3">
+        <span>Clinical Utility: Converts 96 engineering parameters into intuitive patient scoring</span>
+        <span>Transparent, non-black-box composition</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 7 -->
+    <section class="slide" data-slide="7" data-time="4:55 – 5:45 | 50s">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-teal-400 font-semibold text-xs tracking-widest uppercase">System Design</span>
+          <h1 class="text-3xl font-extrabold text-white mt-1">End-to-End System Architecture & Data Flow</h1>
+          <p class="text-slate-400 text-sm mt-0.5">Scalable decoupled asynchronous processing pipeline from raw EDF to diagnostic report</p>
+        </div>
+        <div class="text-right">
+          <span class="text-xs font-mono text-cyan-400 bg-cyan-950/40 border border-cyan-800/60 px-3 py-1 rounded-full">Slide 7 of 9 • 4:55–5:45</span>
+        </div>
+      </div>
+
+      <div class="my-auto space-y-6">
+        <!-- Flow Steps -->
+        <div class="grid grid-cols-4 gap-4">
+          <div class="card p-4 border-t-2 border-teal-500">
+            <span class="text-teal-400 font-mono text-xs font-bold block mb-1">01 • UPLOAD & AUTH</span>
+            <p class="text-xs text-slate-300">• Drag & drop EDF (≤500 MB)<br>• Optional 7-part PSQI form<br>• Patient metadata link<br>• JWT httpOnly security</p>
+          </div>
+          <div class="card p-4 border-t-2 border-cyan-500">
+            <span class="text-cyan-400 font-mono text-xs font-bold block mb-1">02 • SIGNAL PIPELINE</span>
+            <p class="text-xs text-slate-300">• Canonical 100 Hz resample<br>• Lights-off windowing<br>• Channel QC & alignment<br>• Celery async worker queue</p>
+          </div>
+          <div class="card p-4 border-t-2 border-blue-500">
+            <span class="text-blue-400 font-mono text-xs font-bold block mb-1">03 • DUAL AI ENGINES</span>
+            <p class="text-xs text-slate-300">• <strong class="text-white">Tier 1:</strong> 4-Model Ensemble (30s staging + confidence)<br>• <strong class="text-white">Tier 2:</strong> SDI Transformer (continuous depth 0–1)</p>
+          </div>
+          <div class="card p-4 border-t-2 border-emerald-500">
+            <span class="text-emerald-400 font-mono text-xs font-bold block mb-1">04 • CLINICAL PLATFORM</span>
+            <p class="text-xs text-slate-300">• SleepLens Score (0–100)<br>• 96-parameter feature engine<br>• Automated LLM report<br>• OpenCode consultation chat</p>
+          </div>
+        </div>
+
+        <!-- Architecture Stack -->
+        <div class="card p-5 bg-slate-900/90 border border-slate-800">
+          <h2 class="text-white font-bold text-sm mb-3 flex items-center justify-between">
+            <span>Production Technology Stack</span>
+            <span class="text-xs text-slate-400 font-normal">Fully containerized (Docker & Compose)</span>
+          </h2>
+          <div class="grid grid-cols-4 gap-4 text-xs font-mono">
+            <div class="p-2.5 rounded bg-slate-800/80 border border-slate-700">
+              <span class="text-teal-400 font-bold block">Frontend UI</span>
+              <span class="text-slate-300 text-[11px]">Next.js 14, TypeScript, Tailwind CSS, Zustand, React Query</span>
+            </div>
+            <div class="p-2.5 rounded bg-slate-800/80 border border-slate-700">
+              <span class="text-cyan-400 font-bold block">Backend Core</span>
+              <span class="text-slate-300 text-[11px]">Django REST Framework, PostgreSQL, Celery, Redis Broker</span>
+            </div>
+            <div class="p-2.5 rounded bg-slate-800/80 border border-slate-700">
+              <span class="text-blue-400 font-bold block">Machine Learning</span>
+              <span class="text-slate-300 text-[11px]">PyTorch, MNE-Python, LightGBM, YASA, SciPy Signals</span>
+            </div>
+            <div class="p-2.5 rounded bg-slate-800/80 border border-slate-700">
+              <span class="text-emerald-400 font-bold block">AI Intelligence</span>
+              <span class="text-slate-300 text-[11px]">gpt-6-luna (reports), OpenCode local agent (consultation)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-xs text-slate-500 flex justify-between border-t border-slate-800/80 pt-3">
+        <span>Decoupled architecture: ML workers never block web tier API requests</span>
+        <span>Average end-to-end processing: &lt; 35 seconds on 8-core CPU</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 8 -->
+    <section class="slide" data-slide="8" data-time="5:45 – 6:30 | 45s">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-teal-400 font-semibold text-xs tracking-widest uppercase">The Product</span>
+          <h1 class="text-3xl font-extrabold text-white mt-1">Clinical Web Application (SleepLens UI/UX)</h1>
+          <p class="text-slate-400 text-sm mt-0.5">Comprehensive diagnostic cockpit built specifically for sleep physicians and technologists</p>
+        </div>
+        <div class="text-right">
+          <span class="text-xs font-mono text-cyan-400 bg-cyan-950/40 border border-cyan-800/60 px-3 py-1 rounded-full">Slide 8 of 9 • 5:45–6:30</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-6 my-auto">
+        <div class="card p-5 border-l-2 border-teal-500">
+          <h2 class="text-teal-400 font-bold text-sm mb-2 flex items-center gap-1.5">
+            <span>🎯</span> SleepLens ScoreCard & Core KPIs
+          </h2>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            • <strong class="text-white">Unified Score Gauge (0–100)</strong> with 7-part breakdown.<br>
+            • <strong class="text-white">Clinical KPIs:</strong> TST (412.5 min), Sleep Efficiency (88.4%), SOL (14.0 min), WASO (38.5 min), REM Latency (78.0 min), Staging Confidence (91.2%).
+          </p>
+        </div>
+
+        <div class="card p-5 border-l-2 border-cyan-500">
+          <h2 class="text-cyan-400 font-bold text-sm mb-2 flex items-center gap-1.5">
+            <span>📊</span> Interactive Hypnogram & Confidence Bands
+          </h2>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            • Synchronized 30-s stage timeline (Wake, REM, N1, N2, N3).<br>
+            • Confidence overlay: High (≥80%), Medium (≥60%), Low (&lt;60%).<br>
+            • <strong class="text-amber-400">One-click review flags</strong> for borderline epochs requiring human check.
+          </p>
+        </div>
+
+        <div class="card p-5 border-l-2 border-blue-500">
+          <h2 class="text-blue-400 font-bold text-sm mb-2 flex items-center gap-1.5">
+            <span>📈</span> SDI Sleep Depth Curve & Raw Signal Explorer
+          </h2>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            • <strong class="text-white">Continuous 0–1 Depth Waveform:</strong> Highlights cortical synchronization dips.<br>
+            • <strong class="text-white">Signals Explorer:</strong> Zero-latency raw microvolt inspection for any 30-second epoch (Fpz-Cz, Pz-Oz, EOG, EMG).
+          </p>
+        </div>
+
+        <div class="card p-5 border-l-2 border-emerald-500">
+          <h2 class="text-emerald-400 font-bold text-sm mb-2 flex items-center gap-1.5">
+            <span>💬</span> Automated AI Report & Consultation Assistant
+          </h2>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            • <strong class="text-white">Clinical Narrative:</strong> LLM-generated report formatted in Markdown with clinician sign-off.<br>
+            • <strong class="text-white">OpenCode Assistant:</strong> In-session interactive chat answering study-specific questions grounded in patient data.
+          </p>
+        </div>
+      </div>
+
+      <div class="text-xs text-slate-500 flex justify-between border-t border-slate-800/80 pt-3">
+        <span>Responsive Next.js Frontend • Modern Slate & Teal Medical Theme</span>
+        <span>Reduces clinician visual scoring time by &gt;85%</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 9 -->
+    <section class="slide" data-slide="9" data-time="6:30 – 7:00 | 30s">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-teal-400 font-semibold text-xs tracking-widest uppercase">Conclusion & Impact</span>
+          <h1 class="text-3xl font-extrabold text-white mt-1">Deployment Performance & Future Roadmap</h1>
+          <p class="text-slate-400 text-sm mt-0.5">Real-world speed benchmarks, clinical impact, and wearable translation</p>
+        </div>
+        <div class="text-right">
+          <span class="text-xs font-mono text-cyan-400 bg-cyan-950/40 border border-cyan-800/60 px-3 py-1 rounded-full">Slide 9 of 9 • 6:30–7:00</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-8 my-auto">
+        <div class="card p-6">
+          <h2 class="text-teal-400 font-bold text-base mb-3 flex items-center gap-2">
+            <span>⚡</span> CPU Speed Benchmarks (8-Core CPU, No GPU)
+          </h2>
+          <div class="space-y-3 text-xs">
+            <div class="flex justify-between p-2 rounded bg-slate-900/80 border border-slate-800">
+              <span class="text-slate-300">Single Epoch Inference</span>
+              <span class="font-mono text-teal-400 font-bold">3.7–4.7 ms (×6,400 real-time)</span>
+            </div>
+            <div class="flex justify-between p-2 rounded bg-slate-900/80 border border-slate-800">
+              <span class="text-slate-300">Full 22-Hour Night PSG (2,650 ep)</span>
+              <span class="font-mono text-cyan-400 font-bold">12.5 seconds (Ensemble)</span>
+            </div>
+            <div class="flex justify-between p-2 rounded bg-slate-900/80 border border-slate-800">
+              <span class="text-slate-300">Continuous SDI Depth Inference</span>
+              <span class="font-mono text-slate-300 font-bold">8.2 seconds</span>
+            </div>
+            <div class="flex justify-between p-2 rounded bg-slate-900/80 border border-slate-800">
+              <span class="text-slate-300">96-Parameter Extraction (Welch+YASA)</span>
+              <span class="font-mono text-slate-300 font-bold">9.8 seconds</span>
+            </div>
+            <div class="flex justify-between p-2.5 rounded bg-teal-950/40 border border-teal-700/60 font-semibold text-white">
+              <span>Total Pipeline Turnaround</span>
+              <span class="font-mono text-teal-300 font-extrabold">&lt; 35 seconds per night!</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card p-6 flex flex-col justify-between">
+          <div>
+            <h2 class="text-cyan-400 font-bold text-base mb-3 flex items-center gap-2">
+              <span>🚀</span> Translational Roadmap
+            </h2>
+            <div class="space-y-3 text-xs text-slate-300">
+              <div class="bg-slate-900/60 p-2.5 rounded border border-slate-800">
+                <strong class="text-white block mb-0.5">1. Wearable Surrogate Integration:</strong>
+                <p class="text-slate-400 text-[11px]">Deploying our trained ResUNet and WatchSleepNet models for wrist-worn actigraphy without any EEG leads.</p>
+              </div>
+              <div class="bg-slate-900/60 p-2.5 rounded border border-slate-800">
+                <strong class="text-white block mb-0.5">2. Formal Apnea & Movement Scoring:</strong>
+                <p class="text-slate-400 text-[11px]">Upgrading the proxy detectors to clinical AASM Apnea-Hypopnea Index (AHI) and PLMD scoring.</p>
+              </div>
+              <div class="bg-slate-900/60 p-2.5 rounded border border-slate-800">
+                <strong class="text-white block mb-0.5">3. Multi-Center Clinical Validation:</strong>
+                <p class="text-slate-400 text-[11px]">Validation across Sleep Heart Health Study (SHHS) and neurological disorder cohorts (Parkinson's RBD).</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-xs text-slate-500 flex justify-between border-t border-slate-800/80 pt-3">
+        <span>SleepLens: Delivering Clinical Precision with Real-Time Efficiency</span>
+        <span>Thank you! Questions & Discussion</span>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Bottom Bar: Navigation Controls -->
+  <footer class="fixed bottom-0 left-0 right-0 h-11 bg-slate-900/90 backdrop-blur border-t border-slate-800 flex items-center justify-between px-8 text-xs font-mono text-slate-400 z-50">
+    <div class="flex items-center gap-2">
+      <button onclick="prevSlide()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded border border-slate-700">◀ Prev</button>
+      <button onclick="nextSlide()" class="px-2.5 py-1 bg-teal-600 hover:bg-teal-500 text-white font-semibold rounded">Next ▶</button>
+      <span class="ml-2 text-slate-500">Slide <span id="current-slide-num" class="text-slate-200 font-bold">1</span> / 9</span>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="w-1/3 bg-slate-800 h-1.5 rounded-full overflow-hidden">
+      <div id="progress-bar" class="bg-teal-500 h-full w-[11.1%] transition-all duration-300"></div>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <span id="slide-timing" class="text-cyan-400 font-semibold">0:00 – 0:45 | 45s</span>
+    </div>
+  </footer>
+
+  <!-- Speaker Notes Drawer (Toggled with 'S' key or button) -->
+  <aside id="notes-drawer" class="fixed right-0 top-14 bottom-11 w-96 bg-slate-900/95 backdrop-blur border-l border-slate-800 p-6 z-40 transform translate-x-full transition-transform duration-300 flex flex-col justify-between shadow-2xl">
+    <div>
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+        <h3 class="font-bold text-white text-sm flex items-center gap-1.5">
+          <span>📝</span> Speaker Notes (Presenter)
+        </h3>
+        <button onclick="toggleNotes()" class="text-slate-500 hover:text-white text-xs">✕</button>
+      </div>
+      <div id="notes-target-time" class="text-xs font-mono text-teal-400 bg-teal-950/40 p-2 rounded border border-teal-800 mb-4">
+        Target: 0:00 – 0:45 (45s)
+      </div>
+      <div id="notes-content" class="text-xs text-slate-300 leading-relaxed space-y-2">
+        <!-- Injected dynamically -->
+      </div>
+    </div>
+    <div class="text-[10px] text-slate-500 border-t border-slate-800 pt-3">
+      Tip: Press <kbd class="px-1 py-0.5 bg-slate-800 rounded text-slate-300 border border-slate-700">Space</kbd> or <kbd class="px-1 py-0.5 bg-slate-800 rounded text-slate-300 border border-slate-700">→</kbd> to advance slide.
+    </div>
+  </aside>
+
+  <script>
+    const speakerNotes = {
+      1: "Target: 0:00 - 0:45 (45s)\n\nGood morning. Today we present SleepLens, an end-to-end clinical AI platform designed to transform sleep diagnostics. Polysomnography is gold standard, yet analyzing 8 hours of multichannel PSG takes hours of tedious manual scoring and collapses complex neurobiology into 5 discrete stages. SleepLens solves this with a two-tiered AI system: an ensemble staging model with calibrated uncertainty, and a continuous sleep depth transformer with a 96-feature phenotyping engine, deployed in a production-ready clinical web application.",
+      2: "Target: 0:45 - 1:30 (45s)\n\nTo ensure clinical validity, we used the full Sleep-EDF Expanded dataset across all 197 nights and nearly 238,000 epochs. Unlike many published papers that suffer from subject leakage, we enforced a strict subject-atomic 5-fold cross-validation scheme. We evaluated both cohorts: ambulatory cassette and clinical telemetry. Every recording is harmonized to 100 Hz, with standardized electrode alignments and automated lights-off windowing to ensure fair, reproducible benchmarking.",
+      3: "Target: 1:30 - 2:25 (55s)\n\nFor sleep stage classification, we systematically benchmarked 25+ configurations. Classical heuristics like YASA struggle severely on N1 sleep at only 0.10 F1. Deep neural models like AnySleep perform exceptionally at 0.8267. Our winning system, E19, is a 4-member fold-honest ensemble combining AnySleep 3-channel, AnySleep 2-channel, U-Sleep CSDP, and our engineered LightGBM model. It reached 0.8425 Macro-F1 with a Cohen's Kappa of 0.831. Crucially, the weak LightGBM model improved the ensemble by introducing non-redundant spectral feature diversity.",
+      4: "Target: 2:25 - 3:15 (50s)\n\nTwo practical questions: Can we run this on a minimal home device, and is the model interpretable? Our ablation proved that a two-sensor setup—one frontal EEG and one EOG—achieves 0.8227 F1, losing only 0.004 compared to three channels while actually improving REM detection. Deep skip-layer attention reveals the network dynamically shifts attention to posterior alpha in Wake, slow waves in N3, and surges to 52% EOG attention during REM. Finally, our confidence calibration is monotonic: epochs above 90% confidence are 99.5% accurate, enabling intelligent human-in-the-loop triage.",
+      5: "Target: 3:15 - 4:05 (50s)\n\nIn Tier 2, we transcend discrete 5-stage hypnograms. We implement the Sleep Depth Index Transformer from Zhou et al., published in npj Digital Medicine 2025. This computes a continuous 0.0 to 1.0 sleep depth score for every epoch, capturing micro-arousals and depth dynamics that discrete staging obscures. In tandem, our feature extraction engine computes ~96 clinical parameters per night: sleep continuity, 5x5 Markov transition matrices, spectral bandpowers, and microstructural events like YASA sleep spindle density and REM muscle atonia ratios.",
+      6: "Target: 4:05 - 4:55 (50s)\n\nTo synthesize these complex metrics into an actionable patient indicator, we designed the SleepLens Unified Sleep Score. Rather than an uninterpretable black-box score, it is a transparent 100-point scale: 25% sleep efficiency, 25% continuous depth, 20% continuity, and the remainder distributed across N3 deep sleep, REM, latency, and fragmentation. We also incorporate the standardized 7-component PSQI questionnaire. By contrasting subjective perception against objective PSG signals, SleepLens can flag paradoxical insomnia and feeds all metrics into an automated clinical reporting engine.",
+      7: "Target: 4:55 - 5:45 (50s)\n\nHere is our production system architecture. A clinician uploads an EDF file and optional PSQI through the Next.js web application. The Django REST backend sanitizes the upload and delegates heavy computation to Celery workers backed by Redis. Signals are canonically harmonized to 100 Hz, passed in parallel through both AI tiers—the 4-model staging ensemble and the SDI transformer—and combined with the 96-feature engine. Results are indexed in PostgreSQL and rendered back to the clinician with an LLM clinical report and an OpenCode consultation assistant.",
+      8: "Target: 5:45 - 6:30 (45s)\n\nThis slide showcases the clinician interface. The dashboard presents the SleepLens Score and core KPIs at a glance. Below, the interactive hypnogram is coupled with real-time confidence tracking, highlighting exactly which epochs need human verification. Clinicians can view continuous sleep depth, open the raw signal viewer to inspect EEG microvolts for any 30-second epoch, review the AI-drafted diagnostic report, or ask questions in the OpenCode consultation chat. It reduces scoring overhead from 90 minutes down to a quick verification.",
+      9: "Target: 6:30 - 7:00 (30s)\n\nIn summary, SleepLens delivers state-of-the-art staging accuracy of 0.8425 F1 and 0.831 Kappa, with a complete turnaround time under 35 seconds on standard CPU hardware. By uniting discrete stage classification, continuous depth modeling, and automated clinical reporting, we cut physician scoring time by over 85% while providing unprecedented diagnostic depth. Our minimal two-sensor finding also enables accurate home wearable monitoring. SleepLens bridges machine learning with the daily realities of clinical sleep medicine. Thank you."
+    };
+
+    let currentSlide = 1;
+    const totalSlides = 9;
+    const slides = document.querySelectorAll('.slide');
+    const dotsContainer = document.getElementById('slide-dots');
+
+    // Create navigation dots
+    for (let i = 1; i <= totalSlides; i++) {
+      const dot = document.createElement('button');
+      dot.className = `h-2 rounded-full transition-all duration-300 ${i === 1 ? 'w-6 bg-teal-400' : 'w-2 bg-slate-700 hover:bg-slate-500'}`;
+      dot.title = `Go to Slide ${i}`;
+      dot.onclick = () => goToSlide(i);
+      dotsContainer.appendChild(dot);
+    }
+
+    function updateSlide() {
+      slides.forEach((s, idx) => {
+        if (idx + 1 === currentSlide) {
+          s.classList.add('active');
+        } else {
+          s.classList.remove('active');
+        }
+      });
+
+      // Update dots
+      const dots = dotsContainer.children;
+      for (let i = 0; i < dots.length; i++) {
+        if (i + 1 === currentSlide) {
+          dots[i].className = 'h-2 w-6 bg-teal-400 rounded-full transition-all duration-300';
+        } else {
+          dots[i].className = 'h-2 w-2 bg-slate-700 hover:bg-slate-500 rounded-full transition-all duration-300';
+        }
+      }
+
+      // Update counters & progress
+      document.getElementById('current-slide-num').innerText = currentSlide;
+      document.getElementById('progress-bar').style.width = `${(currentSlide / totalSlides) * 100}%`;
+      const activeSlideElem = document.querySelector(`.slide[data-slide="${currentSlide}"]`);
+      document.getElementById('slide-timing').innerText = activeSlideElem.getAttribute('data-time') || '';
+
+      // Update Notes
+      const notes = speakerNotes[currentSlide] || "No notes for this slide.";
+      const lines = notes.split('\n\n');
+      document.getElementById('notes-target-time').innerText = lines[0] || '';
+      document.getElementById('notes-content').innerText = lines.slice(1).join('\n\n');
+    }
+
+    function goToSlide(n) {
+      if (n >= 1 && n <= totalSlides) {
+        currentSlide = n;
+        updateSlide();
+      }
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides) {
+        currentSlide++;
+        updateSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 1) {
+        currentSlide--;
+        updateSlide();
+      }
+    }
+
+    // Keyboard navigation
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        prevSlide();
+      } else if (e.key === 'f' || e.key === 'F') {
+        toggleFullscreen();
+      } else if (e.key === 's' || e.key === 'S') {
+        toggleNotes();
+      } else if (e.key === 't' || e.key === 'T') {
+        toggleTimer();
+      }
+    });
+
+    // Notes toggle
+    let notesOpen = false;
+    function toggleNotes() {
+      notesOpen = !notesOpen;
+      const drawer = document.getElementById('notes-drawer');
+      if (notesOpen) {
+        drawer.classList.remove('translate-x-full');
+      } else {
+        drawer.classList.add('translate-x-full');
+      }
+    }
+
+    // Fullscreen toggle
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+
+    // Presentation Timer
+    let timerRunning = false;
+    let timerSeconds = 0;
+    let timerInterval = null;
+
+    function toggleTimer() {
+      timerRunning = !timerRunning;
+      const btn = document.getElementById('timer-btn');
+      if (timerRunning) {
+        btn.innerText = '⏸';
+        timerInterval = setInterval(() => {
+          timerSeconds++;
+          const mins = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
+          const secs = String(timerSeconds % 60).padStart(2, '0');
+          const display = document.getElementById('timer-display');
+          display.innerText = `${mins}:${secs}`;
+          if (timerSeconds > 420) {
+            display.classList.remove('text-teal-400');
+            display.classList.add('text-rose-400');
+          }
+        }, 1000);
+      } else {
+        btn.innerText = '▶';
+        clearInterval(timerInterval);
+      }
+    }
+
+    // Init first slide
+    updateSlide();
+  </script>
+</body>
+</html>
